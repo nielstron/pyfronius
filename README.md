@@ -9,4 +9,4 @@ The api can be enlarged based on the official
  pull requests are very welcome.
 
 I also know there are better scripts, yet they are not on pypi which is necessary
-for using them with (Home Assistant)[https://www.home-assistant.io]
+for using them with [Home Assistant](https://www.home-assistant.io)
