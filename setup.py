@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # To use a consistent encoding
 from codecs import open
@@ -19,6 +19,7 @@ setup(name='PyFronius',
       author_email='n.muendler@web.de, mail@gerritbeine.de',
       url='https://github.com/nielstron/pyfronius/',
       py_modules=['pyfronius'],
+      packages = find_packages(),
       requires=[
           'json',
           'aiohttp',

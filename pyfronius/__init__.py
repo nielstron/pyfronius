@@ -185,8 +185,6 @@ class Fronius:
         res = yield from self._fetch_json(URL_DEVICE_STORAGE.format(self.protocol, self.host, device))
         _LOGGER.debug(res)
 
-        controller = res['Body']['Data']['Controller'] # shortcut
-        modules = res['Body']['Data']['Modules'] # shortcut
 
         sensor = { }
         
@@ -194,69 +192,76 @@ class Fronius:
         sensor['status'] = res['Head']['Status']
         sensor['modules'] = { }
 
-        if "Capacity_Maximum" in controller:
-            sensor['capacity_maximum'] = { 'value': controller['Capacity_Maximum'], 'unit': "Ah" }
-        if "DesignedCapacity" in controller:
-            sensor['capacity_designed'] = { 'value': controller['DesignedCapacity'], 'unit': "Ah" }
-        if "Current_DC" in controller:
-            sensor['current_dc'] = { 'value': controller['Current_DC'], 'unit': "A" }
-        if "Voltage_DC" in controller:
-            sensor['voltage_dc'] = { 'value': controller['Voltage_DC'], 'unit': "V" }
-        if "Voltage_DC_Maximum_Cell" in controller:
-            sensor['voltage_dc_maximum_cell'] = { 'value': controller['Voltage_DC_Maximum_Cell'], 'unit': "V" }
-        if "Voltage_DC_Minimum_Cell" in controller:
-            sensor['voltage_dc_minimum_cell'] = { 'value': controller['Voltage_DC_Minimum_Cell'], 'unit': "V" }
-        if "StateOfCharge_Relative" in controller:
-            sensor['state_of_charge'] = { 'value': controller['StateOfCharge_Relative'], 'unit': "%" }
-        if "Temperature_Cell" in controller:
-            sensor['temperature_cell'] = { 'value': controller['Temperature_Cell'], 'unit': "C" }
-        if "Enable" in controller:
-            sensor['enable'] = { 'value': controller['Enable'] }
-        if "Details" in controller:
-            sensor['manufacturer'] = { 'value': controller['Details']['Manufacturer'] }
-            sensor['model'] = { 'value': controller['Details']['Model'] }
-            sensor['serial'] = { 'value': controller['Details']['Serial'] }
+        if 'Controller' in res['Body']['Data']:
 
-        module_count = 0;
+            controller = res['Body']['Data']['Controller'] # shortcut
 
-        for data in modules:
-            _LOGGER.debug(data)
-            module = { }
+            if "Capacity_Maximum" in controller:
+                sensor['capacity_maximum'] = { 'value': controller['Capacity_Maximum'], 'unit': "Ah" }
+            if "DesignedCapacity" in controller:
+                sensor['capacity_designed'] = { 'value': controller['DesignedCapacity'], 'unit': "Ah" }
+            if "Current_DC" in controller:
+                sensor['current_dc'] = { 'value': controller['Current_DC'], 'unit': "A" }
+            if "Voltage_DC" in controller:
+                sensor['voltage_dc'] = { 'value': controller['Voltage_DC'], 'unit': "V" }
+            if "Voltage_DC_Maximum_Cell" in controller:
+                sensor['voltage_dc_maximum_cell'] = { 'value': controller['Voltage_DC_Maximum_Cell'], 'unit': "V" }
+            if "Voltage_DC_Minimum_Cell" in controller:
+                sensor['voltage_dc_minimum_cell'] = { 'value': controller['Voltage_DC_Minimum_Cell'], 'unit': "V" }
+            if "StateOfCharge_Relative" in controller:
+                sensor['state_of_charge'] = { 'value': controller['StateOfCharge_Relative'], 'unit': "%" }
+            if "Temperature_Cell" in controller:
+                sensor['temperature_cell'] = { 'value': controller['Temperature_Cell'], 'unit': "C" }
+            if "Enable" in controller:
+                sensor['enable'] = { 'value': controller['Enable'] }
+            if "Details" in controller:
+                sensor['manufacturer'] = { 'value': controller['Details']['Manufacturer'] }
+                sensor['model'] = { 'value': controller['Details']['Model'] }
+                sensor['serial'] = { 'value': controller['Details']['Serial'] }
+
+        if 'Modules' in res['Body']['Data']:
+
+            modules = res['Body']['Data']['Modules'] # shortcut
+            module_count = 0;
+
+            for data in modules:
+                _LOGGER.debug(data)
+                module = { }
             
-            if "Capacity_Maximum" in data:
-                module['capacity_maximum'] = { 'value': data['Capacity_Maximum'], 'unit': "Ah" }
-            if "DesignedCapacity" in data:
-                module['capacity_designed'] = { 'value': data['DesignedCapacity'], 'unit': "Ah" }
-            if "Current_DC" in data:
-                module['current_dc'] = { 'value': data['Current_DC'], 'unit': "A" }
-            if "Voltage_DC" in data:
-                module['voltage_dc'] = { 'value': data['Voltage_DC'], 'unit': "V" }
-            if "Voltage_DC_Maximum_Cell" in data:
-                module['voltage_dc_maximum_cell'] = { 'value': data['Voltage_DC_Maximum_Cell'], 'unit': "V" }
-            if "Voltage_DC_Minimum_Cell" in data:
-                module['voltage_dc_minimum_cell'] = { 'value': data['Voltage_DC_Minimum_Cell'], 'unit': "V" }
-            if "StateOfCharge_Relative" in data:
-                module['state_of_charge'] = { 'value': data['StateOfCharge_Relative'], 'unit': "%" }
-            if "Temperature_Cell" in data:
-                module['temperature_cell'] = { 'value': data['Temperature_Cell'], 'unit': "C" }
-            if "Temperature_Cell_Maximum" in data:
-                module['temperature_cell_maximum'] = { 'value': data['Temperature_Cell_Maximum'], 'unit': "C" }
-            if "Temperature_Cell_Minimum" in data:
-                module['temperature_cell_minimum'] = { 'value': data['Temperature_Cell_Minimum'], 'unit': "C" }
-            if "CycleCount_BatteryCell" in data:
-                module['cycle_count_cell'] = { 'value': data['CycleCount_BatteryCell'] }
-            if "Status_BatteryCell" in data:
-                module['status_cell'] = { 'value': data['Status_BatteryCell'] }
-            if "Enable" in data:
-                module['enable'] = { 'value': data['Enable'] }
-            if "Details" in data:
-                module['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
-                module['model'] = { 'value': data['Details']['Model'] }
-                module['serial'] = { 'value': data['Details']['Serial'] }
+                if "Capacity_Maximum" in data:
+                    module['capacity_maximum'] = { 'value': data['Capacity_Maximum'], 'unit': "Ah" }
+                if "DesignedCapacity" in data:
+                    module['capacity_designed'] = { 'value': data['DesignedCapacity'], 'unit': "Ah" }
+                if "Current_DC" in data:
+                    module['current_dc'] = { 'value': data['Current_DC'], 'unit': "A" }
+                if "Voltage_DC" in data:
+                    module['voltage_dc'] = { 'value': data['Voltage_DC'], 'unit': "V" }
+                if "Voltage_DC_Maximum_Cell" in data:
+                    module['voltage_dc_maximum_cell'] = { 'value': data['Voltage_DC_Maximum_Cell'], 'unit': "V" }
+                if "Voltage_DC_Minimum_Cell" in data:
+                    module['voltage_dc_minimum_cell'] = { 'value': data['Voltage_DC_Minimum_Cell'], 'unit': "V" }
+                if "StateOfCharge_Relative" in data:
+                    module['state_of_charge'] = { 'value': data['StateOfCharge_Relative'], 'unit': "%" }
+                if "Temperature_Cell" in data:
+                    module['temperature_cell'] = { 'value': data['Temperature_Cell'], 'unit': "C" }
+                if "Temperature_Cell_Maximum" in data:
+                    module['temperature_cell_maximum'] = { 'value': data['Temperature_Cell_Maximum'], 'unit': "C" }
+                if "Temperature_Cell_Minimum" in data:
+                    module['temperature_cell_minimum'] = { 'value': data['Temperature_Cell_Minimum'], 'unit': "C" }
+                if "CycleCount_BatteryCell" in data:
+                    module['cycle_count_cell'] = { 'value': data['CycleCount_BatteryCell'] }
+                if "Status_BatteryCell" in data:
+                    module['status_cell'] = { 'value': data['Status_BatteryCell'] }
+                if "Enable" in data:
+                    module['enable'] = { 'value': data['Enable'] }
+                if "Details" in data:
+                    module['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
+                    module['model'] = { 'value': data['Details']['Model'] }
+                    module['serial'] = { 'value': data['Details']['Serial'] }
                 
-            sensor['modules'][module_count] = module
+                sensor['modules'][module_count] = module
             
-            module_count += 1
+                module_count += 1
 
         return sensor
 
