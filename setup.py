@@ -13,16 +13,17 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='PyFronius',
-      version='0.1',
+      version='0.2',
       description='Automated JSON API based communication with Fronius Symo',
-      author='Niels Mündler',
-      author_email='n.muendler@web.de',
+      author='Niels Mündler, Gerrit Beine',
+      author_email='n.muendler@web.de, mail@gerritbeine.de',
       url='https://github.com/nielstron/pyfronius/',
       py_modules=['pyfronius'],
-      requires= [
+      requires=[
           'json',
-          'requests'
-          ],
+          'aiohttp',
+          'logging',
+        ],
       long_description=long_description,
       license='MIT',
       classifiers=[
@@ -38,6 +39,6 @@ setup(name='PyFronius',
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3.6'
         ],
-      keywords='python fronius json api solar photovoltaic pv',
+      keywords='python fronius json api solar photovoltaics pv',
       python_requires='>=3',
      )

@@ -4,6 +4,13 @@ A package that connects to a Fronius Symo device in the local network and provid
 that is provided via the JSON API of the Fronius Symo.
 It is able to read the system and photovoltaic status.
 
+The package supports the following data provided by fronius devices:
+
+Power Flow (System)
+Meter (System and Device Scope)
+Inverter (System and Device Scope)
+Storage (Device Scope only) 
+
 The api can be enlarged based on the official 
 [Fronius JSON API V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf),
  pull requests are very welcome.
