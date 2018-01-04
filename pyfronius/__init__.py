@@ -40,11 +40,10 @@ class Fronius:
             self.protocol = "http"
         
     @asyncio.coroutine
-    def _fetch_json(self, url, params = None):
-        headers = {'content-type': 'application/json'}
+    def _fetch_json(self, url):
         with async_timeout.timeout(10):
-            res = yield from self._aio_session.get(url, headers=headers, params=params)
-            return (yield from res.json())
+            res = yield from self._aio_session.get(url)
+            return (yield from json.load(res))
     
     @asyncio.coroutine
     def current_power_flow(self):
