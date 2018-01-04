@@ -43,7 +43,7 @@ class Fronius:
     def _fetch_json(self, url):
         with async_timeout.timeout(10):
             res = yield from self._aio_session.get(url)
-            return (yield from json.load(res))
+            return json.load(res)
     
     @asyncio.coroutine
     def current_power_flow(self):
