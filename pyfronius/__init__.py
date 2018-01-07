@@ -40,11 +40,21 @@ class Fronius:
             self.protocol = "http"
         
     @asyncio.coroutine
-    def _fetch_json(self, url, params = None):
-        headers = {'content-type': 'application/json'}
+    def _fetch_json(self, url):
         with async_timeout.timeout(10):
-            res = yield from self._aio_session.get(url, headers=headers, params=params)
-            return (yield from res.json())
+            res = yield from self._aio_session.get(url)
+            text = yield from res.text()
+            return json.loads(text)
+
+    def _status_data(self, res):
+        _LOGGER.debug(res)
+
+        sensor = {}
+        
+        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
+        sensor['status'] = res['Head']['Status']
+
+        return sensor
     
     @asyncio.coroutine
     def current_power_flow(self):
@@ -52,15 +62,16 @@ class Fronius:
         Get the current power flow of a smart meter system.
         '''
         res = yield from self._fetch_json(URL_POWER_FLOW.format(self.protocol, self.host))
-        _LOGGER.debug(res)
+
+        sensor = self._status_data(res)
+        
+        # break if Data is empty
+        if not res['Body']['Data']:
+            _LOGGER.info("No data returned")
+            return sensor
 
         site = res['Body']['Data']['Site'] # shortcut
         inverter = res['Body']['Data']['Inverters']['1'] # shortcut
-
-        sensor = {}
-        
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
        
         if "Battery_Mode" in inverter:
             sensor['battery_mode'] = { 'value': inverter['Battery_Mode'] }
@@ -100,14 +111,15 @@ class Fronius:
         Get the current meter data.
         '''
         res = yield from self._fetch_json(URL_SYSTEM_METER.format(self.protocol, self.host))
-        _LOGGER.debug(res)
+
+        sensor = self._status_data(res)
+        
+        # break if Data is empty
+        if not res['Body']['Data']:
+            _LOGGER.info("No data returned")
+            return sensor
 
         data = res['Body']['Data'] # shortcut
-
-        sensor = {}
-        
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
 
         sensor['meters'] = { }
 
@@ -123,14 +135,16 @@ class Fronius:
         The values are provided as cumulated values and for each inverter
         '''
         res = yield from self._fetch_json(URL_SYSTEM_INVERTER.format(self.protocol, self.host))
-        _LOGGER.debug(res)
+
+        sensor = self._status_data(res)
+        
+        # break if Data is empty
+        if not res['Body']['Data']:
+            _LOGGER.info("No data returned")
+            return sensor
 
         data = res['Body']['Data'] # shortcut
 
-        sensor = {}
-        
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
         sensor['energy_day'] = { 'value': 0, 'unit': "Wh" }
         sensor['energy_total'] = { 'value': 0, 'unit': "Wh" }
         sensor['energy_year'] = { 'value': 0, 'unit': "Wh" }
@@ -164,14 +178,15 @@ class Fronius:
         Get the current meter data for a device.
         '''
         res = yield from self._fetch_json(URL_DEVICE_METER.format(self.protocol, self.host, device))
-        _LOGGER.debug(res)
+
+        sensor = self._status_data(res)
+        
+        # break if Data is empty
+        if not res['Body']['Data']:
+            _LOGGER.info("No data returned")
+            return sensor
 
         data = res['Body']['Data'] # shortcut
-
-        sensor = {}
-        
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
 
         sensor.update(self._meter_data(data))
         
@@ -183,13 +198,14 @@ class Fronius:
         Get the current storage data for a device.
         '''
         res = yield from self._fetch_json(URL_DEVICE_STORAGE.format(self.protocol, self.host, device))
-        _LOGGER.debug(res)
 
-
-        sensor = { }
+        sensor = self._status_data(res)
         
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
+        # break if Data is empty
+        if not res['Body']['Data']:
+            _LOGGER.info("No data returned")
+            return sensor
+
         sensor['modules'] = { }
 
         if 'Controller' in res['Body']['Data']:
@@ -271,14 +287,15 @@ class Fronius:
         Get the current inverter data of one device.
         '''
         res = yield from self._fetch_json(URL_DEVICE_INVERTER_COMMON.format(self.protocol, self.host, device))
-        _LOGGER.debug(res)
+
+        sensor = self._status_data(res)
+        
+        # break if Data is empty
+        if not res['Body']['Data']:
+            _LOGGER.info("No data returned")
+            return sensor
 
         data = res['Body']['Data'] # shortcut
-
-        sensor = {}
-        
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
 
         if "DAY_ENERGY" in data:
             sensor['energy_day'] = { 'value': data['DAY_ENERGY']['Value'], 'unit': data['DAY_ENERGY']['Unit'] }
