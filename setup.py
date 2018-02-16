@@ -21,7 +21,7 @@ setup(name='PyFronius',
       url='https://github.com/nielstron/pyfronius/',
       py_modules=['pyfronius'],
       packages = find_packages(),
-      requires=[
+      install_requires=[
           'json',
           'aiohttp',
           'logging',
