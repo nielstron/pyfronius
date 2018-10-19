@@ -26,6 +26,7 @@ async def main(loop, host):
         res = await fronius.current_system_inverter_data()
         print(res)
 
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     loop = asyncio.get_event_loop()
