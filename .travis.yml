@@ -19,6 +19,7 @@ install:
   - pip install -e .
 
 script:
+  - python scripts/test_import.py
   - coverage run --source=pyfronius setup.py test
 
 after_success:
