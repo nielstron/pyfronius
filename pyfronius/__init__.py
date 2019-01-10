@@ -12,14 +12,13 @@ import async_timeout
 
 _LOGGER = logging.getLogger(__name__)
 
-URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
-URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
-URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
-URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
-
+URL_POWER_FLOW = "{}://{}/solar_api/v1/GetPowerFlowRealtimeData.fcgi"
+URL_SYSTEM_METER = "{}://{}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=System"
+URL_SYSTEM_INVERTER = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=System"
+URL_DEVICE_METER = "{}://{}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
+URL_DEVICE_STORAGE = "{}://{}/solar_api/v1/GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
+URL_DEVICE_INVERTER_CUMULATIVE = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
+URL_DEVICE_INVERTER_COMMON = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
 
 class Fronius:
     '''
@@ -28,8 +27,9 @@ class Fronius:
         session     The AIO session
         host        The ip/domain of the Fronius device
         useHTTPS    Use HTTPS instead of HTTP
+        timeout     HTTP timeout in seconds
     '''
-    def __init__(self, session, host, useHTTPS = False, timeout=10):
+    def __init__(self, session, host, useHTTPS = False, timeout = 10):
         '''
         Constructor
         '''
@@ -46,54 +46,105 @@ class Fronius:
         with async_timeout.timeout(self.timeout):
             res = yield from self._aio_session.get(url)
             text = yield from res.text()
-        return json.loads(text)
+            return json.loads(text)
 
     @asyncio.coroutine
-    def _fetch_solar_api_v1(self, spec):
-        url = "{}://{}/solar_api/v1/{}".format(self.protocol, self.host, spec)
-        res = yield from self._fetch_json(url)
-        return res
-
-    @staticmethod
-    def _status_data(res):
-        _LOGGER.debug(res)
+    def _status_data(self, json):
 
         sensor = {}
         
-        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
-        sensor['status'] = res['Head']['Status']
+        sensor['timestamp'] = { 'value': json['Head']['Timestamp'] }
+        sensor['status'] = json['Head']['Status']
 
         return sensor
 
-    @staticmethod
-    def _check_body(res):
-        """
-        Checks for the existence of a key ['Body']['Data']
-        :param json:
-        :return:
-        """
-        try:
-            _ = res['Body']['Data']
-            return True
-        except (ValueError, KeyError):
-            _LOGGER.info("No data returned")
-            return False
+    @asyncio.coroutine
+    def _current_data(self, url, fun):
+        json = yield from self._fetch_json(url)
+
+        sensor = yield from self._status_data(json)
+        
+        # break if Data is empty
+        if not json['Body'] or not json['Body']['Data']:
+            _LOGGER.info("No data returned from {}".format(url))
+            return sensor
+        else:
+            res = yield from fun(sensor, json['Body']['Data'])
+            return res
     
     @asyncio.coroutine
     def current_power_flow(self):
         '''
         Get the current power flow of a smart meter system.
         '''
-        res = yield from self._fetch_solar_api_v1(URL_POWER_FLOW)
+        url = URL_POWER_FLOW.format(self.protocol, self.host)
 
-        sensor = self._status_data(res)
+        _LOGGER.debug("Get current system power flow data for {}".format(url))
+
+        return self._current_data(url, self._system_power_flow)
+    
+    @asyncio.coroutine
+    def current_system_meter_data(self):
+        '''
+        Get the current meter data.
+        '''
+        url = URL_SYSTEM_METER.format(self.protocol, self.host)
+
+        _LOGGER.debug("Get current system meter data for {}".format(url))
+
+        return self._current_data(url, self._system_meter_data)
+
+    @asyncio.coroutine
+    def current_system_inverter_data(self):
+        '''
+        Get the current inverter data.
+        The values are provided as cumulated values and for each inverter
+        '''
+        url = URL_SYSTEM_INVERTER.format(self.protocol, self.host)
+
+        _LOGGER.debug("Get current system inverter data for {}".format(url))
+
+        return self._current_data(url, self._system_inverter_data)
+
+    @asyncio.coroutine
+    def current_meter_data(self, device = 0):
+        '''
+        Get the current meter data for a device.
+        '''
+        url = URL_DEVICE_METER.format(self.protocol, self.host, device)
+
+        _LOGGER.debug("Get current meter data for {}".format(url))
+
+        return self._current_data(url, self._device_meter_data)
+
+    @asyncio.coroutine
+    def current_storage_data(self, device = 0):
+        '''
+        Get the current storage data for a device.
+        '''
+        url = URL_DEVICE_STORAGE.format(self.protocol, self.host, device)
+
+        _LOGGER.debug("Get current storage data for {}".format(url))
+                
+        return self._current_data(url, self._device_storage_data)
+
+    @asyncio.coroutine
+    def current_inverter_data(self, device = 1):
+        '''
+        Get the current inverter data of one device.
+        '''
+        url = URL_DEVICE_INVERTER_COMMON.format(self.protocol, self.host, device)
+
+        _LOGGER.debug("Get current inverter data for {}".format(url))
+                
+        return self._current_data(url, self._device_inverter_data)
+
+    @asyncio.coroutine
+    def _system_power_flow(self, sensor, data):
+        _LOGGER.debug("Converting system power flow data: '{}'".format(data))
         
-        # break if Data is empty
-        if not self._check_body(res):
-            return sensor
-
-        site = res['Body']['Data']['Site'] # shortcut
-        inverter = res['Body']['Data']['Inverters']['1'] # shortcut
+        site = data['Site']
+        inverter = data['Inverters']['1'] # TODO: implement more inverters
        
         if "Battery_Mode" in inverter:
             sensor['battery_mode'] = { 'value': inverter['Battery_Mode'] }
@@ -126,21 +177,10 @@ class Fronius:
             sensor['relative_self_consumption'] = { 'value': site['rel_SelfConsumption'], 'unit': "%" }
 
         return sensor
-    
+
     @asyncio.coroutine
-    def current_system_meter_data(self):
-        '''
-        Get the current meter data.
-        '''
-        res = yield from self._fetch_solar_api_v1(URL_SYSTEM_METER)
-
-        sensor = self._status_data(res)
-        
-        # break if Data is empty
-        if not self._check_body(res):
-            return sensor
-
-        data = res['Body']['Data'] # shortcut
+    def _system_meter_data(self, sensor, data):
+        _LOGGER.debug("Converting system meter data: '{}'".format(data))
 
         sensor['meters'] = { }
 
@@ -150,20 +190,8 @@ class Fronius:
         return sensor
 
     @asyncio.coroutine
-    def current_system_inverter_data(self):
-        '''
-        Get the current inverter data.
-        The values are provided as cumulated values and for each inverter
-        '''
-        res = yield from self._fetch_solar_api_v1(URL_SYSTEM_INVERTER)
-
-        sensor = self._status_data(res)
-        
-        # break if Data is empty
-        if not self._check_body(res):
-            return sensor
-
-        data = res['Body']['Data'] # shortcut
+    def _system_inverter_data(self, sensor, data):
+        _LOGGER.debug("Converting system inverter data: '{}'".format(data))
 
         sensor['energy_day'] = { 'value': 0, 'unit': "Wh" }
         sensor['energy_total'] = { 'value': 0, 'unit': "Wh" }
@@ -171,7 +199,7 @@ class Fronius:
         sensor['power_ac'] = { 'value': 0, 'unit': "W" }
 
         sensor['inverters'] = {}
-        
+
         if "DAY_ENERGY" in data:
             for i in data['DAY_ENERGY']['Values']:
                 sensor['inverters'][i] = { }
@@ -193,126 +221,34 @@ class Fronius:
         return sensor
 
     @asyncio.coroutine
-    def current_meter_data(self, device = 0):
-        '''
-        Get the current meter data for a device.
-        '''
-        res = yield from self._fetch_solar_api_v1(URL_DEVICE_METER.format(device))
-
-        sensor = self._status_data(res)
+    def _device_meter_data(self, sensor, data):
+        _LOGGER.debug("Converting meter data: '{}'".format(data))
         
-        # break if Data is empty
-        if not self._check_body(res):
-            return sensor
-
-        data = res['Body']['Data'] # shortcut
-
         sensor.update(self._meter_data(data))
         
         return sensor
 
     @asyncio.coroutine
-    def current_storage_data(self, device = 0):
-        '''
-        Get the current storage data for a device.
-        '''
-        res = yield from self._fetch_solar_api_v1(URL_DEVICE_STORAGE.format(device))
+    def _device_storage_data(self, sensor, data):
+        _LOGGER.debug("Converting storage data from '{}'".format(data))
 
-        sensor = self._status_data(res)
-        
-        # break if Data is empty
-        if not self._check_body(res):
-            return sensor
+        if 'Controller' in data:
+            controller = self._controller_data(data['Controller'])
+            sensor.update(controller)
 
-        sensor['modules'] = { }
-
-        if 'Controller' in res['Body']['Data']:
-
-            controller = res['Body']['Data']['Controller'] # shortcut
-
-            if "Capacity_Maximum" in controller:
-                sensor['capacity_maximum'] = { 'value': controller['Capacity_Maximum'], 'unit': "Ah" }
-            if "DesignedCapacity" in controller:
-                sensor['capacity_designed'] = { 'value': controller['DesignedCapacity'], 'unit': "Ah" }
-            if "Current_DC" in controller:
-                sensor['current_dc'] = { 'value': controller['Current_DC'], 'unit': "A" }
-            if "Voltage_DC" in controller:
-                sensor['voltage_dc'] = { 'value': controller['Voltage_DC'], 'unit': "V" }
-            if "Voltage_DC_Maximum_Cell" in controller:
-                sensor['voltage_dc_maximum_cell'] = { 'value': controller['Voltage_DC_Maximum_Cell'], 'unit': "V" }
-            if "Voltage_DC_Minimum_Cell" in controller:
-                sensor['voltage_dc_minimum_cell'] = { 'value': controller['Voltage_DC_Minimum_Cell'], 'unit': "V" }
-            if "StateOfCharge_Relative" in controller:
-                sensor['state_of_charge'] = { 'value': controller['StateOfCharge_Relative'], 'unit': "%" }
-            if "Temperature_Cell" in controller:
-                sensor['temperature_cell'] = { 'value': controller['Temperature_Cell'], 'unit': "C" }
-            if "Enable" in controller:
-                sensor['enable'] = { 'value': controller['Enable'] }
-            if "Details" in controller:
-                sensor['manufacturer'] = { 'value': controller['Details']['Manufacturer'] }
-                sensor['model'] = { 'value': controller['Details']['Model'] }
-                sensor['serial'] = { 'value': controller['Details']['Serial'] }
-
-        if 'Modules' in res['Body']['Data']:
-
-            modules = res['Body']['Data']['Modules'] # shortcut
+        if 'Modules' in data:
+            sensor['modules'] = { }
             module_count = 0;
 
-            for data in modules:
-                _LOGGER.debug(data)
-                module = { }
-            
-                if "Capacity_Maximum" in data:
-                    module['capacity_maximum'] = { 'value': data['Capacity_Maximum'], 'unit': "Ah" }
-                if "DesignedCapacity" in data:
-                    module['capacity_designed'] = { 'value': data['DesignedCapacity'], 'unit': "Ah" }
-                if "Current_DC" in data:
-                    module['current_dc'] = { 'value': data['Current_DC'], 'unit': "A" }
-                if "Voltage_DC" in data:
-                    module['voltage_dc'] = { 'value': data['Voltage_DC'], 'unit': "V" }
-                if "Voltage_DC_Maximum_Cell" in data:
-                    module['voltage_dc_maximum_cell'] = { 'value': data['Voltage_DC_Maximum_Cell'], 'unit': "V" }
-                if "Voltage_DC_Minimum_Cell" in data:
-                    module['voltage_dc_minimum_cell'] = { 'value': data['Voltage_DC_Minimum_Cell'], 'unit': "V" }
-                if "StateOfCharge_Relative" in data:
-                    module['state_of_charge'] = { 'value': data['StateOfCharge_Relative'], 'unit': "%" }
-                if "Temperature_Cell" in data:
-                    module['temperature_cell'] = { 'value': data['Temperature_Cell'], 'unit': "C" }
-                if "Temperature_Cell_Maximum" in data:
-                    module['temperature_cell_maximum'] = { 'value': data['Temperature_Cell_Maximum'], 'unit': "C" }
-                if "Temperature_Cell_Minimum" in data:
-                    module['temperature_cell_minimum'] = { 'value': data['Temperature_Cell_Minimum'], 'unit': "C" }
-                if "CycleCount_BatteryCell" in data:
-                    module['cycle_count_cell'] = { 'value': data['CycleCount_BatteryCell'] }
-                if "Status_BatteryCell" in data:
-                    module['status_cell'] = { 'value': data['Status_BatteryCell'] }
-                if "Enable" in data:
-                    module['enable'] = { 'value': data['Enable'] }
-                if "Details" in data:
-                    module['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
-                    module['model'] = { 'value': data['Details']['Model'] }
-                    module['serial'] = { 'value': data['Details']['Serial'] }
-                
-                sensor['modules'][module_count] = module
-            
+            for module in data['Modules']:
+                sensor['modules'][module_count] = self._module_data(module)
                 module_count += 1
 
         return sensor
 
     @asyncio.coroutine
-    def current_inverter_data(self, device = 1):
-        '''
-        Get the current inverter data of one device.
-        '''
-        res = yield from self._fetch_solar_api_v1(URL_DEVICE_INVERTER_COMMON.format(device))
-
-        sensor = self._status_data(res)
-        
-        # break if Data is empty
-        if not self._check_body(res):
-            return sensor
-
-        data = res['Body']['Data'] # shortcut
+    def _device_inverter_data(self, sensor, data):
+        _LOGGER.debug("Converting inverter data from '{}'".format(data))
 
         if "DAY_ENERGY" in data:
             sensor['energy_day'] = { 'value': data['DAY_ENERGY']['Value'], 'unit': data['DAY_ENERGY']['Unit'] }
@@ -334,84 +270,150 @@ class Fronius:
             sensor['voltage_dc'] = { 'value': data['UDC']['Value'], 'unit': data['UDC']['Unit'] }
 
         return sensor
- 
+
     def _meter_data(self, data):
-        
-        sensor = { }
+
+        meter = {}
         
         if "Current_AC_Phase_1" in data:
-            sensor['current_ac_phase_1'] = { 'value': data['Current_AC_Phase_1'], 'unit': "A" }
+            meter['current_ac_phase_1'] = { 'value': data['Current_AC_Phase_1'], 'unit': "A" }
         if "Current_AC_Phase_2" in data:
-            sensor['current_ac_phase_2'] = { 'value': data['Current_AC_Phase_2'], 'unit': "A" }
+            meter['current_ac_phase_2'] = { 'value': data['Current_AC_Phase_2'], 'unit': "A" }
         if "Current_AC_Phase_3" in data:
-            sensor['current_ac_phase_3'] = { 'value': data['Current_AC_Phase_3'], 'unit': "A" }
+            meter['current_ac_phase_3'] = { 'value': data['Current_AC_Phase_3'], 'unit': "A" }
         if "EnergyReactive_VArAC_Sum_Consumed" in data:
-            sensor['energy_reactive_ac_consumed'] = { 'value': data['EnergyReactive_VArAC_Sum_Consumed'], 'unit': "Wh" }
+            meter['energy_reactive_ac_consumed'] = { 'value': data['EnergyReactive_VArAC_Sum_Consumed'], 'unit': "Wh" }
         if "EnergyReactive_VArAC_Sum_Produced" in data:
-            sensor['energy_reactive_ac_produced'] = { 'value': data['EnergyReactive_VArAC_Sum_Produced'], 'unit': "Wh" }
+            meter['energy_reactive_ac_produced'] = { 'value': data['EnergyReactive_VArAC_Sum_Produced'], 'unit': "Wh" }
         if "EnergyReal_WAC_Minus_Absolute" in data:
-            sensor['energy_real_ac_minus'] = { 'value': data['EnergyReal_WAC_Minus_Absolute'], 'unit': "Wh" }
+            meter['energy_real_ac_minus'] = { 'value': data['EnergyReal_WAC_Minus_Absolute'], 'unit': "Wh" }
         if "EnergyReal_WAC_Plus_Absolute" in data:
-            sensor['energy_real_ac_plus'] = { 'value': data['EnergyReal_WAC_Plus_Absolute'], 'unit': "Wh" }
+            meter['energy_real_ac_plus'] = { 'value': data['EnergyReal_WAC_Plus_Absolute'], 'unit': "Wh" }
         if "EnergyReal_WAC_Sum_Consumed" in data:
-            sensor['energy_real_consumed'] = { 'value': data['EnergyReal_WAC_Sum_Consumed'], 'unit': "Wh" }
+            meter['energy_real_consumed'] = { 'value': data['EnergyReal_WAC_Sum_Consumed'], 'unit': "Wh" }
         if "EnergyReal_WAC_Sum_Produced" in data:
-            sensor['energy_real_produced'] = { 'value': data['EnergyReal_WAC_Sum_Produced'], 'unit': "Wh" }
+            meter['energy_real_produced'] = { 'value': data['EnergyReal_WAC_Sum_Produced'], 'unit': "Wh" }
         if "Frequency_Phase_Average" in data:
-            sensor['frequency_phase_average'] = { 'value': data['Frequency_Phase_Average'], 'unit': "Hz" }
+            meter['frequency_phase_average'] = { 'value': data['Frequency_Phase_Average'], 'unit': "Hz" }
         if "PowerApparent_S_Phase_1" in data:
-            sensor['power_apparent_phase_1'] = { 'value': data['PowerApparent_S_Phase_1'], 'unit': "W" }
+            meter['power_apparent_phase_1'] = { 'value': data['PowerApparent_S_Phase_1'], 'unit': "W" }
         if "PowerApparent_S_Phase_2" in data:
-            sensor['power_apparent_phase_2'] = { 'value': data['PowerApparent_S_Phase_2'], 'unit': "W" }
+            meter['power_apparent_phase_2'] = { 'value': data['PowerApparent_S_Phase_2'], 'unit': "W" }
         if "PowerApparent_S_Phase_3" in data:
-            sensor['power_apparent_phase_3'] = { 'value': data['PowerApparent_S_Phase_3'], 'unit': "W" }
+            meter['power_apparent_phase_3'] = { 'value': data['PowerApparent_S_Phase_3'], 'unit': "W" }
         if "PowerApparent_S_Sum" in data:
-            sensor['power_apparent'] = { 'value': data['PowerApparent_S_Sum'], 'unit': "W" }
+            meter['power_apparent'] = { 'value': data['PowerApparent_S_Sum'], 'unit': "W" }
         if "PowerFactor_Phase_1" in data:
-            sensor['power_factor_phase_1'] = { 'value': data['PowerFactor_Phase_1'], 'unit': "W" }
+            meter['power_factor_phase_1'] = { 'value': data['PowerFactor_Phase_1'], 'unit': "W" }
         if "PowerFactor_Phase_2" in data:
-            sensor['power_factor_phase_2'] = { 'value': data['PowerFactor_Phase_2'], 'unit': "W" }
+            meter['power_factor_phase_2'] = { 'value': data['PowerFactor_Phase_2'], 'unit': "W" }
         if "PowerFactor_Phase_3" in data:
-            sensor['power_factor_phase_3'] = { 'value': data['PowerFactor_Phase_3'], 'unit': "W" }
+            meter['power_factor_phase_3'] = { 'value': data['PowerFactor_Phase_3'], 'unit': "W" }
         if "PowerFactor_Sum" in data:
-            sensor['power_factor'] = { 'value': data['PowerFactor_Sum'], 'unit': "W" }
+            meter['power_factor'] = { 'value': data['PowerFactor_Sum'], 'unit': "W" }
         if "PowerReactive_Q_Phase_1" in data:
-            sensor['power_reactive_phase_1'] = { 'value': data['PowerReactive_Q_Phase_1'], 'unit': "W" }
+            meter['power_reactive_phase_1'] = { 'value': data['PowerReactive_Q_Phase_1'], 'unit': "W" }
         if "PowerReactive_Q_Phase_2" in data:
-            sensor['power_reactive_phase_2'] = { 'value': data['PowerReactive_Q_Phase_2'], 'unit': "W" }
+            meter['power_reactive_phase_2'] = { 'value': data['PowerReactive_Q_Phase_2'], 'unit': "W" }
         if "PowerReactive_Q_Phase_3" in data:
-            sensor['power_reactive_phase_3'] = { 'value': data['PowerReactive_Q_Phase_3'], 'unit': "W" }
+            meter['power_reactive_phase_3'] = { 'value': data['PowerReactive_Q_Phase_3'], 'unit': "W" }
         if "PowerReactive_Q_Sum" in data:
-            sensor['power_reactive'] = { 'value': data['PowerReactive_Q_Sum'], 'unit': "W" }
+            meter['power_reactive'] = { 'value': data['PowerReactive_Q_Sum'], 'unit': "W" }
         if "PowerReal_P_Phase_1" in data:
-            sensor['power_real_phase_1'] = { 'value': data['PowerReal_P_Phase_1'], 'unit': "W" }
+            meter['power_real_phase_1'] = { 'value': data['PowerReal_P_Phase_1'], 'unit': "W" }
         if "PowerReal_P_Phase_2" in data:
-            sensor['power_real_phase_2'] = { 'value': data['PowerReal_P_Phase_2'], 'unit': "W" }
+            meter['power_real_phase_2'] = { 'value': data['PowerReal_P_Phase_2'], 'unit': "W" }
         if "PowerReal_P_Phase_3" in data:
-            sensor['power_real_phase_3'] = { 'value': data['PowerReal_P_Phase_3'], 'unit': "W" }
+            meter['power_real_phase_3'] = { 'value': data['PowerReal_P_Phase_3'], 'unit': "W" }
         if "PowerReal_P_Sum" in data:
-            sensor['power_real'] = { 'value': data['PowerReal_P_Sum'], 'unit': "W" }
+            meter['power_real'] = { 'value': data['PowerReal_P_Sum'], 'unit': "W" }
         if "Voltage_AC_Phase_1" in data:
-            sensor['voltage_ac_phase_1'] = { 'value': data['Voltage_AC_Phase_1'], 'unit': "V" }
+            meter['voltage_ac_phase_1'] = { 'value': data['Voltage_AC_Phase_1'], 'unit': "V" }
         if "Voltage_AC_Phase_2" in data:
-            sensor['voltage_ac_phase_2'] = { 'value': data['Voltage_AC_Phase_2'], 'unit': "V" }
+            meter['voltage_ac_phase_2'] = { 'value': data['Voltage_AC_Phase_2'], 'unit': "V" }
         if "Voltage_AC_Phase_3" in data:
-            sensor['voltage_ac_phase_3'] = { 'value': data['Voltage_AC_Phase_3'], 'unit': "V" }
+            meter['voltage_ac_phase_3'] = { 'value': data['Voltage_AC_Phase_3'], 'unit': "V" }
         if "Voltage_AC_PhaseToPhase_12" in data:
-            sensor['voltage_ac_phase_to_phase_12'] = { 'value': data['Voltage_AC_PhaseToPhase_12'], 'unit': "V" }
+            meter['voltage_ac_phase_to_phase_12'] = { 'value': data['Voltage_AC_PhaseToPhase_12'], 'unit': "V" }
         if "Voltage_AC_PhaseToPhase_23" in data:
-            sensor['voltage_ac_phase_to_phase_23'] = { 'value': data['Voltage_AC_PhaseToPhase_23'], 'unit': "V" }
+            meter['voltage_ac_phase_to_phase_23'] = { 'value': data['Voltage_AC_PhaseToPhase_23'], 'unit': "V" }
         if "Voltage_AC_PhaseToPhase_31" in data:
-            sensor['voltage_ac_phase_to_phase_31'] = { 'value': data['Voltage_AC_PhaseToPhase_31'], 'unit': "V" }
+            meter['voltage_ac_phase_to_phase_31'] = { 'value': data['Voltage_AC_PhaseToPhase_31'], 'unit': "V" }
         if "Meter_Location_Current" in data:
-            sensor['meter_location'] = { 'value': data['Meter_Location_Current'] }
+            meter['meter_location'] = { 'value': data['Meter_Location_Current'] }
         if "Enable" in data:
-            sensor['enable'] = { 'value': data['Enable'] }
+            meter['enable'] = { 'value': data['Enable'] }
         if "Visible" in data:
-            sensor['visible'] = { 'value': data['Visible'] }
+            meter['visible'] = { 'value': data['Visible'] }
         if "Details" in data:
-            sensor['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
-            sensor['model'] = { 'value': data['Details']['Model'] }
-            sensor['serial'] = { 'value': data['Details']['Serial'] }
+            meter['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
+            meter['model'] = { 'value': data['Details']['Model'] }
+            meter['serial'] = { 'value': data['Details']['Serial'] }
         
-        return sensor
+        return meter
+ 
+    def _controller_data(self, data):
+
+        controller = {}
+
+        if "Capacity_Maximum" in data:
+            controller['capacity_maximum'] = { 'value': data['Capacity_Maximum'], 'unit': "Ah" }
+        if "DesignedCapacity" in data:
+            controller['capacity_designed'] = { 'value': data['DesignedCapacity'], 'unit': "Ah" }
+        if "Current_DC" in data:
+            controller['current_dc'] = { 'value': data['Current_DC'], 'unit': "A" }
+        if "Voltage_DC" in data:
+            controller['voltage_dc'] = { 'value': data['Voltage_DC'], 'unit': "V" }
+        if "Voltage_DC_Maximum_Cell" in data:
+            controller['voltage_dc_maximum_cell'] = { 'value': data['Voltage_DC_Maximum_Cell'], 'unit': "V" }
+        if "Voltage_DC_Minimum_Cell" in data:
+            controller['voltage_dc_minimum_cell'] = { 'value': data['Voltage_DC_Minimum_Cell'], 'unit': "V" }
+        if "StateOfCharge_Relative" in data:
+            controller['state_of_charge'] = { 'value': data['StateOfCharge_Relative'], 'unit': "%" }
+        if "Temperature_Cell" in data:
+            controller['temperature_cell'] = { 'value': data['Temperature_Cell'], 'unit': "C" }
+        if "Enable" in data:
+            controller['enable'] = { 'value': data['Enable'] }
+        if "Details" in data:
+            controller['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
+            controller['model'] = { 'value': data['Details']['Model'] }
+            controller['serial'] = { 'value': data['Details']['Serial'] }
+
+        return controller
+
+    def _module_data(self, data):
+        
+        module = { }
+
+        if "Capacity_Maximum" in data:
+            module['capacity_maximum'] = { 'value': data['Capacity_Maximum'], 'unit': "Ah" }
+        if "DesignedCapacity" in data:
+            module['capacity_designed'] = { 'value': data['DesignedCapacity'], 'unit': "Ah" }
+        if "Current_DC" in data:
+            module['current_dc'] = { 'value': data['Current_DC'], 'unit': "A" }
+        if "Voltage_DC" in data:
+            module['voltage_dc'] = { 'value': data['Voltage_DC'], 'unit': "V" }
+        if "Voltage_DC_Maximum_Cell" in data:
+            module['voltage_dc_maximum_cell'] = { 'value': data['Voltage_DC_Maximum_Cell'], 'unit': "V" }
+        if "Voltage_DC_Minimum_Cell" in data:
+            module['voltage_dc_minimum_cell'] = { 'value': data['Voltage_DC_Minimum_Cell'], 'unit': "V" }
+        if "StateOfCharge_Relative" in data:
+            module['state_of_charge'] = { 'value': data['StateOfCharge_Relative'], 'unit': "%" }
+        if "Temperature_Cell" in data:
+            module['temperature_cell'] = { 'value': data['Temperature_Cell'], 'unit': "C" }
+        if "Temperature_Cell_Maximum" in data:
+            module['temperature_cell_maximum'] = { 'value': data['Temperature_Cell_Maximum'], 'unit': "C" }
+        if "Temperature_Cell_Minimum" in data:
+            module['temperature_cell_minimum'] = { 'value': data['Temperature_Cell_Minimum'], 'unit': "C" }
+        if "CycleCount_BatteryCell" in data:
+            module['cycle_count_cell'] = { 'value': data['CycleCount_BatteryCell'] }
+        if "Status_BatteryCell" in data:
+            module['status_cell'] = { 'value': data['Status_BatteryCell'] }
+        if "Enable" in data:
+            module['enable'] = { 'value': data['Enable'] }
+        if "Details" in data:
+            module['manufacturer'] = { 'value': data['Details']['Manufacturer'] }
+            module['model'] = { 'value': data['Details']['Model'] }
+            module['serial'] = { 'value': data['Details']['Serial'] }
+
+        return module
