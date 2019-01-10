@@ -1,0 +1,30 @@
+{
+	"Head" : {
+		"RequestArguments" : {
+			"DeviceClass" : "Meter",
+			"DeviceId" : "0",
+			"Scope" : "Device"
+		},
+		"Status" : {
+			"Code" : 0,
+			"Reason" : "",
+			"UserMessage" : ""
+		},
+		"Timestamp" : "2019-01-10T22:08:17+01:00"
+	},
+	"Body" : {
+		"Data" : {
+			"Details" : {
+				"Serial" : "",
+				"Model" : "",
+				"Manufacturer" : "Fronius"
+			},
+			"TimeStamp" : 1547154496,
+			"Enable" : 1,
+			"Visible" : 1,
+			"PowerReal_P_Sum" : -400.712353,
+			"Meter_Location_Current" : 1,
+			"EnergyReal_WAC_Minus_Relative" : 31.5
+		}
+	}
+}

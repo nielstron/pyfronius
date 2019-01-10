@@ -41,4 +41,5 @@ setup(name='PyFronius',
         ],
       keywords='python fronius json api solar photovoltaics pv',
       python_requires='>=3',
+      test_suite='pyfronius.tests',
      )
