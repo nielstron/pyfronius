@@ -13,7 +13,13 @@ import time
 import aiohttp
 import asyncio
 import pyfronius
-from .web_raw.web_state import GET_METER_REALTIME_DATA_SCOPE_DEVICE, GET_METER_REALTIME_DATA_SYSTEM, GET_POWER_FLOW_REALTIME_DATA
+from .web_raw.web_state import (
+    GET_METER_REALTIME_DATA_SCOPE_DEVICE,
+    GET_METER_REALTIME_DATA_SYSTEM,
+    GET_POWER_FLOW_REALTIME_DATA,
+    GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
+    GET_INVERTER_REALTIME_DATA_SYSTEM,
+)
 
 
 ADDRESS = 'localhost'
@@ -67,6 +73,14 @@ class FroniusWebTest(unittest.TestCase):
     def test_fronius_get_power_flow_realtime_data(self):
         res = asyncio.get_event_loop().run_until_complete(self.fronius.current_power_flow())
         self.assertEqual(res, GET_POWER_FLOW_REALTIME_DATA)
+
+    def test_fronius_get_inverter_realtime_data_device(self):
+        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_inverter_data())
+        self.assertEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
+
+    def test_fronius_get_inverter_realtime_data_system(self):
+        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_system_inverter_data())
+        self.assertEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
 
     def tearDown(self):
         asyncio.get_event_loop().run_until_complete(self.session.close())

@@ -6,14 +6,14 @@
 			"Reason" : "",
 			"UserMessage" : ""
 		},
-		"Timestamp" : "2019-01-10T22:08:14+01:00"
+		"Timestamp" : "2019-01-10T23:33:12+01:00"
 	},
 	"Body" : {
 		"Data" : {
 			"Site" : {
 				"Mode" : "vague-meter",
-				"P_Grid" : 391.559718,
-				"P_Load" : -391.559718,
+				"P_Grid" : 367.722145,
+				"P_Load" : -367.722145,
 				"P_Akku" : null,
 				"P_PV" : null,
 				"E_Day" : 0,
