@@ -9,6 +9,7 @@ import aiohttp
 import pyfronius
 from pyfronius import _LOGGER
 
+
 @asyncio.coroutine
 def main(loop, host):
     session = aiohttp.ClientSession(loop=loop)
@@ -30,6 +31,7 @@ def main(loop, host):
         yield from asyncio.sleep(5)
 
     yield from session.close()
+
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

@@ -21,7 +21,6 @@ from .web_raw.web_state import (
     GET_INVERTER_REALTIME_DATA_SYSTEM,
 )
 
-
 ADDRESS = 'localhost'
 
 
@@ -62,30 +61,36 @@ class FroniusWebTest(unittest.TestCase):
         self.fronius = pyfronius.Fronius(self.session, self.url)
 
     def test_fronius_get_meter_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_system_meter_data())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_system_meter_data())
         self.assertEqual(res, GET_METER_REALTIME_DATA_SYSTEM)
 
     def test_fronius_get_meter_realtime_data_device(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_meter_data())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_meter_data())
         print(res)
         self.assertEqual(res, GET_METER_REALTIME_DATA_SCOPE_DEVICE)
 
     def test_fronius_get_power_flow_realtime_data(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_power_flow())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_power_flow())
         self.assertEqual(res, GET_POWER_FLOW_REALTIME_DATA)
 
     def test_fronius_get_inverter_realtime_data_device(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_inverter_data())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_inverter_data())
         self.assertEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
 
     def test_fronius_get_inverter_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_system_inverter_data())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_system_inverter_data())
         self.assertEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
 
     def test_fronius_get_no_data(self):
         # Storage data for device 0 is not provided ATM
         # TODO someone add some storage data for a device 1?
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.current_storage_data())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_storage_data())
         self.assertIn('timestamp', res)
         self.assertIn('status', res)
         # Mainly asserts that no error is thrown by illegal access!

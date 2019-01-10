@@ -5,7 +5,6 @@ import threading
 
 
 class Server:
-
     def __init__(self, server):
         """
         Expects subclass of TCPServer as argument

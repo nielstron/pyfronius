@@ -15,7 +15,6 @@ FroniusServer = HTTPServer
 
 
 class FroniusRequestHandler(SimpleHTTPRequestHandler):
-
     def translate_path(self, path):
         """Translate a /-separated PATH to the local filename syntax.
 
@@ -27,7 +26,7 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         """
         # abandon query parameters
         # path = path.split('?',1)[0] -> Keep them for fronius as name of file
-        path = path.split('#',1)[0]
+        path = path.split('#', 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
         trailing_slash = path.rstrip().endswith('/')
         try:
@@ -64,8 +63,7 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         #  - RFC7231: 6.3.6. 205(Reset Content)
         body = None
         if (code >= 200 and
-                code not in (HTTPStatus.NO_CONTENT,
-                             HTTPStatus.RESET_CONTENT,
+                code not in (HTTPStatus.NO_CONTENT, HTTPStatus.RESET_CONTENT,
                              HTTPStatus.NOT_MODIFIED)):
             # HTML encode to prevent Cross Site Scripting attacks
             # (see bug #1100201)
