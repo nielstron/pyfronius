@@ -60,17 +60,16 @@ class Fronius:
 
     @asyncio.coroutine
     def _current_data(self, url, fun):
-        json = yield from self._fetch_json(url)
+        res = yield from self._fetch_json(url)
 
-        sensor = yield from self._status_data(json)
-        
+        sensor = yield from self._status_data(res)
+
         # break if Data is empty
-        if not json['Body'] or not json['Body']['Data']:
+        try:
+            sensor = yield from fun(sensor, res['Body']['Data'])
+        except KeyError:
             _LOGGER.info("No data returned from {}".format(url))
-            return sensor
-        else:
-            res = yield from fun(sensor, json['Body']['Data'])
-            return res
+        return sensor
     
     @asyncio.coroutine
     def current_power_flow(self):
