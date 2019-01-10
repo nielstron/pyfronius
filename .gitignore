@@ -274,3 +274,9 @@ dmypy.json
 .venv/
 
 # End of https://www.gitignore.io/api/python,pycharm,eclipse
+
+# eclipse / PyDev
+.project
+.pydevproject
+.settings/
+

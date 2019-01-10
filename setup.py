@@ -14,7 +14,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='PyFronius',
-      version='0.2',
+      version='0.3',
       description='Automated JSON API based communication with Fronius Symo',
       author='Niels Mündler, Gerrit Beine',
       author_email='n.muendler@web.de, mail@gerritbeine.de',
