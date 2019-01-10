@@ -13,6 +13,7 @@ SERVER_DIR = Path(__file__).parent or Path('.')
 
 FroniusServer = HTTPServer
 
+
 class FroniusRequestHandler(SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
