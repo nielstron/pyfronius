@@ -12,13 +12,14 @@ import async_timeout
 
 _LOGGER = logging.getLogger(__name__)
 
-URL_POWER_FLOW = "{}://{}/solar_api/v1/GetPowerFlowRealtimeData.fcgi"
-URL_SYSTEM_METER = "{}://{}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_INVERTER = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=System"
-URL_DEVICE_METER = "{}://{}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_STORAGE = "{}://{}/solar_api/v1/GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
-URL_DEVICE_INVERTER_COMMON = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
+URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
+URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
+URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
+URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
+URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
+URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
+URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
+
 
 class Fronius:
     '''
@@ -43,32 +44,43 @@ class Fronius:
         
     @asyncio.coroutine
     def _fetch_json(self, url):
+        """
+        Fetch json value from fixed url
+        """
         with async_timeout.timeout(self.timeout):
             res = yield from self._aio_session.get(url)
             text = yield from res.text()
             return json.loads(text)
 
     @asyncio.coroutine
-    def _status_data(self, json):
+    def _fetch_solar_api_v1(self, spec):
+        """
+        Fetch page of solar_api
+        """
+        res = yield from self._fetch_json("{}://{}/solar_api/v1/{}".format(self.protocol, self.host, spec))
+        return res
+
+    @staticmethod
+    def _status_data(res):
 
         sensor = {}
         
-        sensor['timestamp'] = { 'value': json['Head']['Timestamp'] }
-        sensor['status'] = json['Head']['Status']
+        sensor['timestamp'] = { 'value': res['Head']['Timestamp'] }
+        sensor['status'] = res['Head']['Status']
 
         return sensor
 
     @asyncio.coroutine
-    def _current_data(self, url, fun):
-        res = yield from self._fetch_json(url)
+    def _current_data(self, spec, fun):
+        res = yield from self._fetch_solar_api_v1(spec)
 
-        sensor = yield from self._status_data(res)
+        sensor = Fronius._status_data(res)
 
-        # break if Data is empty
         try:
-            sensor = yield from fun(sensor, res['Body']['Data'])
+            sensor = fun(sensor, res['Body']['Data'])
         except KeyError:
-            _LOGGER.info("No data returned from {}".format(url))
+            # break if Data is empty
+            _LOGGER.info("No data returned from {}".format(spec))
         return sensor
     
     @asyncio.coroutine
@@ -76,22 +88,22 @@ class Fronius:
         '''
         Get the current power flow of a smart meter system.
         '''
-        url = URL_POWER_FLOW.format(self.protocol, self.host)
+        url = URL_POWER_FLOW
 
         _LOGGER.debug("Get current system power flow data for {}".format(url))
 
-        return self._current_data(url, self._system_power_flow)
+        return self._current_data(url, Fronius._system_power_flow)
     
     @asyncio.coroutine
     def current_system_meter_data(self):
         '''
         Get the current meter data.
         '''
-        url = URL_SYSTEM_METER.format(self.protocol, self.host)
+        url = URL_SYSTEM_METER
 
         _LOGGER.debug("Get current system meter data for {}".format(url))
 
-        return self._current_data(url, self._system_meter_data)
+        return self._current_data(url, Fronius._system_meter_data)
 
     @asyncio.coroutine
     def current_system_inverter_data(self):
@@ -99,47 +111,47 @@ class Fronius:
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
         '''
-        url = URL_SYSTEM_INVERTER.format(self.protocol, self.host)
+        url = URL_SYSTEM_INVERTER
 
         _LOGGER.debug("Get current system inverter data for {}".format(url))
 
-        return self._current_data(url, self._system_inverter_data)
+        return self._current_data(url, Fronius._system_inverter_data)
 
     @asyncio.coroutine
-    def current_meter_data(self, device = 0):
+    def current_meter_data(self, device=0):
         '''
         Get the current meter data for a device.
         '''
-        url = URL_DEVICE_METER.format(self.protocol, self.host, device)
+        url = URL_DEVICE_METER.format(device)
 
         _LOGGER.debug("Get current meter data for {}".format(url))
 
-        return self._current_data(url, self._device_meter_data)
+        return self._current_data(url, Fronius._device_meter_data)
 
     @asyncio.coroutine
-    def current_storage_data(self, device = 0):
+    def current_storage_data(self, device=0):
         '''
         Get the current storage data for a device.
         '''
-        url = URL_DEVICE_STORAGE.format(self.protocol, self.host, device)
+        url = URL_DEVICE_STORAGE.format(device)
 
         _LOGGER.debug("Get current storage data for {}".format(url))
                 
-        return self._current_data(url, self._device_storage_data)
+        return self._current_data(url, Fronius._device_storage_data)
 
     @asyncio.coroutine
-    def current_inverter_data(self, device = 1):
+    def current_inverter_data(self, device=1):
         '''
         Get the current inverter data of one device.
         '''
-        url = URL_DEVICE_INVERTER_COMMON.format(self.protocol, self.host, device)
+        url = URL_DEVICE_INVERTER_COMMON.format(device)
 
         _LOGGER.debug("Get current inverter data for {}".format(url))
                 
-        return self._current_data(url, self._device_inverter_data)
+        return self._current_data(url, Fronius._device_inverter_data)
 
-    @asyncio.coroutine
-    def _system_power_flow(self, sensor, data):
+    @staticmethod
+    def _system_power_flow(sensor, data):
         _LOGGER.debug("Converting system power flow data: '{}'".format(data))
         
         site = data['Site']
@@ -177,19 +189,19 @@ class Fronius:
 
         return sensor
 
-    @asyncio.coroutine
-    def _system_meter_data(self, sensor, data):
+    @staticmethod
+    def _system_meter_data(sensor, data):
         _LOGGER.debug("Converting system meter data: '{}'".format(data))
 
         sensor['meters'] = { }
 
         for i in data:
-            sensor['meters'][i] = self._meter_data(data[i])
+            sensor['meters'][i] = Fronius._meter_data(data[i])
 
         return sensor
 
-    @asyncio.coroutine
-    def _system_inverter_data(self, sensor, data):
+    @staticmethod
+    def _system_inverter_data(sensor, data):
         _LOGGER.debug("Converting system inverter data: '{}'".format(data))
 
         sensor['energy_day'] = { 'value': 0, 'unit': "Wh" }
@@ -219,20 +231,20 @@ class Fronius:
 
         return sensor
 
-    @asyncio.coroutine
-    def _device_meter_data(self, sensor, data):
+    @staticmethod
+    def _device_meter_data(sensor, data):
         _LOGGER.debug("Converting meter data: '{}'".format(data))
         
-        sensor.update(self._meter_data(data))
+        sensor.update(Fronius._meter_data(data))
         
         return sensor
 
-    @asyncio.coroutine
-    def _device_storage_data(self, sensor, data):
+    @staticmethod
+    def _device_storage_data(sensor, data):
         _LOGGER.debug("Converting storage data from '{}'".format(data))
 
         if 'Controller' in data:
-            controller = self._controller_data(data['Controller'])
+            controller = Fronius._controller_data(data['Controller'])
             sensor.update(controller)
 
         if 'Modules' in data:
@@ -240,13 +252,13 @@ class Fronius:
             module_count = 0;
 
             for module in data['Modules']:
-                sensor['modules'][module_count] = self._module_data(module)
+                sensor['modules'][module_count] = Fronius._module_data(module)
                 module_count += 1
 
         return sensor
 
-    @asyncio.coroutine
-    def _device_inverter_data(self, sensor, data):
+    @staticmethod
+    def _device_inverter_data(sensor, data):
         _LOGGER.debug("Converting inverter data from '{}'".format(data))
 
         if "DAY_ENERGY" in data:
@@ -270,7 +282,8 @@ class Fronius:
 
         return sensor
 
-    def _meter_data(self, data):
+    @staticmethod
+    def _meter_data(data):
 
         meter = {}
         
@@ -350,8 +363,9 @@ class Fronius:
             meter['serial'] = { 'value': data['Details']['Serial'] }
         
         return meter
- 
-    def _controller_data(self, data):
+
+    @staticmethod
+    def _controller_data(data):
 
         controller = {}
 
@@ -380,7 +394,8 @@ class Fronius:
 
         return controller
 
-    def _module_data(self, data):
+    @staticmethod
+    def _module_data(data):
         
         module = { }
 
