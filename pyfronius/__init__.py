@@ -28,12 +28,13 @@ class Fronius:
         host        The ip/domain of the Fronius device
         useHTTPS    Use HTTPS instead of HTTP
     '''
-    def __init__(self, session, host, useHTTPS = False):
+    def __init__(self, session, host, useHTTPS = False, timeout=10):
         '''
         Constructor
         '''
         self._aio_session = session
         self.host = host
+        self.timeout = timeout
         if useHTTPS:
             self.protocol = "https"
         else:
@@ -41,7 +42,7 @@ class Fronius:
         
     @asyncio.coroutine
     def _fetch_json(self, url):
-        with async_timeout.timeout(10):
+        with async_timeout.timeout(self.timeout):
             res = yield from self._aio_session.get(url)
             text = yield from res.text()
             return json.loads(text)
