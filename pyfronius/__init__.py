@@ -12,13 +12,14 @@ import async_timeout
 
 _LOGGER = logging.getLogger(__name__)
 
-URL_POWER_FLOW = "{}://{}/solar_api/v1/GetPowerFlowRealtimeData.fcgi"
-URL_SYSTEM_METER = "{}://{}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_INVERTER = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=System"
-URL_DEVICE_METER = "{}://{}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_STORAGE = "{}://{}/solar_api/v1/GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
-URL_DEVICE_INVERTER_COMMON = "{}://{}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
+URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
+URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
+URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
+URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
+URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
+URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
+URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
+
 
 class Fronius:
     '''
@@ -28,12 +29,13 @@ class Fronius:
         host        The ip/domain of the Fronius device
         useHTTPS    Use HTTPS instead of HTTP
     '''
-    def __init__(self, session, host, useHTTPS = False):
+    def __init__(self, session, host, useHTTPS = False, timeout=10):
         '''
         Constructor
         '''
         self._aio_session = session
         self.host = host
+        self.timeout = timeout
         if useHTTPS:
             self.protocol = "https"
         else:
@@ -41,12 +43,19 @@ class Fronius:
         
     @asyncio.coroutine
     def _fetch_json(self, url):
-        with async_timeout.timeout(10):
+        with async_timeout.timeout(self.timeout):
             res = yield from self._aio_session.get(url)
             text = yield from res.text()
-            return json.loads(text)
+        return json.loads(text)
 
-    def _status_data(self, res):
+    @asyncio.coroutine
+    def _fetch_solar_api_v1(self, spec):
+        url = "{}://{}/solar_api/v1/{}".format(self.protocol, self.host, spec)
+        res = yield from self._fetch_json(url)
+        return res
+
+    @staticmethod
+    def _status_data(res):
         _LOGGER.debug(res)
 
         sensor = {}
@@ -55,19 +64,32 @@ class Fronius:
         sensor['status'] = res['Head']['Status']
 
         return sensor
+
+    @staticmethod
+    def _check_body(res):
+        """
+        Checks for the existence of a key ['Body']['Data']
+        :param json:
+        :return:
+        """
+        try:
+            _ = res['Body']['Data']
+            return True
+        except (ValueError, KeyError):
+            _LOGGER.info("No data returned")
+            return False
     
     @asyncio.coroutine
     def current_power_flow(self):
         '''
         Get the current power flow of a smart meter system.
         '''
-        res = yield from self._fetch_json(URL_POWER_FLOW.format(self.protocol, self.host))
+        res = yield from self._fetch_solar_api_v1(URL_POWER_FLOW)
 
         sensor = self._status_data(res)
         
         # break if Data is empty
-        if not res['Body']['Data']:
-            _LOGGER.info("No data returned")
+        if not self._check_body(res):
             return sensor
 
         site = res['Body']['Data']['Site'] # shortcut
@@ -110,13 +132,12 @@ class Fronius:
         '''
         Get the current meter data.
         '''
-        res = yield from self._fetch_json(URL_SYSTEM_METER.format(self.protocol, self.host))
+        res = yield from self._fetch_solar_api_v1(URL_SYSTEM_METER)
 
         sensor = self._status_data(res)
         
         # break if Data is empty
-        if not res['Body']['Data']:
-            _LOGGER.info("No data returned")
+        if not self._check_body(res):
             return sensor
 
         data = res['Body']['Data'] # shortcut
@@ -134,13 +155,12 @@ class Fronius:
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
         '''
-        res = yield from self._fetch_json(URL_SYSTEM_INVERTER.format(self.protocol, self.host))
+        res = yield from self._fetch_solar_api_v1(URL_SYSTEM_INVERTER)
 
         sensor = self._status_data(res)
         
         # break if Data is empty
-        if not res['Body']['Data']:
-            _LOGGER.info("No data returned")
+        if not self._check_body(res):
             return sensor
 
         data = res['Body']['Data'] # shortcut
@@ -177,13 +197,12 @@ class Fronius:
         '''
         Get the current meter data for a device.
         '''
-        res = yield from self._fetch_json(URL_DEVICE_METER.format(self.protocol, self.host, device))
+        res = yield from self._fetch_solar_api_v1(URL_DEVICE_METER.format(device))
 
         sensor = self._status_data(res)
         
         # break if Data is empty
-        if not res['Body']['Data']:
-            _LOGGER.info("No data returned")
+        if not self._check_body(res):
             return sensor
 
         data = res['Body']['Data'] # shortcut
@@ -197,13 +216,12 @@ class Fronius:
         '''
         Get the current storage data for a device.
         '''
-        res = yield from self._fetch_json(URL_DEVICE_STORAGE.format(self.protocol, self.host, device))
+        res = yield from self._fetch_solar_api_v1(URL_DEVICE_STORAGE.format(device))
 
         sensor = self._status_data(res)
         
         # break if Data is empty
-        if not res['Body']['Data']:
-            _LOGGER.info("No data returned")
+        if not self._check_body(res):
             return sensor
 
         sensor['modules'] = { }
@@ -286,13 +304,12 @@ class Fronius:
         '''
         Get the current inverter data of one device.
         '''
-        res = yield from self._fetch_json(URL_DEVICE_INVERTER_COMMON.format(self.protocol, self.host, device))
+        res = yield from self._fetch_solar_api_v1(URL_DEVICE_INVERTER_COMMON.format(device))
 
         sensor = self._status_data(res)
         
         # break if Data is empty
-        if not res['Body']['Data']:
-            _LOGGER.info("No data returned")
+        if not self._check_body(res):
             return sensor
 
         data = res['Body']['Data'] # shortcut

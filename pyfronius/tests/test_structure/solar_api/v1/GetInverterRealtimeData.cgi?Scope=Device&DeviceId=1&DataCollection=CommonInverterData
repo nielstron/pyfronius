@@ -1,0 +1,40 @@
+{
+	"Head" : {
+		"RequestArguments" : {
+			"DataCollection" : "CommonInverterData",
+			"DeviceClass" : "Inverter",
+			"DeviceId" : "1",
+			"Scope" : "Device"
+		},
+		"Status" : {
+			"Code" : 0,
+			"Reason" : "",
+			"UserMessage" : ""
+		},
+		"Timestamp" : "2019-01-10T23:33:15+01:00"
+	},
+	"Body" : {
+		"Data" : {
+			"DAY_ENERGY" : {
+				"Value" : 0,
+				"Unit" : "Wh"
+			},
+			"TOTAL_ENERGY" : {
+				"Value" : 26213502,
+				"Unit" : "Wh"
+			},
+			"YEAR_ENERGY" : {
+				"Value" : 12400.1,
+				"Unit" : "Wh"
+			},
+			"DeviceStatus" : {
+				"StatusCode" : 3,
+				"MgmtTimerRemainingTime" : -1,
+				"ErrorCode" : 523,
+				"LEDColor" : 1,
+				"LEDState" : 0,
+				"StateToReset" : true
+			}
+		}
+	}
+}
