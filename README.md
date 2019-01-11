@@ -1,4 +1,9 @@
 # PyFronius - a very basic Fronius python bridge
+[![Build Status](https://travis-ci.com/nielstron/pyfronius.svg?branch=master)](https://travis-ci.com/nielstron/pyfronius)
+[![Coverage Status](https://coveralls.io/repos/github/nielstron/pyfronius/badge.svg?branch=master)](https://coveralls.io/github/nielstron/pyfronius?branch=master)
+ [![PyPI version](https://badge.fury.io/py/PyFronius.svg)](https://pypi.org/project/pyfronius/)
+ ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/PyFronius.svg)
+ [![PyPI - Status](https://img.shields.io/pypi/status/PyFronius.svg)](https://pypi.org/project/pyfronius/)
 
 A package that connects to a Fronius Symo device in the local network and provides data
 that is provided via the JSON API of the Fronius Symo.
