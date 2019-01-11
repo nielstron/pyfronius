@@ -1,0 +1,25 @@
+language: python
+
+python:
+  - "3.5"
+  - "3.6"
+  - "3.7"
+dist: xenial
+sudo: true
+
+matrix:
+  fast_finish: true
+
+install:
+  - pip install coverage
+  - pip install coveralls
+  - pip install aiohttp
+  - pip install -e .
+
+script:
+  - python scripts/test_import.py
+  - coverage run --source=pyfronius setup.py test
+
+after_success:
+  - coverage report
+  - coveralls
