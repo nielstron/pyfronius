@@ -53,7 +53,7 @@ class FroniusWebTest(unittest.TestCase):
 
         self.server_control = Server(self.server)
         self.port = self.server_control.get_port()
-        self.url = "{}:{}".format(ADDRESS, self.port)
+        self.url = "http://{}:{}".format(ADDRESS, self.port)
         # Start test server before running any tests
         self.server_control.start_server()
         # set up a fronius client and aiohttp session

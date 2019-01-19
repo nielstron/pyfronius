@@ -26,40 +26,34 @@ class Fronius:
     Interface to communicate with the Fronius Symo over http / JSON
     Attributes:
         session     The AIO session
-        host        The ip/domain of the Fronius device
+        url         The url for reaching of the Fronius device (i.e. http://192.168.0.10:80)
         useHTTPS    Use HTTPS instead of HTTP
         timeout     HTTP timeout in seconds
     """
 
-    def __init__(self, session, host, useHTTPS=False, timeout=10):
+    def __init__(self, session, url, timeout=10):
         """
         Constructor
         """
         self._aio_session = session
-        self.host = host
+        self.url = url
         self.timeout = timeout
-        if useHTTPS:
-            self.protocol = "https"
-        else:
-            self.protocol = "http"
 
-    @asyncio.coroutine
-    def _fetch_json(self, url):
+    async def _fetch_json(self, url):
         """
         Fetch json value from fixed url
         """
         with async_timeout.timeout(self.timeout):
-            res = yield from self._aio_session.get(url)
-            text = yield from res.text()
-            return json.loads(text)
+            res = await self._aio_session.get(url)
+            text = await res.text()
+        return json.loads(text)
 
-    @asyncio.coroutine
-    def _fetch_solar_api_v1(self, spec):
+    async def _fetch_solar_api_v1(self, spec):
         """
         Fetch page of solar_api
         """
-        res = yield from self._fetch_json("{}://{}/solar_api/v1/{}".format(
-            self.protocol, self.host, spec))
+        res = await self._fetch_json("{}/solar_api/v1/{}".format(
+            self.url, spec))
         return res
 
     @staticmethod
@@ -72,9 +66,8 @@ class Fronius:
 
         return sensor
 
-    @asyncio.coroutine
-    def _current_data(self, spec, fun):
-        res = yield from self._fetch_solar_api_v1(spec)
+    async def _current_data(self, spec, fun):
+        res = await self._fetch_solar_api_v1(spec)
 
         sensor = Fronius._status_data(res)
 
@@ -85,8 +78,7 @@ class Fronius:
             _LOGGER.info("No data returned from {}".format(spec))
         return sensor
 
-    @asyncio.coroutine
-    def current_power_flow(self):
+    async def current_power_flow(self):
         """
         Get the current power flow of a smart meter system.
         """
@@ -94,10 +86,9 @@ class Fronius:
 
         _LOGGER.debug("Get current system power flow data for {}".format(url))
 
-        return self._current_data(url, Fronius._system_power_flow)
+        return await self._current_data(url, Fronius._system_power_flow)
 
-    @asyncio.coroutine
-    def current_system_meter_data(self):
+    async def current_system_meter_data(self):
         """
         Get the current meter data.
         """
@@ -105,10 +96,9 @@ class Fronius:
 
         _LOGGER.debug("Get current system meter data for {}".format(url))
 
-        return self._current_data(url, Fronius._system_meter_data)
+        return await self._current_data(url, Fronius._system_meter_data)
 
-    @asyncio.coroutine
-    def current_system_inverter_data(self):
+    async def current_system_inverter_data(self):
         """
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
@@ -117,10 +107,9 @@ class Fronius:
 
         _LOGGER.debug("Get current system inverter data for {}".format(url))
 
-        return self._current_data(url, Fronius._system_inverter_data)
+        return await self._current_data(url, Fronius._system_inverter_data)
 
-    @asyncio.coroutine
-    def current_meter_data(self, device=0):
+    async def current_meter_data(self, device=0):
         """
         Get the current meter data for a device.
         """
@@ -128,10 +117,9 @@ class Fronius:
 
         _LOGGER.debug("Get current meter data for {}".format(url))
 
-        return self._current_data(url, Fronius._device_meter_data)
+        return await self._current_data(url, Fronius._device_meter_data)
 
-    @asyncio.coroutine
-    def current_storage_data(self, device=0):
+    async def current_storage_data(self, device=0):
         """
         Get the current storage data for a device.
         """
@@ -139,10 +127,9 @@ class Fronius:
 
         _LOGGER.debug("Get current storage data for {}".format(url))
 
-        return self._current_data(url, Fronius._device_storage_data)
+        return await self._current_data(url, Fronius._device_storage_data)
 
-    @asyncio.coroutine
-    def current_inverter_data(self, device=1):
+    async def current_inverter_data(self, device=1):
         """
         Get the current inverter data of one device.
         """
@@ -150,7 +137,7 @@ class Fronius:
 
         _LOGGER.debug("Get current inverter data for {}".format(url))
 
-        return self._current_data(url, Fronius._device_inverter_data)
+        return await self._current_data(url, Fronius._device_inverter_data)
 
     @staticmethod
     def _system_power_flow(sensor, data):
