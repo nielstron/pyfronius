@@ -11,7 +11,7 @@ from pyfronius import _LOGGER
 
 
 async def main(loop, host):
-    with aiohttp.ClientSession(loop=loop) as session:
+    async with aiohttp.ClientSession(loop=loop) as session:
         fronius = pyfronius.Fronius(session, host)
 
         res = await fronius.current_power_flow()
@@ -30,4 +30,4 @@ async def main(loop, host):
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(loop, "172.31.106.11"))
+    loop.run_until_complete(main(loop, "http://172.31.106.11"))
