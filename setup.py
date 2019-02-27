@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='PyFronius',
-    version='0.4.4',
+    version='0.4.5',
     description='Automated JSON API based communication with Fronius Symo',
     author='Niels Mündler, Gerrit Beine',
     author_email='n.muendler@web.de, mail@gerritbeine.de',
@@ -28,6 +28,7 @@ setup(
         'aiohttp'
     ],
     long_description=long_description,
+    long_description_content_type='text/markdown',
     license='MIT',
     classifiers=[
         'Development Status :: 3 - Alpha',
