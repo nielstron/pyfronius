@@ -4,10 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-async-timeout = "*"
+pyfronius = {editable = true,path = "."}
 
 [dev-packages]
-aiohttp = "*"
 
 [requires]
 python_version = "3.7"

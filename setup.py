@@ -25,6 +25,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'async_timeout',
+        'aiohttp'
     ],
     long_description=long_description,
     license='MIT',

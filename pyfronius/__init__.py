@@ -4,6 +4,7 @@ Created on 27.09.2017
 @author: Niels
 @author: Gerrit Beine
 """
+import aiohttp
 import asyncio
 import json
 import logging
@@ -43,10 +44,16 @@ class Fronius:
         """
         Fetch json value from fixed url
         """
-        with async_timeout.timeout(self.timeout):
-            res = await self._aio_session.get(url)
-            text = await res.text()
-        return json.loads(text)
+        try:
+            with async_timeout.timeout(self.timeout):
+                res = await self._aio_session.get(url)
+                text = await res.text()
+            res = json.loads(text)
+        except (asyncio.TimeoutError, aiohttp.ClientError):
+            raise ConnectionError("Connection to Fronius device failed at {}.".format(url))
+        except json.JSONDecodeError:
+            raise ValueError("Host returned a non-JSON reply at {}.".format(url))
+        return res
 
     async def _fetch_solar_api_v1(self, spec):
         """
