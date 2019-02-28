@@ -5,6 +5,7 @@
 import unittest
 from .test_structure.server_control import Server
 from .test_structure.fronius_mock_server import FroniusRequestHandler, FroniusServer
+from http.server import SimpleHTTPRequestHandler
 
 # For the server in this case
 import time
@@ -22,6 +23,61 @@ from .web_raw.web_state import (
 )
 
 ADDRESS = 'localhost'
+
+
+class NoFroniusWebTest(unittest.TestCase):
+
+    server = None
+    server_control = None
+    port = 0
+    url = 'http://localhost:80'
+    session = None
+    fronius = None
+
+    def test_no_server(self):
+        # set up a fronius client and aiohttp session
+        self.session = aiohttp.ClientSession()
+        self.fronius = pyfronius.Fronius(self.session, self.url)
+        try:
+            res = asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_system_meter_data())
+            self.fail("No Exception for failed connection to fronius")
+        except ConnectionError:
+            asyncio.get_event_loop().run_until_complete(
+            self.session.close())
+
+    def test_wrong_server(self):
+        # This request handler ignores queries and should return the error page
+        handler = SimpleHTTPRequestHandler
+
+        max_retries = 10
+        r = 0
+        while not self.server:
+            try:
+                # Connect to any open port
+                self.server = FroniusServer((ADDRESS, 0), handler)
+            except OSError:
+                if r < max_retries:
+                    r += 1
+                else:
+                    raise
+                time.sleep(1)
+
+        self.server_control = Server(self.server)
+        self.port = self.server_control.get_port()
+        self.url = "http://{}:{}".format(ADDRESS, self.port)
+        # Start test server before running any tests
+        self.server_control.start_server()
+        # set up a fronius client and aiohttp session
+        self.session = aiohttp.ClientSession()
+        self.fronius = pyfronius.Fronius(self.session, self.url)
+        try:
+            res = asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_system_meter_data())
+            self.fail("No Exception for wrong reply by host")
+        except ValueError:
+            asyncio.get_event_loop().run_until_complete(
+            self.session.close())
 
 
 class FroniusWebTest(unittest.TestCase):
