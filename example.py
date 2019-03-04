@@ -13,7 +13,7 @@ async def main(loop, host):
     async with aiohttp.ClientSession(loop=loop, timeout=timeout) as session:
         fronius = pyfronius.Fronius(session, host)
 
-        res = await fronius.fetch()
+        res = await fronius.fetch(loop=loop)
         for r in res:
             print(r)
 

@@ -72,7 +72,8 @@ class Fronius:
                     system_inverter=True,
                     device_meter=[0],
                     device_storage=[0],
-                    device_inverter=[1]):
+                    device_inverter=[1],
+                    loop=None):
         requests = []
         if power_flow:
             requests.append(self.current_power_flow())
@@ -87,8 +88,7 @@ class Fronius:
         for i in device_inverter:
             requests.append(self.current_inverter_data(i))
 
-        requests = map(asyncio.ensure_future, requests)
-        responses = await asyncio.gather(*requests)
+        responses = await asyncio.gather(*requests, loop=loop)
         return responses
 
     @staticmethod
