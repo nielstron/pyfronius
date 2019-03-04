@@ -4,6 +4,9 @@ Created on 27.09.2017
 @author: Niels
 @author: Gerrit Beine
 """
+
+import asyncio
+
 import aiohttp
 import json
 import logging
@@ -45,11 +48,14 @@ class Fronius:
                 text = await res.text()
                 text = json.loads(text)
         except aiohttp.ServerTimeoutError:
-            raise ConnectionError("Connection to Fronius device timed out at {}.".format(url))
+            raise ConnectionError(
+                "Connection to Fronius device timed out at {}.".format(url))
         except aiohttp.ClientError:
-            raise ConnectionError("Connection to Fronius device failed at {}.".format(url))
+            raise ConnectionError(
+                "Connection to Fronius device failed at {}.".format(url))
         except json.JSONDecodeError:
-            raise ValueError("Host returned a non-JSON reply at {}.".format(url))
+            raise ValueError(
+                "Host returned a non-JSON reply at {}.".format(url))
         return text
 
     async def _fetch_solar_api_v1(self, spec):
@@ -59,6 +65,31 @@ class Fronius:
         res = await self._fetch_json("{}/solar_api/v1/{}".format(
             self.url, spec))
         return res
+
+    async def fetch(self,
+                    power_flow=True,
+                    system_meter=True,
+                    system_inverter=True,
+                    device_meter=[0],
+                    device_storage=[0],
+                    device_inverter=[1]):
+        requests = []
+        if power_flow:
+            requests.append(self.current_power_flow())
+        if system_meter:
+            requests.append(self.current_system_meter_data())
+        if system_inverter:
+            requests.append(self.current_system_inverter_data())
+        for i in device_meter:
+            requests.append(self.current_meter_data(i))
+        for i in device_storage:
+            requests.append(self.current_storage_data(i))
+        for i in device_inverter:
+            requests.append(self.current_inverter_data(i))
+
+        requests = map(asyncio.ensure_future, requests)
+        responses = await asyncio.gather(*requests)
+        return responses
 
     @staticmethod
     def _status_data(res):

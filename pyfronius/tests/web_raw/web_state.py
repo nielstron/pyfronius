@@ -136,6 +136,17 @@ GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
     }
 }
 
+GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE = {
+    'timestamp': {
+        'value': '2019-01-10T23:33:14+01:00'
+    },
+    'status': {
+        'Code': 255,
+        'Reason': 'Storages are not supported',
+        'UserMessage': ''
+    }
+}
+
 GET_INVERTER_REALTIME_DATA_SYSTEM = {
     'timestamp': {
         'value': '2019-01-10T23:33:16+01:00'

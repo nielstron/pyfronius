@@ -15,12 +15,9 @@ import aiohttp
 import asyncio
 import pyfronius
 from .web_raw.web_state import (
-    GET_METER_REALTIME_DATA_SCOPE_DEVICE,
-    GET_METER_REALTIME_DATA_SYSTEM,
-    GET_POWER_FLOW_REALTIME_DATA,
-    GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
-    GET_INVERTER_REALTIME_DATA_SYSTEM,
-)
+    GET_METER_REALTIME_DATA_SCOPE_DEVICE, GET_METER_REALTIME_DATA_SYSTEM,
+    GET_POWER_FLOW_REALTIME_DATA, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
+    GET_INVERTER_REALTIME_DATA_SYSTEM, GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE)
 
 ADDRESS = 'localhost'
 
@@ -43,8 +40,7 @@ class NoFroniusWebTest(unittest.TestCase):
                 self.fronius.current_system_meter_data())
             self.fail("No Exception for failed connection to fronius")
         except ConnectionError:
-            asyncio.get_event_loop().run_until_complete(
-            self.session.close())
+            asyncio.get_event_loop().run_until_complete(self.session.close())
 
     def test_wrong_server(self):
         # This request handler ignores queries and should return the error page
@@ -76,8 +72,7 @@ class NoFroniusWebTest(unittest.TestCase):
                 self.fronius.current_system_meter_data())
             self.fail("No Exception for wrong reply by host")
         except ValueError:
-            asyncio.get_event_loop().run_until_complete(
-                self.session.close())
+            asyncio.get_event_loop().run_until_complete(self.session.close())
 
 
 class FroniusWebTest(unittest.TestCase):
@@ -150,6 +145,16 @@ class FroniusWebTest(unittest.TestCase):
         self.assertIn('timestamp', res)
         self.assertIn('status', res)
         # Mainly asserts that no error is thrown by illegal access!
+
+    def test_fronius_fetch(self):
+        res = asyncio.get_event_loop().run_until_complete(self.fronius.fetch())
+        self.assertEqual(res, [
+            GET_POWER_FLOW_REALTIME_DATA, GET_METER_REALTIME_DATA_SYSTEM,
+            GET_INVERTER_REALTIME_DATA_SYSTEM,
+            GET_METER_REALTIME_DATA_SCOPE_DEVICE,
+            GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE,
+            GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE
+        ])
 
     def tearDown(self):
         asyncio.get_event_loop().run_until_complete(self.session.close())

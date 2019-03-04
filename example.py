@@ -2,7 +2,6 @@
 """Basic usage example and testing of pyfronius."""
 import asyncio
 import logging
-import sys
 
 import aiohttp
 
@@ -11,21 +10,13 @@ import pyfronius
 
 async def main(loop, host):
     timeout = aiohttp.ClientTimeout(total=10)
-    async with aiohttp.ClientSession(loop=loop, timeout=10) as session:
+    async with aiohttp.ClientSession(loop=loop, timeout=timeout) as session:
         fronius = pyfronius.Fronius(session, host)
 
-        res = await fronius.current_power_flow()
-        print(res)
-        res = await fronius.current_system_meter_data()
-        print(res)
-        res = await fronius.current_meter_data()
-        print(res)
-        res = await fronius.current_storage_data()
-        print(res)
-        res = await fronius.current_inverter_data()
-        print(res)
-        res = await fronius.current_system_inverter_data()
-        print(res)
+        res = await fronius.fetch()
+        for r in res:
+            print(r)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
