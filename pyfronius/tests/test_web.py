@@ -77,7 +77,7 @@ class NoFroniusWebTest(unittest.TestCase):
             self.fail("No Exception for wrong reply by host")
         except ValueError:
             asyncio.get_event_loop().run_until_complete(
-            self.session.close())
+                self.session.close())
 
 
 class FroniusWebTest(unittest.TestCase):

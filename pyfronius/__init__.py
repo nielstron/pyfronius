@@ -5,11 +5,8 @@ Created on 27.09.2017
 @author: Gerrit Beine
 """
 import aiohttp
-import asyncio
 import json
 import logging
-
-import async_timeout
 
 _LOGGER = logging.getLogger(__name__)
 

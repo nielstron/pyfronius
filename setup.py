@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='PyFronius',
-    version='0.4.6',
+    version='0.4.7',
     description='Automated JSON API based communication with Fronius Symo',
     author='Niels Mündler, Gerrit Beine',
     author_email='n.muendler@web.de, mail@gerritbeine.de',
@@ -24,7 +24,6 @@ setup(
     package_data={'pyfronius.tests.test_structure': ['solar_api/v1/*.fcgi*', 'solar_api/v1/*.cgi*', '.error.html']},
     packages=find_packages(),
     install_requires=[
-        'async_timeout',
         'aiohttp'
     ],
     long_description=long_description,
