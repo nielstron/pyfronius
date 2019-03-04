@@ -25,35 +25,35 @@ URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId=
 class Fronius:
     """
     Interface to communicate with the Fronius Symo over http / JSON
+    Timeouts are to be set in the given AIO session
     Attributes:
         session     The AIO session
         url         The url for reaching of the Fronius device (i.e. http://192.168.0.10:80)
         useHTTPS    Use HTTPS instead of HTTP
-        timeout     HTTP timeout in seconds
     """
 
-    def __init__(self, session, url, timeout=10):
+    def __init__(self, session, url):
         """
         Constructor
         """
         self._aio_session = session
         self.url = url
-        self.timeout = timeout
 
     async def _fetch_json(self, url):
         """
         Fetch json value from fixed url
         """
         try:
-            with async_timeout.timeout(self.timeout):
-                res = await self._aio_session.get(url)
+            async with self._aio_session.get(url) as res:
                 text = await res.text()
-            res = json.loads(text)
-        except (asyncio.TimeoutError, aiohttp.ClientError):
+                text = json.loads(text)
+        except aiohttp.ServerTimeoutError:
+            raise ConnectionError("Connection to Fronius device timed out at {}.".format(url))
+        except aiohttp.ClientError:
             raise ConnectionError("Connection to Fronius device failed at {}.".format(url))
         except json.JSONDecodeError:
             raise ValueError("Host returned a non-JSON reply at {}.".format(url))
-        return res
+        return text
 
     async def _fetch_solar_api_v1(self, spec):
         """

@@ -10,7 +10,8 @@ import pyfronius
 
 
 async def main(loop, host):
-    async with aiohttp.ClientSession(loop=loop) as session:
+    timeout = aiohttp.ClientTimeout(total=10)
+    async with aiohttp.ClientSession(loop=loop, timeout=10) as session:
         fronius = pyfronius.Fronius(session, host)
 
         res = await fronius.current_power_flow()
