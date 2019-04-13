@@ -2,7 +2,6 @@
 """Basic usage example and testing of pyfronius."""
 import asyncio
 import logging
-import sys
 
 import aiohttp
 

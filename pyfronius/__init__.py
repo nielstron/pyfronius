@@ -18,8 +18,12 @@ URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
 URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
 URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
 URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
-URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
+URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&" \
+                                 "DeviceId={}&" \
+                                 "DataCollection=CumulationInverterData"
+URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?" \
+                             "Scope=Device&DeviceId={}&" \
+                             "DataCollection=CommonInverterData"
 
 
 class Fronius:
@@ -27,7 +31,8 @@ class Fronius:
     Interface to communicate with the Fronius Symo over http / JSON
     Attributes:
         session     The AIO session
-        url         The url for reaching of the Fronius device (i.e. http://192.168.0.10:80)
+        url         The url for reaching of the Fronius device
+                    (i.e. http://192.168.0.10:80)
         useHTTPS    Use HTTPS instead of HTTP
         timeout     HTTP timeout in seconds
     """
@@ -50,9 +55,11 @@ class Fronius:
                 text = await res.text()
             res = json.loads(text)
         except (asyncio.TimeoutError, aiohttp.ClientError):
-            raise ConnectionError("Connection to Fronius device failed at {}.".format(url))
+            raise ConnectionError(
+                "Connection to Fronius device failed at {}.".format(url))
         except json.JSONDecodeError:
-            raise ValueError("Host returned a non-JSON reply at {}.".format(url))
+            raise ValueError(
+                "Host returned a non-JSON reply at {}.".format(url))
         return res
 
     async def _fetch_solar_api_v1(self, spec):
