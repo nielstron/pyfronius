@@ -2,7 +2,6 @@
 """Basic usage example and testing of pyfronius."""
 import asyncio
 import logging
-import sys
 
 import aiohttp
 
@@ -25,6 +24,7 @@ async def main(loop, host):
         print(res)
         res = await fronius.current_system_inverter_data()
         print(res)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)

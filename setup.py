@@ -21,7 +21,9 @@ setup(
     author_email='n.muendler@web.de, mail@gerritbeine.de',
     url='https://github.com/nielstron/pyfronius/',
     py_modules=['pyfronius'],
-    package_data={'pyfronius.tests.test_structure': ['solar_api/v1/*.fcgi*', 'solar_api/v1/*.cgi*', '.error.html']},
+    package_data={
+        'pyfronius.tests.test_structure': [
+            'solar_api/v1/*.fcgi*', 'solar_api/v1/*.cgi*', '.error.html']},
     packages=find_packages(),
     install_requires=[
         'async_timeout',
