@@ -101,6 +101,22 @@ class Fronius:
 
         return sensor
 
+    @staticmethod
+    def error_code(sensor_data):
+        """
+        Extract error code from returned sensor data
+        :param sensor_data: Dictionary returned as current data
+        """
+        return sensor_data['status']['Code']
+
+    @staticmethod
+    def error_reason(sensor_data):
+        """
+        Extract error reason from returned sensor data
+        :param sensor_data: Dictionary returned as current data
+        """
+        return sensor_data['status']['Reason']
+
     async def _current_data(self, spec, fun):
         res = await self._fetch_solar_api_v1(spec)
 
