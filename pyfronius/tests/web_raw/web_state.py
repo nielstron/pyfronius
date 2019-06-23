@@ -193,3 +193,31 @@ GET_INVERTER_REALTIME_DATA_SYSTEM = {
         }
     }
 }
+
+GET_LOGGER_LED_INFO_STATE = {
+    'timestamp': {
+        'value': '2019-06-23T23:50:16+02:00'
+    },
+    'status': {
+        'Code': 0,
+        'Reason': '',
+        'UserMessage': ''
+    },
+    "power_led" : {
+        "color" : "green",
+        "state" : "on"
+    },
+    "solar_net_led" : {
+        "color" : "green",
+        "state" : "on"
+    },
+    "solar_web_led" : {
+        "color" : "none",
+        "state" : "off"
+    },
+    "wlan_led" : {
+        "color" : "green",
+        "state" : "on"
+    }
+
+}

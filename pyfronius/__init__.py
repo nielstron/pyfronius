@@ -16,6 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
 URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
 URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
+URL_SYSTEM_LED = "GetLoggerLEDInfo.cgi"
 URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
 URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
 URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
@@ -70,9 +71,9 @@ class Fronius:
                     power_flow=True,
                     system_meter=True,
                     system_inverter=True,
-                    device_meter=[0],
-                    device_storage=[0],
-                    device_inverter=[1],
+                    device_meter=frozenset([0]),
+                    device_storage=frozenset([0]),
+                    device_inverter=frozenset([1]),
                     loop=None):
         requests = []
         if power_flow:
@@ -173,6 +174,7 @@ class Fronius:
     async def current_storage_data(self, device=0):
         """
         Get the current storage data for a device.
+        Provides data about batteries.
         """
         url = URL_DEVICE_STORAGE.format(device)
 
@@ -189,6 +191,36 @@ class Fronius:
         _LOGGER.debug("Get current inverter data for {}".format(url))
 
         return await self._current_data(url, Fronius._device_inverter_data)
+
+    async def current_led_data(self):
+        """
+        Get the current info led data for all LEDs
+        """
+        url = URL_SYSTEM_LED
+
+        _LOGGER.debug("Get current led data for {}".format(url))
+
+        return await self._current_data(url, Fronius._system_led_data)
+
+    @staticmethod
+    def _system_led_data(sensor, data):
+        _LOGGER.debug("Converting system led data: '{}'".format(data))
+
+        _map = {
+            'PowerLED': 'power_led',
+            'SolarNetLED': 'solar_net_led',
+            'SolarWebLED': 'solar_web_led',
+            'WLANLED': 'wlan_led',
+        }
+
+        for led in _map:
+            if led in data:
+                sensor[_map[led]] = {
+                    'color': data[led]['Color'],
+                    'state': data[led]['State'],
+                }
+
+        return sensor
 
     @staticmethod
     def _system_power_flow(sensor, data):
