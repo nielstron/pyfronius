@@ -227,12 +227,19 @@ class Fronius:
         _LOGGER.debug("Converting system power flow data: '{}'".format(data))
 
         site = data['Site']
-        inverter = data['Inverters']['1']  # TODO: implement more inverters
+        # Backwards compatability
+        if data['Inverters'].get('1'):
+            inverter = data['Inverters']['1']
+            if "Battery_Mode" in inverter:
+                sensor['battery_mode'] = {'value': inverter['Battery_Mode']}
+            if "SOC" in inverter:
+                sensor['state_of_charge'] = {'value': inverter['SOC'], 'unit': "%"}
 
-        if "Battery_Mode" in inverter:
-            sensor['battery_mode'] = {'value': inverter['Battery_Mode']}
-        if "SOC" in inverter:
-            sensor['state_of_charge'] = {'value': inverter['SOC'], 'unit': "%"}
+        for index, inverter in enumerate(data['Inverters']):
+            if "Battery_Mode" in inverter:
+                sensor['battery_mode_{}'.format(index)] = {'value': inverter['Battery_Mode']}
+            if "SOC" in inverter:
+                sensor['state_of_charge_{}'.format(index)] = {'value': inverter['SOC'], 'unit': "%"}
 
         if "BatteryStandby" in site:
             sensor['battery_standby'] = {'value': site['BatteryStandby']}
