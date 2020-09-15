@@ -10,9 +10,11 @@ import asyncio
 import aiohttp
 import json
 import logging
+import enum
 
 _LOGGER = logging.getLogger(__name__)
 
+URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
 URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
 URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
 URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
@@ -31,6 +33,18 @@ URL_DEVICE_INVERTER_COMMON = (
 )
 
 
+class API_VERSION(enum.Enum):
+    AUTO = -1
+    V0 = 0
+    V1 = 1
+
+
+API_BASEPATHS = {
+    API_VERSION.V0: "/solar_api/",
+    API_VERSION.V1: "/solar_api/v1",
+}
+
+
 class Fronius:
     """
     Interface to communicate with the Fronius Symo over http / JSON
@@ -39,15 +53,18 @@ class Fronius:
         session     The AIO session
         url         The url for reaching of the Fronius device
                     (i.e. http://192.168.0.10:80)
-        useHTTPS    Use HTTPS instead of HTTP
+        url         The url for reaching of the Fronius device (i.e. http://192.168.0.10:80)
+        api_version  Version of Fronius API to use
     """
 
-    def __init__(self, session, url):
+    def __init__(self, session, url, api_version=API_VERSION.AUTO):
         """
         Constructor
         """
         self._aio_session = session
         self.url = url
+        self.api_version = api_version
+        self.base_url = API_BASEPATHS.get(API_VERSION)
 
     async def _fetch_json(self, url):
         """
@@ -69,11 +86,36 @@ class Fronius:
             raise ValueError("Host returned a non-JSON reply at {}.".format(url))
         return text
 
-    async def _fetch_solar_api_v1(self, spec):
+    async def fetch_api_version(self):
+        """
+        Fetches the highest supported API version of the initiated fronius device
+        :return:
+        """
+        try:
+            res = await self._fetch_json("{}/{}".format(
+                self.url, URL_API_VERSION
+            ))
+            api_version, base_url = res["APIVersion"], res["BaseURL"]
+        except ValueError:
+            # Host returns 404 response if API version is 0
+            api_version, base_url = API_VERSION.V0, API_BASEPATHS[API_VERSION.V0]
+
+        return api_version, base_url
+
+    async def _fetch_solar_api(self, spec):
         """
         Fetch page of solar_api
         """
-        res = await self._fetch_json("{}/solar_api/v1/{}".format(self.url, spec))
+        # either unknown api version given or automatic
+        if self.base_url is None:
+            prev_api_version = self.api_version
+            self.api_version, self.base_url = await self.fetch_api_version()
+            if prev_api_version != self.api_version and prev_api_version != API_VERSION.AUTO:
+                _LOGGER.warning(
+                    """Unknown API version {} is not supported by host {},"""
+                    """using highest supported API version {} instead"""
+                )
+        res = await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec))
         return res
 
     async def fetch(
