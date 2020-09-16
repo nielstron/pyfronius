@@ -62,9 +62,10 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         #  - RFC7230: 3.3. 1xx, 204(No Content), 304(Not Modified)
         #  - RFC7231: 6.3.6. 205(Reset Content)
         body = None
-        if (code >= 200 and
-                code not in (HTTPStatus.NO_CONTENT, HTTPStatus.RESET_CONTENT,
-                             HTTPStatus.NOT_MODIFIED)):
+        if (code >= 200
+                and code not in (HTTPStatus.NO_CONTENT,
+                                 HTTPStatus.RESET_CONTENT,
+                                 HTTPStatus.NOT_MODIFIED)):
             # HTML encode to prevent Cross Site Scripting attacks
             # (see bug #1100201)
             # Specialized error method for fronius

@@ -13,9 +13,11 @@ matrix:
 install:
   - pip install coverage
   - pip install coveralls
+  - pip install tox-travis
   - pip install -e .
 
 script:
+  - tox
   - python scripts/test_import.py
   - coverage run --source=pyfronius setup.py test
 

@@ -19,8 +19,12 @@ URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
 URL_SYSTEM_LED = "GetLoggerLEDInfo.cgi"
 URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
 URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CumulationInverterData"
-URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?Scope=Device&DeviceId={}&DataCollection=CommonInverterData"
+URL_DEVICE_INVERTER_CUMULATIVE = "GetInverterRealtimeData.cgi?Scope=Device&" \
+                                 "DeviceId={}&" \
+                                 "DataCollection=CumulationInverterData"
+URL_DEVICE_INVERTER_COMMON = "GetInverterRealtimeData.cgi?" \
+                             "Scope=Device&DeviceId={}&" \
+                             "DataCollection=CommonInverterData"
 
 
 class Fronius:
@@ -29,7 +33,8 @@ class Fronius:
     Timeouts are to be set in the given AIO session
     Attributes:
         session     The AIO session
-        url         The url for reaching of the Fronius device (i.e. http://192.168.0.10:80)
+        url         The url for reaching of the Fronius device
+                    (i.e. http://192.168.0.10:80)
         useHTTPS    Use HTTPS instead of HTTP
     """
 

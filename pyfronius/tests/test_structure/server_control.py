@@ -44,11 +44,13 @@ class Server:
     def start_server(self, timeout=10):
         """
         Start server thread as daemon
-        As such the program will automatically close the thread on exit of all non-daemon threads
+        As such the program will automatically close the thread on exit of all
+        non-daemon threads
         :return:
         """
         self._server_started_event.clear()
-        # start webserver as daemon => will automatically be closed when non-daemon threads are closed
+        # start webserver as daemon => will automatically be closed when
+        # non-daemon threads are closed
         t = threading.Thread(target=self._run_server, daemon=True)
         # Start webserver
         t.start()

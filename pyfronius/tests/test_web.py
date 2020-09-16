@@ -4,7 +4,8 @@
 # general requirements
 import unittest
 from .test_structure.server_control import Server
-from .test_structure.fronius_mock_server import FroniusRequestHandler, FroniusServer
+from .test_structure.fronius_mock_server \
+    import FroniusRequestHandler, FroniusServer
 from http.server import SimpleHTTPRequestHandler
 
 # For the server in this case
@@ -37,7 +38,7 @@ class NoFroniusWebTest(unittest.TestCase):
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url)
         try:
-            res = asyncio.get_event_loop().run_until_complete(
+            asyncio.get_event_loop().run_until_complete(
                 self.fronius.current_system_meter_data())
             self.fail("No Exception for failed connection to fronius")
         except ConnectionError:
@@ -69,7 +70,7 @@ class NoFroniusWebTest(unittest.TestCase):
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url)
         try:
-            res = asyncio.get_event_loop().run_until_complete(
+            asyncio.get_event_loop().run_until_complete(
                 self.fronius.current_system_meter_data())
             self.fail("No Exception for wrong reply by host")
         except ValueError:
@@ -86,7 +87,8 @@ class FroniusWebTest(unittest.TestCase):
     fronius = None
 
     def setUp(self):
-        # Create an arbitrary subclass of TCP Server as the server to be started
+        # Create an arbitrary subclass of TCP Server as the server to be
+        # started
         # Here, it is an Simple HTTP file serving server
         handler = FroniusRequestHandler
 
