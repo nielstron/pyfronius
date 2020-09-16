@@ -18,7 +18,6 @@ async def main(loop, host):
             print(r)
 
 
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     loop = asyncio.get_event_loop()

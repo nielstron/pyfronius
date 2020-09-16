@@ -1,6 +1,7 @@
 import os
 import urllib.parse
 from http.server import SimpleHTTPRequestHandler, HTTPServer
+
 try:
     from http import HTTPStatus
 except ImportError:
@@ -9,7 +10,7 @@ except ImportError:
 import posixpath
 from pathlib import Path
 
-SERVER_DIR = Path(__file__).parent or Path('.')
+SERVER_DIR = Path(__file__).parent or Path(".")
 
 FroniusServer = HTTPServer
 
@@ -26,15 +27,15 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         """
         # abandon query parameters
         # path = path.split('?',1)[0] -> Keep them for fronius as name of file
-        path = path.split('#', 1)[0]
+        path = path.split("#", 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
-        trailing_slash = path.rstrip().endswith('/')
+        trailing_slash = path.rstrip().endswith("/")
         try:
-            path = urllib.parse.unquote(path, errors='surrogatepass')
+            path = urllib.parse.unquote(path, errors="surrogatepass")
         except UnicodeDecodeError:
             path = urllib.parse.unquote(path)
         path = posixpath.normpath(path)
-        words = path.split('/')
+        words = path.split("/")
         words = filter(None, words)
         path = str(SERVER_DIR.absolute())
         for word in words:
@@ -43,7 +44,7 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
                 continue
             path = os.path.join(path, word)
         if trailing_slash:
-            path += '/'
+            path += "/"
         return path
 
     def send_error(self, code, message=None, explain=None):
@@ -56,24 +57,25 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         """
         self.log_error("code %d, message %s", code, message)
         self.send_response(code, message)
-        self.send_header('Connection', 'close')
+        self.send_header("Connection", "close")
 
         # Message body is omitted for cases described in:
         #  - RFC7230: 3.3. 1xx, 204(No Content), 304(Not Modified)
         #  - RFC7231: 6.3.6. 205(Reset Content)
         body = None
-        if (code >= 200
-                and code not in (HTTPStatus.NO_CONTENT,
-                                 HTTPStatus.RESET_CONTENT,
-                                 HTTPStatus.NOT_MODIFIED)):
+        if code >= 200 and code not in (
+            HTTPStatus.NO_CONTENT,
+            HTTPStatus.RESET_CONTENT,
+            HTTPStatus.NOT_MODIFIED,
+        ):
             # HTML encode to prevent Cross Site Scripting attacks
             # (see bug #1100201)
             # Specialized error method for fronius
-            with SERVER_DIR.joinpath(".error.html").open('rb') as file:
+            with SERVER_DIR.joinpath(".error.html").open("rb") as file:
                 body = file.read()
             self.send_header("Content-Type", self.error_content_type)
-            self.send_header('Content-Length', int(len(body)))
+            self.send_header("Content-Length", int(len(body)))
         self.end_headers()
 
-        if self.command != 'HEAD' and body:
+        if self.command != "HEAD" and body:
             self.wfile.write(body)
