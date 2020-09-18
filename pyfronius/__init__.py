@@ -53,7 +53,6 @@ class Fronius:
         session     The AIO session
         url         The url for reaching of the Fronius device
                     (i.e. http://192.168.0.10:80)
-        url         The url for reaching of the Fronius device (i.e. http://192.168.0.10:80)
         api_version  Version of Fronius API to use
     """
 
@@ -92,9 +91,7 @@ class Fronius:
         :return:
         """
         try:
-            res = await self._fetch_json("{}/{}".format(
-                self.url, URL_API_VERSION
-            ))
+            res = await self._fetch_json("{}/{}".format(self.url, URL_API_VERSION))
             api_version, base_url = res["APIVersion"], res["BaseURL"]
         except ValueError:
             # Host returns 404 response if API version is 0
@@ -110,7 +107,10 @@ class Fronius:
         if self.base_url is None:
             prev_api_version = self.api_version
             self.api_version, self.base_url = await self.fetch_api_version()
-            if prev_api_version != self.api_version and prev_api_version != API_VERSION.AUTO:
+            if (
+                prev_api_version != self.api_version
+                and prev_api_version != API_VERSION.AUTO
+            ):
                 _LOGGER.warning(
                     """Unknown API version {} is not supported by host {},"""
                     """using highest supported API version {} instead"""
