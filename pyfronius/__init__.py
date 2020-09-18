@@ -172,7 +172,7 @@ class Fronius:
         return sensor_data["status"]["Reason"]
 
     async def _current_data(self, spec, fun):
-        res = await self._fetch_solar_api_v1(spec)
+        res = await self._fetch_solar_api(spec)
 
         sensor = Fronius._status_data(res)
 
