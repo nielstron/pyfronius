@@ -46,6 +46,8 @@ class NoFroniusWebTest(unittest.TestCase):
             )
             self.fail("No Exception for failed connection to fronius")
         except ConnectionError:
+            pass
+        finally:
             asyncio.get_event_loop().run_until_complete(self.session.close())
 
     def test_wrong_server(self):
@@ -79,6 +81,8 @@ class NoFroniusWebTest(unittest.TestCase):
             )
             self.fail("No Exception for wrong reply by host")
         except ValueError:
+            pass
+        finally:
             asyncio.get_event_loop().run_until_complete(self.session.close())
 
 
