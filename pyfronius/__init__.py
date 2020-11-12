@@ -16,6 +16,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class API_VERSION(enum.Enum):
+    value: int
+
     AUTO = -1
     V0 = 0
     V1 = 1
@@ -295,7 +297,6 @@ class Fronius:
             return None
 
         url = url.format(device)
-
 
         _LOGGER.debug("Get current inverter data for {}".format(url))
 
