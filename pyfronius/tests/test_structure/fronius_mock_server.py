@@ -1,6 +1,7 @@
 import os
 import urllib.parse
-from http.server import SimpleHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, SimpleHTTPRequestHandler, HTTPServer
+from typing import Tuple, Callable
 
 try:
     from http import HTTPStatus
@@ -12,10 +13,22 @@ from pathlib import Path
 
 SERVER_DIR = Path(__file__).parent or Path(".")
 
-FroniusServer = HTTPServer
+
+class FroniusServer(HTTPServer):
+    def __init__(
+        self,
+        server_address: Tuple[str, int],
+        RequestHandlerClass: Callable[..., BaseHTTPRequestHandler],
+        api_version: int,
+    ):
+        super().__init__(server_address, RequestHandlerClass)
+        self.api_version = api_version
 
 
 class FroniusRequestHandler(SimpleHTTPRequestHandler):
+
+    server: FroniusServer
+
     def translate_path(self, path):
         """Translate a /-separated PATH to the local filename syntax.
 
@@ -37,7 +50,9 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         path = posixpath.normpath(path)
         words = path.split("/")
         words = filter(None, words)
-        path = str(SERVER_DIR.absolute())
+        path = os.path.join(
+            str(SERVER_DIR.absolute()), "v{}".format(self.server.api_version)
+        )
         for word in words:
             if os.path.dirname(word) or word in (os.curdir, os.pardir):
                 # Ignore components that are not a simple file/directory name
@@ -71,7 +86,9 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
             # HTML encode to prevent Cross Site Scripting attacks
             # (see bug #1100201)
             # Specialized error method for fronius
-            with SERVER_DIR.joinpath(".error.html").open("rb") as file:
+            with SERVER_DIR.joinpath("v{}".format(self.server.api_version)).joinpath(
+                ".error.html"
+            ).open("rb") as file:
                 body = file.read()
             self.send_header("Content-Type", self.error_content_type)
             self.send_header("Content-Length", int(len(body)))

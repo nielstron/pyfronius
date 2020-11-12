@@ -10,25 +10,60 @@ import asyncio
 import aiohttp
 import json
 import logging
+import enum
 
 _LOGGER = logging.getLogger(__name__)
 
-URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
-URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_LED = "GetLoggerLEDInfo.cgi"
-URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = (
-    "GetInverterRealtimeData.cgi?Scope=Device&"
-    "DeviceId={}&"
-    "DataCollection=CumulationInverterData"
-)
-URL_DEVICE_INVERTER_COMMON = (
-    "GetInverterRealtimeData.cgi?"
-    "Scope=Device&DeviceId={}&"
-    "DataCollection=CommonInverterData"
-)
+
+class API_VERSION(enum.Enum):
+    value: int
+
+    AUTO = -1
+    V0 = 0
+    V1 = 1
+
+
+API_BASEPATHS = {
+    API_VERSION.V0: "/solar_api/",
+    API_VERSION.V1: "/solar_api/v1",
+}
+
+URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
+URL_POWER_FLOW = {API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"}
+URL_SYSTEM_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"}
+URL_SYSTEM_INVERTER = {
+    API_VERSION.V0: "GetInverterRealtimeData.cgi?Scope=System",
+    API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System",
+}
+URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
+URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
+URL_DEVICE_STORAGE = {
+    API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
+}
+URL_DEVICE_INVERTER_CUMULATIVE = {
+    API_VERSION.V0: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceIndex={}&"
+        "DataCollection=CumulationInverterData"
+    ),
+    API_VERSION.V1: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceId={}&"
+        "DataCollection=CumulationInverterData"
+    ),
+}
+URL_DEVICE_INVERTER_COMMON = {
+    API_VERSION.V0: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceIndex={}&"
+        "DataCollection=CommonInverterData"
+    ),
+    API_VERSION.V1: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceId={}&"
+        "DataCollection=CommonInverterData"
+    ),
+}
 
 
 class Fronius:
@@ -39,15 +74,17 @@ class Fronius:
         session     The AIO session
         url         The url for reaching of the Fronius device
                     (i.e. http://192.168.0.10:80)
-        useHTTPS    Use HTTPS instead of HTTP
+        api_version  Version of Fronius API to use
     """
 
-    def __init__(self, session, url):
+    def __init__(self, session, url, api_version=API_VERSION.AUTO):
         """
         Constructor
         """
         self._aio_session = session
         self.url = url
+        self.api_version = api_version
+        self.base_url = API_BASEPATHS.get(API_VERSION)
 
     async def _fetch_json(self, url):
         """
@@ -69,11 +106,57 @@ class Fronius:
             raise ValueError("Host returned a non-JSON reply at {}.".format(url))
         return text
 
-    async def _fetch_solar_api_v1(self, spec):
+    async def fetch_api_version(self):
+        """
+        Fetches the highest supported API version of the initiated fronius device
+        :return:
+        """
+        try:
+            res = await self._fetch_json("{}/{}".format(self.url, URL_API_VERSION))
+            api_version, base_url = API_VERSION(res["APIVersion"]), res["BaseURL"]
+        except ValueError:
+            # Host returns 404 response if API version is 0
+            api_version, base_url = API_VERSION.V0, API_BASEPATHS[API_VERSION.V0]
+
+        return api_version, base_url
+
+    async def _fetch_solar_api(self, spec, spec_name, *spec_formattings):
         """
         Fetch page of solar_api
         """
-        res = await self._fetch_json("{}/solar_api/v1/{}".format(self.url, spec))
+        # either unknown api version given or automatic
+        if self.base_url is None:
+            prev_api_version = self.api_version
+            self.api_version, self.base_url = await self.fetch_api_version()
+            if prev_api_version == API_VERSION.AUTO:
+                _LOGGER.debug(
+                    """using highest supported API version {}""".format(
+                        self.api_version
+                    )
+                )
+            if (
+                prev_api_version != self.api_version
+                and prev_api_version != API_VERSION.AUTO
+            ):
+                _LOGGER.warning(
+                    (
+                        """Unknown API version {} is not supported by host {},"""
+                        """using highest supported API version {} instead"""
+                    ).format(prev_api_version, self.url, self.api_version)
+                )
+        spec_url = spec.get(self.api_version)
+        if spec_url is None:
+            _LOGGER.warning(
+                "API version {} does not support request of {} data".format(
+                    self.api_version, spec_name
+                )
+            )
+            return None
+        if spec_formattings:
+            spec_url = spec_url.format(*spec_formattings)
+
+        _LOGGER.debug("Get {} data for {}".format(spec_name, spec_url))
+        res = await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec_url))
         return res
 
     async def fetch(
@@ -129,14 +212,15 @@ class Fronius:
         """
         return sensor_data["status"]["Reason"]
 
-    async def _current_data(self, spec, fun):
-        res = await self._fetch_solar_api_v1(spec)
+    async def _current_data(self, fun, spec, spec_name, *spec_formattings):
+        res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
 
-        sensor = Fronius._status_data(res)
-
+        sensor = {}
         try:
+            sensor.update(Fronius._status_data(res))
+            # TODO use update here as well
             sensor = fun(sensor, res["Body"]["Data"])
-        except KeyError:
+        except (TypeError, KeyError):
             # break if Data is empty
             _LOGGER.info("No data returned from {}".format(spec))
         return sensor
@@ -145,73 +229,64 @@ class Fronius:
         """
         Get the current power flow of a smart meter system.
         """
-        url = URL_POWER_FLOW
-
-        _LOGGER.debug("Get current system power flow data for {}".format(url))
-
-        return await self._current_data(url, Fronius._system_power_flow)
+        return await self._current_data(
+            Fronius._system_power_flow, URL_POWER_FLOW, "current power flow"
+        )
 
     async def current_system_meter_data(self):
         """
         Get the current meter data.
         """
-        url = URL_SYSTEM_METER
-
-        _LOGGER.debug("Get current system meter data for {}".format(url))
-
-        return await self._current_data(url, Fronius._system_meter_data)
+        return await self._current_data(
+            Fronius._system_meter_data, URL_SYSTEM_METER, "current system meter"
+        )
 
     async def current_system_inverter_data(self):
         """
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
         """
-        url = URL_SYSTEM_INVERTER
-
-        _LOGGER.debug("Get current system inverter data for {}".format(url))
-
-        return await self._current_data(url, Fronius._system_inverter_data)
+        return await self._current_data(
+            Fronius._system_inverter_data,
+            URL_SYSTEM_INVERTER,
+            "current system inverter",
+        )
 
     async def current_meter_data(self, device=0):
         """
         Get the current meter data for a device.
         """
-        url = URL_DEVICE_METER.format(device)
-
-        _LOGGER.debug("Get current meter data for {}".format(url))
-
-        return await self._current_data(url, Fronius._device_meter_data)
+        return await self._current_data(
+            Fronius._device_meter_data, URL_DEVICE_METER, "current meter", device
+        )
 
     async def current_storage_data(self, device=0):
         """
         Get the current storage data for a device.
         Provides data about batteries.
         """
-        url = URL_DEVICE_STORAGE.format(device)
-
-        _LOGGER.debug("Get current storage data for {}".format(url))
-
-        return await self._current_data(url, Fronius._device_storage_data)
+        return await self._current_data(
+            Fronius._device_storage_data, URL_DEVICE_STORAGE, "current storage", device
+        )
 
     async def current_inverter_data(self, device=1):
         """
         Get the current inverter data of one device.
         """
-        url = URL_DEVICE_INVERTER_COMMON.format(device)
-
-        _LOGGER.debug("Get current inverter data for {}".format(url))
-
-        return await self._current_data(url, Fronius._device_inverter_data)
+        return await self._current_data(
+            Fronius._device_inverter_data,
+            URL_DEVICE_INVERTER_COMMON,
+            "current inverter",
+            device,
+        )
 
     async def current_led_data(self):
         """
         Get the current info led data for all LEDs
         """
-        url = URL_SYSTEM_LED
-
-        _LOGGER.debug("Get current led data for {}".format(url))
-
-        return await self._current_data(url, Fronius._system_led_data)
+        return await self._current_data(
+            Fronius._system_led_data, URL_SYSTEM_LED, "current led"
+        )
 
     @staticmethod
     def _system_led_data(sensor, data):
@@ -328,14 +403,14 @@ class Fronius:
             for i in data["YEAR_ENERGY"]["Values"]:
                 sensor["inverters"][i]["energy_year"] = {
                     "value": data["YEAR_ENERGY"]["Values"][i],
-                    "unit": data["TOTAL_ENERGY"]["Unit"],
+                    "unit": data["YEAR_ENERGY"]["Unit"],
                 }
                 sensor["energy_year"]["value"] += data["YEAR_ENERGY"]["Values"][i]
         if "PAC" in data:
             for i in data["PAC"]["Values"]:
                 sensor["inverters"][i]["power_ac"] = {
                     "value": data["PAC"]["Values"][i],
-                    "unit": data["TOTAL_ENERGY"]["Unit"],
+                    "unit": data["PAC"]["Unit"],
                 }
                 sensor["power_ac"]["value"] += data["PAC"]["Values"][i]
 

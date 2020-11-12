@@ -1,0 +1,41 @@
+{
+    "Head": {
+        "RequestArguments": {
+            "Scope": "System"
+        },
+        "Status": {
+            "Code": 0,
+            "Reason": "",
+            "UserMessage": ""
+        },
+        "Timestamp": "2020-09-18T14:13:49-07:00"
+    },
+    "Body": {
+        "Data": {
+            "PAC": {
+                "Unit": "W",
+                "Values": {
+                    "1": 1764
+                }
+            },
+            "DAY_ENERGY": {
+                "Unit": "Wh",
+                "Values": {
+                    "1": 6000
+                }
+            },
+            "YEAR_ENERGY": {
+                "Unit": "Wh",
+                "Values": {
+                    "1": 3310000
+                }
+            },
+            "TOTAL_ENERGY": {
+                "Unit": "Wh",
+                "Values": {
+                    "1": 35611000
+                }
+            }
+        }
+    }
+}
