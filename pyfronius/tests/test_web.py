@@ -14,7 +14,7 @@ import time
 import aiohttp
 import asyncio
 import pyfronius
-from .web_raw.web_state import (
+from pyfronius.tests.web_raw.v1.web_state import (
     GET_METER_REALTIME_DATA_SCOPE_DEVICE,
     GET_METER_REALTIME_DATA_SYSTEM,
     GET_POWER_FLOW_REALTIME_DATA,
@@ -86,9 +86,10 @@ class NoFroniusWebTest(unittest.TestCase):
             asyncio.get_event_loop().run_until_complete(self.session.close())
 
 
-class FroniusWebTest(unittest.TestCase):
+class FroniusWebTestV1(unittest.TestCase):
 
     server = None
+    api_version = 1
     server_control = None
     port = 0
     url = "http://localhost:80"
@@ -106,7 +107,7 @@ class FroniusWebTest(unittest.TestCase):
         while not self.server:
             try:
                 # Connect to any open port
-                self.server = FroniusServer((ADDRESS, 0), handler)
+                self.server = FroniusServer((ADDRESS, 0), handler, self.api_version)
             except OSError:
                 if r < max_retries:
                     r += 1
@@ -184,6 +185,62 @@ class FroniusWebTest(unittest.TestCase):
                 GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
             ],
         )
+
+    def tearDown(self):
+        asyncio.get_event_loop().run_until_complete(self.session.close())
+        self.server_control.stop_server()
+        pass
+
+
+class FroniusWebTestV0(unittest.TestCase):
+
+    server = None
+    api_version = 0
+    server_control = None
+    port = 0
+    url = "http://localhost:80"
+    session = None
+    fronius = None
+
+    def setUp(self):
+        # Create an arbitrary subclass of TCP Server as the server to be
+        # started
+        # Here, it is an Simple HTTP file serving server
+        handler = FroniusRequestHandler
+
+        max_retries = 10
+        r = 0
+        while not self.server:
+            try:
+                # Connect to any open port
+                self.server = FroniusServer((ADDRESS, 0), handler, self.api_version)
+            except OSError:
+                if r < max_retries:
+                    r += 1
+                else:
+                    raise
+                time.sleep(1)
+
+        self.server_control = Server(self.server)
+        self.port = self.server_control.get_port()
+        self.url = "http://{}:{}".format(ADDRESS, self.port)
+        # Start test server before running any tests
+        self.server_control.start_server()
+        # set up a fronius client and aiohttp session
+        self.session = aiohttp.ClientSession()
+        self.fronius = pyfronius.Fronius(self.session, self.url)
+
+    def test_fronius_get_inverter_realtime_data_device(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_inverter_data()
+        )
+        self.assertEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
+
+    def test_fronius_get_inverter_realtime_data_system(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_system_inverter_data()
+        )
+        self.assertEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
 
     def tearDown(self):
         asyncio.get_event_loop().run_until_complete(self.session.close())

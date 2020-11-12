@@ -14,24 +14,6 @@ import enum
 
 _LOGGER = logging.getLogger(__name__)
 
-URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
-URL_POWER_FLOW = "GetPowerFlowRealtimeData.fcgi"
-URL_SYSTEM_METER = "GetMeterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_INVERTER = "GetInverterRealtimeData.cgi?Scope=System"
-URL_SYSTEM_LED = "GetLoggerLEDInfo.cgi"
-URL_DEVICE_METER = "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_STORAGE = "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
-URL_DEVICE_INVERTER_CUMULATIVE = (
-    "GetInverterRealtimeData.cgi?Scope=Device&"
-    "DeviceId={}&"
-    "DataCollection=CumulationInverterData"
-)
-URL_DEVICE_INVERTER_COMMON = (
-    "GetInverterRealtimeData.cgi?"
-    "Scope=Device&DeviceId={}&"
-    "DataCollection=CommonInverterData"
-)
-
 
 class API_VERSION(enum.Enum):
     AUTO = -1
@@ -42,6 +24,43 @@ class API_VERSION(enum.Enum):
 API_BASEPATHS = {
     API_VERSION.V0: "/solar_api/",
     API_VERSION.V1: "/solar_api/v1",
+}
+
+URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
+URL_POWER_FLOW = {
+    API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"
+}
+URL_SYSTEM_METER = {
+    API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"
+}
+URL_SYSTEM_INVERTER = {
+    API_VERSION.V0: "GetInverterRealtimeData.cgi?Scope=System",
+    API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System"
+}
+URL_SYSTEM_LED = {
+    API_VERSION.V1: "GetLoggerLEDInfo.cgi"
+}
+URL_DEVICE_METER = {
+    API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
+}
+URL_DEVICE_STORAGE = {
+    API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
+}
+URL_DEVICE_INVERTER_CUMULATIVE = {
+    API_VERSION.V0: ("GetInverterRealtimeData.cgi?Scope=Device&"
+                     "DeviceIndex={}&"
+                     "DataCollection=CumulationInverterData"),
+    API_VERSION.V1: ("GetInverterRealtimeData.cgi?Scope=Device&"
+    "DeviceId={}&"
+    "DataCollection=CumulationInverterData" )
+}
+URL_DEVICE_INVERTER_COMMON = {
+    API_VERSION.V0: ("GetInverterRealtimeData.cgi?Scope=Device&"
+                     "DeviceIndex={}&"
+                     "DataCollection=CommonInverterData"),
+    API_VERSION.V1: ("GetInverterRealtimeData.cgi?Scope=Device&"
+                     "DeviceId={}&"
+                     "DataCollection=CommonInverterData" )
 }
 
 
@@ -107,13 +126,19 @@ class Fronius:
         if self.base_url is None:
             prev_api_version = self.api_version
             self.api_version, self.base_url = await self.fetch_api_version()
+            if prev_api_version == API_VERSION.AUTO:
+                _LOGGER.debug(
+                    """using highest supported API version {}""".format(self.api_version)
+                    )
             if (
                 prev_api_version != self.api_version
                 and prev_api_version != API_VERSION.AUTO
             ):
                 _LOGGER.warning(
-                    """Unknown API version {} is not supported by host {},"""
-                    """using highest supported API version {} instead"""
+                    ("""Unknown API version {} is not supported by host {},"""
+                    """using highest supported API version {} instead""").format(
+                        prev_api_version, self.url, self.api_version
+                    )
                 )
         res = await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec))
         return res
@@ -187,7 +212,11 @@ class Fronius:
         """
         Get the current power flow of a smart meter system.
         """
-        url = URL_POWER_FLOW
+        url = URL_POWER_FLOW.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support current system power flow data")
+            return None
 
         _LOGGER.debug("Get current system power flow data for {}".format(url))
 
@@ -197,7 +226,11 @@ class Fronius:
         """
         Get the current meter data.
         """
-        url = URL_SYSTEM_METER
+        url = URL_SYSTEM_METER.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support current system meter data")
+            return None
 
         _LOGGER.debug("Get current system meter data for {}".format(url))
 
@@ -208,7 +241,11 @@ class Fronius:
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
         """
-        url = URL_SYSTEM_INVERTER
+        url = URL_SYSTEM_INVERTER.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support current system inverter data")
+            return None
 
         _LOGGER.debug("Get current system inverter data for {}".format(url))
 
@@ -218,7 +255,13 @@ class Fronius:
         """
         Get the current meter data for a device.
         """
-        url = URL_DEVICE_METER.format(device)
+        url = URL_DEVICE_METER.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support current meter data")
+            return None
+
+        url = url.format(device)
 
         _LOGGER.debug("Get current meter data for {}".format(url))
 
@@ -229,7 +272,13 @@ class Fronius:
         Get the current storage data for a device.
         Provides data about batteries.
         """
-        url = URL_DEVICE_STORAGE.format(device)
+        url = URL_DEVICE_STORAGE.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support storage data")
+            return None
+
+        url = url.format(device)
 
         _LOGGER.debug("Get current storage data for {}".format(url))
 
@@ -239,7 +288,14 @@ class Fronius:
         """
         Get the current inverter data of one device.
         """
-        url = URL_DEVICE_INVERTER_COMMON.format(device)
+        url = URL_DEVICE_INVERTER_COMMON.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support current inverter data")
+            return None
+
+        url = url.format(device)
+
 
         _LOGGER.debug("Get current inverter data for {}".format(url))
 
@@ -249,7 +305,11 @@ class Fronius:
         """
         Get the current info led data for all LEDs
         """
-        url = URL_SYSTEM_LED
+        url = URL_SYSTEM_LED.get(self.api_version)
+
+        if url is None:
+            _LOGGER.warning("API version {} does not support current led data")
+            return None
 
         _LOGGER.debug("Get current led data for {}".format(url))
 
