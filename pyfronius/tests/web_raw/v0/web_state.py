@@ -1,4 +1,3 @@
-
 GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
     "timestamp": {"value": "2020-09-18T14:14:24-07:00"},
     "status": {"Code": 0, "Reason": "", "UserMessage": ""},

@@ -29,40 +29,40 @@ API_BASEPATHS = {
 }
 
 URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
-URL_POWER_FLOW = {
-    API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"
-}
-URL_SYSTEM_METER = {
-    API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"
-}
+URL_POWER_FLOW = {API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"}
+URL_SYSTEM_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"}
 URL_SYSTEM_INVERTER = {
     API_VERSION.V0: "GetInverterRealtimeData.cgi?Scope=System",
-    API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System"
+    API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System",
 }
-URL_SYSTEM_LED = {
-    API_VERSION.V1: "GetLoggerLEDInfo.cgi"
-}
-URL_DEVICE_METER = {
-    API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
-}
+URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
+URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
 URL_DEVICE_STORAGE = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
 }
 URL_DEVICE_INVERTER_CUMULATIVE = {
-    API_VERSION.V0: ("GetInverterRealtimeData.cgi?Scope=Device&"
-                     "DeviceIndex={}&"
-                     "DataCollection=CumulationInverterData"),
-    API_VERSION.V1: ("GetInverterRealtimeData.cgi?Scope=Device&"
-    "DeviceId={}&"
-    "DataCollection=CumulationInverterData" )
+    API_VERSION.V0: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceIndex={}&"
+        "DataCollection=CumulationInverterData"
+    ),
+    API_VERSION.V1: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceId={}&"
+        "DataCollection=CumulationInverterData"
+    ),
 }
 URL_DEVICE_INVERTER_COMMON = {
-    API_VERSION.V0: ("GetInverterRealtimeData.cgi?Scope=Device&"
-                     "DeviceIndex={}&"
-                     "DataCollection=CommonInverterData"),
-    API_VERSION.V1: ("GetInverterRealtimeData.cgi?Scope=Device&"
-                     "DeviceId={}&"
-                     "DataCollection=CommonInverterData" )
+    API_VERSION.V0: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceIndex={}&"
+        "DataCollection=CommonInverterData"
+    ),
+    API_VERSION.V1: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceId={}&"
+        "DataCollection=CommonInverterData"
+    ),
 }
 
 
@@ -130,24 +130,27 @@ class Fronius:
             self.api_version, self.base_url = await self.fetch_api_version()
             if prev_api_version == API_VERSION.AUTO:
                 _LOGGER.debug(
-                    """using highest supported API version {}""".format(self.api_version)
+                    """using highest supported API version {}""".format(
+                        self.api_version
                     )
+                )
             if (
                 prev_api_version != self.api_version
                 and prev_api_version != API_VERSION.AUTO
             ):
                 _LOGGER.warning(
-                    ("""Unknown API version {} is not supported by host {},"""
-                    """using highest supported API version {} instead""").format(
-                        prev_api_version, self.url, self.api_version
-                    )
+                    (
+                        """Unknown API version {} is not supported by host {},"""
+                        """using highest supported API version {} instead"""
+                    ).format(prev_api_version, self.url, self.api_version)
                 )
         spec_url = spec.get(self.api_version)
         if spec_url is None:
-            _LOGGER.warning("API version {} does not support request of {} data".format(
-                self.api_version,
-                spec_name
-            ))
+            _LOGGER.warning(
+                "API version {} does not support request of {} data".format(
+                    self.api_version, spec_name
+                )
+            )
             return None
         if spec_formattings:
             spec_url = spec_url.format(*spec_formattings)
@@ -226,45 +229,64 @@ class Fronius:
         """
         Get the current power flow of a smart meter system.
         """
-        return await self._current_data(Fronius._system_power_flow, URL_POWER_FLOW, "current power flow")
+        return await self._current_data(
+            Fronius._system_power_flow, URL_POWER_FLOW, "current power flow"
+        )
 
     async def current_system_meter_data(self):
         """
         Get the current meter data.
         """
-        return await self._current_data(Fronius._system_meter_data, URL_SYSTEM_METER, "current system meter")
+        return await self._current_data(
+            Fronius._system_meter_data, URL_SYSTEM_METER, "current system meter"
+        )
 
     async def current_system_inverter_data(self):
         """
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
         """
-        return await self._current_data(Fronius._system_inverter_data, URL_SYSTEM_INVERTER, "current system inverter")
+        return await self._current_data(
+            Fronius._system_inverter_data,
+            URL_SYSTEM_INVERTER,
+            "current system inverter",
+        )
 
     async def current_meter_data(self, device=0):
         """
         Get the current meter data for a device.
         """
-        return await self._current_data(Fronius._device_meter_data, URL_DEVICE_METER, "current meter", device)
+        return await self._current_data(
+            Fronius._device_meter_data, URL_DEVICE_METER, "current meter", device
+        )
 
     async def current_storage_data(self, device=0):
         """
         Get the current storage data for a device.
         Provides data about batteries.
         """
-        return await self._current_data(Fronius._device_storage_data, URL_DEVICE_STORAGE, "current storage", device)
+        return await self._current_data(
+            Fronius._device_storage_data, URL_DEVICE_STORAGE, "current storage", device
+        )
 
     async def current_inverter_data(self, device=1):
         """
         Get the current inverter data of one device.
         """
-        return await self._current_data(Fronius._device_inverter_data, URL_DEVICE_INVERTER_COMMON, "current inverter", device)
+        return await self._current_data(
+            Fronius._device_inverter_data,
+            URL_DEVICE_INVERTER_COMMON,
+            "current inverter",
+            device,
+        )
 
     async def current_led_data(self):
         """
         Get the current info led data for all LEDs
         """
-        return await self._current_data(Fronius._system_led_data, URL_SYSTEM_LED, "current led")
+        return await self._current_data(
+            Fronius._system_led_data, URL_SYSTEM_LED, "current led"
+        )
 
     @staticmethod
     def _system_led_data(sensor, data):

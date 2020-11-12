@@ -60,7 +60,9 @@ class NoFroniusWebTest(unittest.TestCase):
         while not self.server:
             try:
                 # Connect to any open port
-                self.server = FroniusServer((ADDRESS, 0), handler, self.api_version.value)
+                self.server = FroniusServer(
+                    (ADDRESS, 0), handler, self.api_version.value
+                )
             except OSError:
                 if r < max_retries:
                     r += 1
@@ -108,7 +110,9 @@ class FroniusWebDetectVersionV1(unittest.TestCase):
         while not self.server:
             try:
                 # Connect to any open port
-                self.server = FroniusServer((ADDRESS, 0), handler, self.api_version.value)
+                self.server = FroniusServer(
+                    (ADDRESS, 0), handler, self.api_version.value
+                )
             except OSError:
                 if r < max_retries:
                     r += 1
@@ -124,7 +128,6 @@ class FroniusWebDetectVersionV1(unittest.TestCase):
         # set up a fronius client and aiohttp session
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url)  # auto api_version
-
 
     def test_fronius_get_correct_api_version(self):
         # fetch any data to check if the correct api_version is retreived
@@ -156,7 +159,9 @@ class FroniusWebTestV1(unittest.TestCase):
         while not self.server:
             try:
                 # Connect to any open port
-                self.server = FroniusServer((ADDRESS, 0), handler, self.api_version.value)
+                self.server = FroniusServer(
+                    (ADDRESS, 0), handler, self.api_version.value
+                )
             except OSError:
                 if r < max_retries:
                     r += 1
