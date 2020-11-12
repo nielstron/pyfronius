@@ -1,0 +1,44 @@
+{
+    "Head": {
+        "RequestArguments": {
+            "DataCollection": "CumulationInverterData",
+            "DeviceClass": "Inverter",
+            "DeviceIndex": "1",
+            "Scope": "Device"
+        },
+        "Status": {
+            "Code": 0,
+            "Reason": "",
+            "UserMessage": ""
+        },
+        "Timestamp": "2020-09-18T14:14:56-07:00"
+    },
+    "Body": {
+        "Data": {
+            "DAY_ENERGY": {
+                "Value": 6000,
+                "Unit": "Wh"
+            },
+            "PAC": {
+                "Value": 1785,
+                "Unit": "W"
+            },
+            "TOTAL_ENERGY": {
+                "Value": 35611000,
+                "Unit": "Wh"
+            },
+            "YEAR_ENERGY": {
+                "Value": 3310000,
+                "Unit": "Wh"
+            },
+            "DeviceStatus": {
+                "StatusCode": 7,
+                "MgmtTimerRemainingTime": -1,
+                "ErrorCode": 0,
+                "LEDColor": 2,
+                "LEDState": 0,
+                "StateToReset": false
+            }
+        }
+    }
+}
