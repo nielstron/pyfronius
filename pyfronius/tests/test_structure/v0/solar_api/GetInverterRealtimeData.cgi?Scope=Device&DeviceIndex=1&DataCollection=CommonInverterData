@@ -1,6 +1,5 @@
 {
    "Head": {
-   }
         "RequestArguments": {
             "DataCollection": "CommonInverterData",
             "DeviceClass": "Inverter",

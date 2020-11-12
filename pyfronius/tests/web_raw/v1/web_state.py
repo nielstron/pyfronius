@@ -65,7 +65,7 @@ GET_INVERTER_REALTIME_DATA_SYSTEM = {
             "energy_day": {"value": 0, "unit": "Wh"},
             "energy_total": {"value": 26213502, "unit": "Wh"},
             "energy_year": {"value": 12400, "unit": "Wh"},
-            "power_ac": {"value": 0, "unit": "Wh"},
+            "power_ac": {"value": 0, "unit": "W"},
         }
     },
 }

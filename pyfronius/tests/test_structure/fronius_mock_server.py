@@ -47,7 +47,7 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         words = filter(None, words)
         path = os.path.join(
             str(SERVER_DIR.absolute()),
-            "/v{}".format(
+            "v{}".format(
             self.server.api_version
         ))
         for word in words:
