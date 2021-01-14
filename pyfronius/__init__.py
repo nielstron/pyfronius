@@ -172,7 +172,8 @@ class Fronius:
         system_meter=True,
         system_inverter=True,
         device_meter=frozenset([0]),
-        device_storage=frozenset(),  # storage is not necessarily supported by every fronius device
+        # storage is not necessarily supported by every fronius device
+        device_storage=frozenset([0]),
         device_inverter=frozenset([1]),
         loop=None,
     ):
@@ -225,7 +226,9 @@ class Fronius:
             res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
         except ValueError:
             # except if Host returns 404
-            raise NotSupportedError("Device type {} not supported by the fronius device")
+            raise NotSupportedError(
+                "Device type {} not supported by the fronius device".format(spec_name)
+            )
 
         try:
             sensor.update(Fronius._status_data(res))

@@ -225,7 +225,16 @@ class FroniusWebTestV1(unittest.TestCase):
         # Mainly asserts that no error is thrown by illegal access!
 
     def test_fronius_fetch(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.fetch())
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.fetch(
+                power_flow=True,
+                system_meter=True,
+                system_inverter=True,
+                device_meter={0},
+                device_storage={0},
+                device_inverter={1},
+            )
+        )
         self.assertEqual(
             res,
             [
