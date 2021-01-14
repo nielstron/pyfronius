@@ -156,8 +156,7 @@ class Fronius:
             spec_url = spec_url.format(*spec_formattings)
 
         _LOGGER.debug("Get {} data for {}".format(spec_name, spec_url))
-        res = await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec_url))
-        return res
+        return await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec_url))
 
     async def fetch(
         self,
@@ -213,9 +212,13 @@ class Fronius:
         return sensor_data["status"]["Reason"]
 
     async def _current_data(self, fun, spec, spec_name, *spec_formattings):
-        res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
-
         sensor = {}
+        try:
+            res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
+        except ValueError:
+            # break if Host returns 404
+            res = None
+
         try:
             sensor.update(Fronius._status_data(res))
             # TODO use update here as well
