@@ -66,6 +66,13 @@ URL_DEVICE_INVERTER_COMMON = {
 }
 
 
+class NotSupportedError(ValueError):
+    """
+    An error to be raised if a specific feature is not supported by the specified device
+    """
+    pass
+
+
 class Fronius:
     """
     Interface to communicate with the Fronius Symo over http / JSON
@@ -156,7 +163,8 @@ class Fronius:
             spec_url = spec_url.format(*spec_formattings)
 
         _LOGGER.debug("Get {} data for {}".format(spec_name, spec_url))
-        return await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec_url))
+        res = await self._fetch_json("{}{}{}".format(self.url, self.base_url, spec_url))
+        return res
 
     async def fetch(
         self,
@@ -164,7 +172,7 @@ class Fronius:
         system_meter=True,
         system_inverter=True,
         device_meter=frozenset([0]),
-        device_storage=frozenset([0]),
+        device_storage=frozenset(),  # storage is not necessarily supported by every fronius device
         device_inverter=frozenset([1]),
         loop=None,
     ):
@@ -216,8 +224,8 @@ class Fronius:
         try:
             res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
         except ValueError:
-            # break if Host returns 404
-            res = None
+            # except if Host returns 404
+            raise NotSupportedError("Device type {} not supported by the fronius device")
 
         try:
             sensor.update(Fronius._status_data(res))

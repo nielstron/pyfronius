@@ -76,11 +76,13 @@ class NoFroniusWebTest(unittest.TestCase):
                 self.fronius.current_system_inverter_data()
             )
             self.fail("No Exception for wrong reply by host")
-        except ValueError:
+        except pyfronius.NotSupportedError:
+            pass
+        finally:
             asyncio.get_event_loop().run_until_complete(self.session.close())
 
 
-class FroniusWebDetectVersionV1(unittest.TestCase):
+class FroniusWebDetectVersionV0(unittest.TestCase):
 
     server = None
     api_version = pyfronius.API_VERSION.V0
