@@ -213,14 +213,14 @@ class Fronius:
         return sensor_data["status"]["Reason"]
 
     async def _current_data(self, fun, spec, spec_name, *spec_formattings):
-        res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
-
+        
         sensor = {}
         try:
+            res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
             sensor.update(Fronius._status_data(res))
             # TODO use update here as well
             sensor = fun(sensor, res["Body"]["Data"])
-        except (TypeError, KeyError):
+        except (TypeError, KeyError, ValueError):
             # break if Data is empty
             _LOGGER.info("No data returned from {}".format(spec))
         return sensor
