@@ -21,7 +21,7 @@ setup(
     author_email="n.muendler@web.de, mail@gerritbeine.de",
     url="https://github.com/nielstron/pyfronius/",
     packages=find_packages(exclude=("pyfronius.tests", "pyfronius.tests.*")),
-    install_requires=["aiohttp<4.0.0"],
+    install_requires=[ "aiohttp" ],
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
