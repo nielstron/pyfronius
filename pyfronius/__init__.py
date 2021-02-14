@@ -70,6 +70,7 @@ class NotSupportedError(ValueError):
     """
     An error to be raised if a specific feature is not supported by the specified device
     """
+
     pass
 
 
