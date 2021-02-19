@@ -11,10 +11,10 @@ It is able to read the system and photovoltaic status.
 
 The package supports the following data provided by fronius devices:
 
-Power Flow (System)
-Meter (System and Device Scope)
-Inverter (System and Device Scope)
-Storage (Device Scope only) 
+- Power Flow (System scope)
+- Meter (System and Device scope)
+- Inverter (System and Device scope)
+- Storage (Device scope only) 
 
 The package currently supportes the Fronius API V1 and V0.
 Support may be enhanced based on the official documentation ([V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf), [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf)).
