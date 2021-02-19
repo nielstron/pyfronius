@@ -16,9 +16,9 @@ Meter (System and Device Scope)
 Inverter (System and Device Scope)
 Storage (Device Scope only) 
 
-The api can be enlarged based on the official Fronius JSON API V1, pull requests are very welcome.
-Further, currently supported API versions are [V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf)
-and [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf).
+The package currently supportes the Fronius API V1 and V0.
+Support may be enhanced based on the official documentation ([V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf), [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf)).
+Pull requests are very welcome.
 
 I also know there are better scripts, yet they are not on pypi which is necessary
 for using them with [Home Assistant](https://www.home-assistant.io)
