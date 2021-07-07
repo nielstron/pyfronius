@@ -25,6 +25,12 @@ after_success:
   - coverage report
   - coveralls
 
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "nielstron"
+  - export TRAVIS_TAG=release-$(cat setup.py | grep version= | cut -d "\"" -f 2)
+  - git tag $TRAVIS_TAG
+
 deploy:
   provider: pypi
   on:
@@ -34,3 +40,5 @@ deploy:
   username: "nielstron"
   password:
     secure: "JnM8hJUyNErrwtFKYWDKBs7qCN1rPqv/+ch+wngEqi/QABzQl2FfC1TQaFp5sVGWMaTtaex4fcWwES3G6jUK5jtrTIBRqh2LBUM2SO26fnsnPZvIdabvnuo2jCTYaEHD8o1dEyt28+eqIvUwvQ7GJfSQ4CVJt6hKz64wzziEnuUKepl5uUo+sNlzmm88d6hvbrpLwP2VyCxeyo5hmZv5mBWXWl5Vo1z4CPpDA/iZCP7OL/2GACc38bJFU3vXlIoffGaq1lyNcenlgqBjLYERhvlHhj2/FurCMH2dSNcQ65HYhabmHnIqWbzqxA19TL4C0XqAZ+cTf4qyEH3QdnJjBZg2tLX1PqW25G+z8WN634hGdv3kXvsex+KXRbxbMo/4LJabb6qs4X+1RTZJKRHBWdQiuadthY6a6zmBMasDuKkHDRUL4DAg+Jq7vZXyRLpOb501lHHiFIOlIgy7BXMl/yZcM1Ldwa1Xc11POUXq5sXDG3B5Wp/RdbLt0WFWbeT9988BfQy4/Q2Qlp/Nji2ftXj7o/PTc6LiH/TiKDDdWo9QkZBDUJuDL7Q2jzBo9kGfdHR30qc/hnHLv5lSWa+2ph5oOdg1p8CMywcnaLMvMtac0beChQUcPBZWrrgd8x/BPi3DQSYbX7q8jze2eg1kG/F4mOTM78sJJ1YaUawUbU8="
+
+
