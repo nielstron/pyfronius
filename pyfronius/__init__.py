@@ -491,6 +491,11 @@ class Fronius:
                 "value": data["IDC"]["Value"],
                 "unit": data["IDC"]["Unit"],
             }
+        if "IDC_2" in data:
+            sensor["current_dc_2"] = {
+                "value": data["IDC_2"]["Value"],
+                "unit": data["IDC_2"]["Unit"],
+            }
         if "PAC" in data:
             sensor["power_ac"] = {
                 "value": data["PAC"]["Value"],
@@ -506,6 +511,13 @@ class Fronius:
                 "value": data["UDC"]["Value"],
                 "unit": data["UDC"]["Unit"],
             }
+        if "UDC_2" in data:
+            sensor["voltage_dc_2"] = {
+                "value": data["UDC_2"]["Value"],
+                "unit": data["UDC_2"]["Unit"],
+            }
+        if "DeviceStatus" in data:
+            sensor["inverter_state"] = {"value": data["DeviceStatus"]["InverterState"]}
 
         return sensor
 
@@ -519,14 +531,29 @@ class Fronius:
                 "value": data["Current_AC_Phase_1"],
                 "unit": "A",
             }
+        if "ACBRIDGE_CURRENT_ACTIVE_MEAN_01_F32" in data:
+            meter["current_ac_phase_1"] = {
+                "value": data["ACBRIDGE_CURRENT_ACTIVE_MEAN_01_F32"],
+                "unit": "A",
+            }
         if "Current_AC_Phase_2" in data:
             meter["current_ac_phase_2"] = {
                 "value": data["Current_AC_Phase_2"],
                 "unit": "A",
             }
+        if "ACBRIDGE_CURRENT_ACTIVE_MEAN_02_F32" in data:
+            meter["current_ac_phase_2"] = {
+                "value": data["ACBRIDGE_CURRENT_ACTIVE_MEAN_02_F32"],
+                "unit": "A",
+            }
         if "Current_AC_Phase_3" in data:
             meter["current_ac_phase_3"] = {
                 "value": data["Current_AC_Phase_3"],
+                "unit": "A",
+            }
+        if "ACBRIDGE_CURRENT_ACTIVE_MEAN_03_F32" in data:
+            meter["current_ac_phase_3"] = {
+                "value": data["ACBRIDGE_CURRENT_ACTIVE_MEAN_03_F32"],
                 "unit": "A",
             }
         if "EnergyReactive_VArAC_Sum_Consumed" in data:
@@ -554,9 +581,19 @@ class Fronius:
                 "value": data["EnergyReal_WAC_Sum_Consumed"],
                 "unit": "Wh",
             }
+        if "SMARTMETER_ENERGYACTIVE_CONSUMED_SUM_F64" in data:
+            meter["energy_real_consumed"] = {
+                "value": data["SMARTMETER_ENERGYACTIVE_CONSUMED_SUM_F64"],
+                "unit": "Wh",
+            }
         if "EnergyReal_WAC_Sum_Produced" in data:
             meter["energy_real_produced"] = {
                 "value": data["EnergyReal_WAC_Sum_Produced"],
+                "unit": "Wh",
+            }
+        if "SMARTMETER_ENERGYACTIVE_PRODUCED_SUM_F64" in data:
+            meter["energy_real_produced"] = {
+                "value": data["SMARTMETER_ENERGYACTIVE_PRODUCED_SUM_F64"],
                 "unit": "Wh",
             }
         if "Frequency_Phase_Average" in data:
@@ -626,15 +663,30 @@ class Fronius:
                 "value": data["PowerReal_P_Phase_1"],
                 "unit": "W",
             }
+        if "SMARTMETER_POWERACTIVE_01_F64" in data:
+            meter["power_real_phase_1"] = {
+                  "value": data["SMARTMETER_POWERACTIVE_01_F64"],
+                  "unit": "W",
+            }
         if "PowerReal_P_Phase_2" in data:
             meter["power_real_phase_2"] = {
                 "value": data["PowerReal_P_Phase_2"],
                 "unit": "W",
             }
+        if "SMARTMETER_POWERACTIVE_02_F64" in data:
+            meter["power_real_phase_2"] = {
+                  "value": data["SMARTMETER_POWERACTIVE_02_F64"],
+                  "unit": "W",
+            }
         if "PowerReal_P_Phase_3" in data:
             meter["power_real_phase_3"] = {
                 "value": data["PowerReal_P_Phase_3"],
                 "unit": "W",
+            }
+        if "SMARTMETER_POWERACTIVE_03_F64" in data:
+            meter["power_real_phase_3"] = {
+                  "value": data["SMARTMETER_POWERACTIVE_03_F64"],
+                  "unit": "W",
             }
         if "PowerReal_P_Sum" in data:
             meter["power_real"] = {"value": data["PowerReal_P_Sum"], "unit": "W"}
