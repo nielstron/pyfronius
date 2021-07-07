@@ -665,8 +665,8 @@ class Fronius:
             }
         if "SMARTMETER_POWERACTIVE_01_F64" in data:
             meter["power_real_phase_1"] = {
-                  "value": data["SMARTMETER_POWERACTIVE_01_F64"],
-                  "unit": "W",
+                "value": data["SMARTMETER_POWERACTIVE_01_F64"],
+                "unit": "W",
             }
         if "PowerReal_P_Phase_2" in data:
             meter["power_real_phase_2"] = {
@@ -675,8 +675,8 @@ class Fronius:
             }
         if "SMARTMETER_POWERACTIVE_02_F64" in data:
             meter["power_real_phase_2"] = {
-                  "value": data["SMARTMETER_POWERACTIVE_02_F64"],
-                  "unit": "W",
+                "value": data["SMARTMETER_POWERACTIVE_02_F64"],
+                "unit": "W",
             }
         if "PowerReal_P_Phase_3" in data:
             meter["power_real_phase_3"] = {
@@ -685,8 +685,8 @@ class Fronius:
             }
         if "SMARTMETER_POWERACTIVE_03_F64" in data:
             meter["power_real_phase_3"] = {
-                  "value": data["SMARTMETER_POWERACTIVE_03_F64"],
-                  "unit": "W",
+                "value": data["SMARTMETER_POWERACTIVE_03_F64"],
+                "unit": "W",
             }
         if "PowerReal_P_Sum" in data:
             meter["power_real"] = {"value": data["PowerReal_P_Sum"], "unit": "W"}
