@@ -1,44 +1,53 @@
 language: python
 
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
+- '3.6'
+- '3.7'
+- '3.8'
+
 dist: xenial
+
 sudo: true
 
 matrix:
   fast_finish: true
 
 install:
-  - pip install coverage
-  - pip install coveralls
-  - pip install tox-travis
-  - pip install -e .
+- pip install coverage
+- pip install coveralls
+- pip install tox-travis
+- pip install -e .
 
 script:
-  - tox
-  - python scripts/test_import.py
-  - coverage run --source=pyfronius setup.py test
+- tox
+- python scripts/test_import.py
+- coverage run --source=pyfronius setup.py test
 
 after_success:
-  - coverage report
-  - coveralls
+- coverage report
+- coveralls
 
 before_deploy:
-  # Set up git user name and tag this commit
-  - git config --local user.name "nielstron"
-  - export TRAVIS_TAG=release-$(cat setup.py | grep version= | cut -d "\"" -f 2)
-  - git tag $TRAVIS_TAG
+- git config --local user.name "nielstron"
+- export TRAVIS_TAG=release-$(cat setup.py | grep version= | cut -d "\"" -f 2)
+- git tag $TRAVIS_TAG
 
 deploy:
-  provider: pypi
-  on:
-    branch: master
-    python: "3.8"
-  skip_existing: true
-  username: "nielstron"
-  password:
-    secure: "JnM8hJUyNErrwtFKYWDKBs7qCN1rPqv/+ch+wngEqi/QABzQl2FfC1TQaFp5sVGWMaTtaex4fcWwES3G6jUK5jtrTIBRqh2LBUM2SO26fnsnPZvIdabvnuo2jCTYaEHD8o1dEyt28+eqIvUwvQ7GJfSQ4CVJt6hKz64wzziEnuUKepl5uUo+sNlzmm88d6hvbrpLwP2VyCxeyo5hmZv5mBWXWl5Vo1z4CPpDA/iZCP7OL/2GACc38bJFU3vXlIoffGaq1lyNcenlgqBjLYERhvlHhj2/FurCMH2dSNcQ65HYhabmHnIqWbzqxA19TL4C0XqAZ+cTf4qyEH3QdnJjBZg2tLX1PqW25G+z8WN634hGdv3kXvsex+KXRbxbMo/4LJabb6qs4X+1RTZJKRHBWdQiuadthY6a6zmBMasDuKkHDRUL4DAg+Jq7vZXyRLpOb501lHHiFIOlIgy7BXMl/yZcM1Ldwa1Xc11POUXq5sXDG3B5Wp/RdbLt0WFWbeT9988BfQy4/Q2Qlp/Nji2ftXj7o/PTc6LiH/TiKDDdWo9QkZBDUJuDL7Q2jzBo9kGfdHR30qc/hnHLv5lSWa+2ph5oOdg1p8CMywcnaLMvMtac0beChQUcPBZWrrgd8x/BPi3DQSYbX7q8jze2eg1kG/F4mOTM78sJJ1YaUawUbU8="
-
-
+  - provider: pypi
+    on:
+      branch: master
+      python: '3.8'
+    skip_existing: true
+    username: nielstron
+    password:
+      secure: JnM8hJUyNErrwtFKYWDKBs7qCN1rPqv/+ch+wngEqi/QABzQl2FfC1TQaFp5sVGWMaTtaex4fcWwES3G6jUK5jtrTIBRqh2LBUM2SO26fnsnPZvIdabvnuo2jCTYaEHD8o1dEyt28+eqIvUwvQ7GJfSQ4CVJt6hKz64wzziEnuUKepl5uUo+sNlzmm88d6hvbrpLwP2VyCxeyo5hmZv5mBWXWl5Vo1z4CPpDA/iZCP7OL/2GACc38bJFU3vXlIoffGaq1lyNcenlgqBjLYERhvlHhj2/FurCMH2dSNcQ65HYhabmHnIqWbzqxA19TL4C0XqAZ+cTf4qyEH3QdnJjBZg2tLX1PqW25G+z8WN634hGdv3kXvsex+KXRbxbMo/4LJabb6qs4X+1RTZJKRHBWdQiuadthY6a6zmBMasDuKkHDRUL4DAg+Jq7vZXyRLpOb501lHHiFIOlIgy7BXMl/yZcM1Ldwa1Xc11POUXq5sXDG3B5Wp/RdbLt0WFWbeT9988BfQy4/Q2Qlp/Nji2ftXj7o/PTc6LiH/TiKDDdWo9QkZBDUJuDL7Q2jzBo9kGfdHR30qc/hnHLv5lSWa+2ph5oOdg1p8CMywcnaLMvMtac0beChQUcPBZWrrgd8x/BPi3DQSYbX7q8jze2eg1kG/F4mOTM78sJJ1YaUawUbU8=
+  - provider: releases
+    api_key:
+      secure: FitPRDKIfcFN1oHhPRVbyLEC400OpcwkiY987CI0rGAIE7qYZ0YjOwajxan1FLbcH/oqynRzi9B/rqJhCZlNSe9tdVCTpTuWEGNmV9j11CwKLhMAS6LCYzUIJ3ACYQ5VqqT+nq7wKio5H8hJbdMz47Rj9gsYPGtjA+hQX01lrbOPx2cms2rwV0uLoghEpK0vbpLupDYOeaXYBwT2RmvBvUFLnb8IZF3qM1xq2VmzqXkegiSF8g7OtPz4rEI2KXIxZHRIhdFDUb3cUAMcXkC+imftUQwbn/oE9mV1aoVsqTwD/g6i6A5RT+oIqiowr3yiJALNzajFrQg59rYM/iD3UuV3mAXRAFYX89X//HdZQIU0UKIjScZ2e5n4b6tj98xtC9VasuakamiLS2ebstFknEN6i9xolJkf+zOOp/fbjlK3ztgiCsIfsXr6y+U++jtlJGj701ZmD+6LT4SiYBJDzOOl2spQmu7UYLlY001wBlZf4NP10QtIRTNME3tF6z9edoK9Kb9y3bJBGVGCMa9GA9vnBwYZhAe05dLNgoUBmxJ8C/SVmGeAnpMzZbpO7t7zzAvvWV9H+Hpk0LS8iW6W2bJ3Kzdm8KO6VO+4fR8SVZrRvITKKIWGbH2fqqsRwzHEy+33wW73IHrRFWqXWcRC1Pgv1BYkx2UHH2KVNYRHSl4=
+    file_glob: true
+    file: "*"
+    skip_cleanup: false
+    overwrite: false
+    on:
+      branch: master
+      condition: $TRAVIS_EVENT_TYPE = push
