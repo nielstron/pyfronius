@@ -13,6 +13,14 @@ import logging
 import enum
 
 _LOGGER = logging.getLogger(__name__)
+DEGREE_CELSIUS = "°C"
+WATT = "W"
+WATT_HOUR = "Wh"
+KILOWATT_HOUR = "kWh"
+AMPERE = "A"
+VOLT = "V"
+PERCENT = "%"
+HERTZ = "Hz"
 
 
 class API_VERSION(enum.Enum):
@@ -334,7 +342,7 @@ class Fronius:
             if "Battery_Mode" in inverter:
                 sensor["battery_mode"] = {"value": inverter["Battery_Mode"]}
             if "SOC" in inverter:
-                sensor["state_of_charge"] = {"value": inverter["SOC"], "unit": "%"}
+                sensor["state_of_charge"] = {"value": inverter["SOC"], "unit": PERCENT}
 
         for index, inverter in enumerate(data["Inverters"]):
             if "Battery_Mode" in inverter:
@@ -344,35 +352,38 @@ class Fronius:
             if "SOC" in inverter:
                 sensor["state_of_charge_{}".format(index)] = {
                     "value": inverter["SOC"],
-                    "unit": "%",
+                    "unit": PERCENT,
                 }
 
         if "BatteryStandby" in site:
             sensor["battery_standby"] = {"value": site["BatteryStandby"]}
         if "E_Day" in site:
-            sensor["energy_day"] = {"value": site["E_Day"], "unit": "Wh"}
+            sensor["energy_day"] = {"value": site["E_Day"], "unit": WATT_HOUR}
         if "E_Total" in site:
-            sensor["energy_total"] = {"value": site["E_Total"], "unit": "Wh"}
+            sensor["energy_total"] = {"value": site["E_Total"], "unit": WATT_HOUR}
         if "E_Year" in site:
-            sensor["energy_year"] = {"value": site["E_Year"], "unit": "Wh"}
+            sensor["energy_year"] = {"value": site["E_Year"], "unit": WATT_HOUR}
         if "Meter_Location" in site:
             sensor["meter_location"] = {"value": site["Meter_Location"]}
         if "Mode" in site:
             sensor["meter_mode"] = {"value": site["Mode"]}
         if "P_Akku" in site:
-            sensor["power_battery"] = {"value": site["P_Akku"], "unit": "W"}
+            sensor["power_battery"] = {"value": site["P_Akku"], "unit": WATT}
         if "P_Grid" in site:
-            sensor["power_grid"] = {"value": site["P_Grid"], "unit": "W"}
+            sensor["power_grid"] = {"value": site["P_Grid"], "unit": WATT}
         if "P_Load" in site:
-            sensor["power_load"] = {"value": site["P_Load"], "unit": "W"}
+            sensor["power_load"] = {"value": site["P_Load"], "unit": WATT}
         if "P_PV" in site:
-            sensor["power_photovoltaics"] = {"value": site["P_PV"], "unit": "W"}
+            sensor["power_photovoltaics"] = {"value": site["P_PV"], "unit": WATT}
         if "rel_Autonomy" in site:
-            sensor["relative_autonomy"] = {"value": site["rel_Autonomy"], "unit": "%"}
+            sensor["relative_autonomy"] = {
+                "value": site["rel_Autonomy"],
+                "unit": PERCENT,
+            }
         if "rel_SelfConsumption" in site:
             sensor["relative_self_consumption"] = {
                 "value": site["rel_SelfConsumption"],
-                "unit": "%",
+                "unit": PERCENT,
             }
 
         return sensor
@@ -392,10 +403,10 @@ class Fronius:
     def _system_inverter_data(sensor, data):
         _LOGGER.debug("Converting system inverter data: '{}'".format(data))
 
-        sensor["energy_day"] = {"value": 0, "unit": "Wh"}
-        sensor["energy_total"] = {"value": 0, "unit": "Wh"}
-        sensor["energy_year"] = {"value": 0, "unit": "Wh"}
-        sensor["power_ac"] = {"value": 0, "unit": "W"}
+        sensor["energy_day"] = {"value": 0, "unit": WATT_HOUR}
+        sensor["energy_total"] = {"value": 0, "unit": WATT_HOUR}
+        sensor["energy_year"] = {"value": 0, "unit": WATT_HOUR}
+        sensor["power_ac"] = {"value": 0, "unit": WATT}
 
         sensor["inverters"] = {}
 
@@ -529,196 +540,196 @@ class Fronius:
         if "Current_AC_Phase_1" in data:
             meter["current_ac_phase_1"] = {
                 "value": data["Current_AC_Phase_1"],
-                "unit": "A",
+                "unit": AMPERE,
             }
         if "ACBRIDGE_CURRENT_ACTIVE_MEAN_01_F32" in data:
             meter["current_ac_phase_1"] = {
                 "value": data["ACBRIDGE_CURRENT_ACTIVE_MEAN_01_F32"],
-                "unit": "A",
+                "unit": AMPERE,
             }
         if "Current_AC_Phase_2" in data:
             meter["current_ac_phase_2"] = {
                 "value": data["Current_AC_Phase_2"],
-                "unit": "A",
+                "unit": AMPERE,
             }
         if "ACBRIDGE_CURRENT_ACTIVE_MEAN_02_F32" in data:
             meter["current_ac_phase_2"] = {
                 "value": data["ACBRIDGE_CURRENT_ACTIVE_MEAN_02_F32"],
-                "unit": "A",
+                "unit": AMPERE,
             }
         if "Current_AC_Phase_3" in data:
             meter["current_ac_phase_3"] = {
                 "value": data["Current_AC_Phase_3"],
-                "unit": "A",
+                "unit": AMPERE,
             }
         if "ACBRIDGE_CURRENT_ACTIVE_MEAN_03_F32" in data:
             meter["current_ac_phase_3"] = {
                 "value": data["ACBRIDGE_CURRENT_ACTIVE_MEAN_03_F32"],
-                "unit": "A",
+                "unit": AMPERE,
             }
         if "EnergyReactive_VArAC_Sum_Consumed" in data:
             meter["energy_reactive_ac_consumed"] = {
                 "value": data["EnergyReactive_VArAC_Sum_Consumed"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "EnergyReactive_VArAC_Sum_Produced" in data:
             meter["energy_reactive_ac_produced"] = {
                 "value": data["EnergyReactive_VArAC_Sum_Produced"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "EnergyReal_WAC_Minus_Absolute" in data:
             meter["energy_real_ac_minus"] = {
                 "value": data["EnergyReal_WAC_Minus_Absolute"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "EnergyReal_WAC_Plus_Absolute" in data:
             meter["energy_real_ac_plus"] = {
                 "value": data["EnergyReal_WAC_Plus_Absolute"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "EnergyReal_WAC_Sum_Consumed" in data:
             meter["energy_real_consumed"] = {
                 "value": data["EnergyReal_WAC_Sum_Consumed"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "SMARTMETER_ENERGYACTIVE_CONSUMED_SUM_F64" in data:
             meter["energy_real_consumed"] = {
                 "value": data["SMARTMETER_ENERGYACTIVE_CONSUMED_SUM_F64"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "EnergyReal_WAC_Sum_Produced" in data:
             meter["energy_real_produced"] = {
                 "value": data["EnergyReal_WAC_Sum_Produced"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "SMARTMETER_ENERGYACTIVE_PRODUCED_SUM_F64" in data:
             meter["energy_real_produced"] = {
                 "value": data["SMARTMETER_ENERGYACTIVE_PRODUCED_SUM_F64"],
-                "unit": "Wh",
+                "unit": WATT_HOUR,
             }
         if "Frequency_Phase_Average" in data:
             meter["frequency_phase_average"] = {
                 "value": data["Frequency_Phase_Average"],
-                "unit": "Hz",
+                "unit": HERTZ,
             }
         if "PowerApparent_S_Phase_1" in data:
             meter["power_apparent_phase_1"] = {
                 "value": data["PowerApparent_S_Phase_1"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerApparent_S_Phase_2" in data:
             meter["power_apparent_phase_2"] = {
                 "value": data["PowerApparent_S_Phase_2"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerApparent_S_Phase_3" in data:
             meter["power_apparent_phase_3"] = {
                 "value": data["PowerApparent_S_Phase_3"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerApparent_S_Sum" in data:
             meter["power_apparent"] = {
                 "value": data["PowerApparent_S_Sum"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerFactor_Phase_1" in data:
             meter["power_factor_phase_1"] = {
                 "value": data["PowerFactor_Phase_1"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerFactor_Phase_2" in data:
             meter["power_factor_phase_2"] = {
                 "value": data["PowerFactor_Phase_2"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerFactor_Phase_3" in data:
             meter["power_factor_phase_3"] = {
                 "value": data["PowerFactor_Phase_3"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerFactor_Sum" in data:
-            meter["power_factor"] = {"value": data["PowerFactor_Sum"], "unit": "W"}
+            meter["power_factor"] = {"value": data["PowerFactor_Sum"], "unit": WATT}
         if "PowerReactive_Q_Phase_1" in data:
             meter["power_reactive_phase_1"] = {
                 "value": data["PowerReactive_Q_Phase_1"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReactive_Q_Phase_2" in data:
             meter["power_reactive_phase_2"] = {
                 "value": data["PowerReactive_Q_Phase_2"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReactive_Q_Phase_3" in data:
             meter["power_reactive_phase_3"] = {
                 "value": data["PowerReactive_Q_Phase_3"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReactive_Q_Sum" in data:
             meter["power_reactive"] = {
                 "value": data["PowerReactive_Q_Sum"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReal_P_Phase_1" in data:
             meter["power_real_phase_1"] = {
                 "value": data["PowerReal_P_Phase_1"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "SMARTMETER_POWERACTIVE_01_F64" in data:
             meter["power_real_phase_1"] = {
                 "value": data["SMARTMETER_POWERACTIVE_01_F64"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReal_P_Phase_2" in data:
             meter["power_real_phase_2"] = {
                 "value": data["PowerReal_P_Phase_2"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "SMARTMETER_POWERACTIVE_02_F64" in data:
             meter["power_real_phase_2"] = {
                 "value": data["SMARTMETER_POWERACTIVE_02_F64"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReal_P_Phase_3" in data:
             meter["power_real_phase_3"] = {
                 "value": data["PowerReal_P_Phase_3"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "SMARTMETER_POWERACTIVE_03_F64" in data:
             meter["power_real_phase_3"] = {
                 "value": data["SMARTMETER_POWERACTIVE_03_F64"],
-                "unit": "W",
+                "unit": WATT,
             }
         if "PowerReal_P_Sum" in data:
-            meter["power_real"] = {"value": data["PowerReal_P_Sum"], "unit": "W"}
+            meter["power_real"] = {"value": data["PowerReal_P_Sum"], "unit": WATT}
         if "Voltage_AC_Phase_1" in data:
             meter["voltage_ac_phase_1"] = {
                 "value": data["Voltage_AC_Phase_1"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_AC_Phase_2" in data:
             meter["voltage_ac_phase_2"] = {
                 "value": data["Voltage_AC_Phase_2"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_AC_Phase_3" in data:
             meter["voltage_ac_phase_3"] = {
                 "value": data["Voltage_AC_Phase_3"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_AC_PhaseToPhase_12" in data:
             meter["voltage_ac_phase_to_phase_12"] = {
                 "value": data["Voltage_AC_PhaseToPhase_12"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_AC_PhaseToPhase_23" in data:
             meter["voltage_ac_phase_to_phase_23"] = {
                 "value": data["Voltage_AC_PhaseToPhase_23"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_AC_PhaseToPhase_31" in data:
             meter["voltage_ac_phase_to_phase_31"] = {
                 "value": data["Voltage_AC_PhaseToPhase_31"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Meter_Location_Current" in data:
             meter["meter_location"] = {"value": data["Meter_Location_Current"]}
@@ -749,28 +760,28 @@ class Fronius:
                 "unit": "Ah",
             }
         if "Current_DC" in data:
-            controller["current_dc"] = {"value": data["Current_DC"], "unit": "A"}
+            controller["current_dc"] = {"value": data["Current_DC"], "unit": AMPERE}
         if "Voltage_DC" in data:
-            controller["voltage_dc"] = {"value": data["Voltage_DC"], "unit": "V"}
+            controller["voltage_dc"] = {"value": data["Voltage_DC"], "unit": VOLT}
         if "Voltage_DC_Maximum_Cell" in data:
             controller["voltage_dc_maximum_cell"] = {
                 "value": data["Voltage_DC_Maximum_Cell"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_DC_Minimum_Cell" in data:
             controller["voltage_dc_minimum_cell"] = {
                 "value": data["Voltage_DC_Minimum_Cell"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "StateOfCharge_Relative" in data:
             controller["state_of_charge"] = {
                 "value": data["StateOfCharge_Relative"],
-                "unit": "%",
+                "unit": PERCENT,
             }
         if "Temperature_Cell" in data:
             controller["temperature_cell"] = {
                 "value": data["Temperature_Cell"],
-                "unit": "C",
+                "unit": DEGREE_CELSIUS,
             }
         if "Enable" in data:
             controller["enable"] = {"value": data["Enable"]}
@@ -797,38 +808,38 @@ class Fronius:
                 "unit": "Ah",
             }
         if "Current_DC" in data:
-            module["current_dc"] = {"value": data["Current_DC"], "unit": "A"}
+            module["current_dc"] = {"value": data["Current_DC"], "unit": AMPERE}
         if "Voltage_DC" in data:
-            module["voltage_dc"] = {"value": data["Voltage_DC"], "unit": "V"}
+            module["voltage_dc"] = {"value": data["Voltage_DC"], "unit": VOLT}
         if "Voltage_DC_Maximum_Cell" in data:
             module["voltage_dc_maximum_cell"] = {
                 "value": data["Voltage_DC_Maximum_Cell"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "Voltage_DC_Minimum_Cell" in data:
             module["voltage_dc_minimum_cell"] = {
                 "value": data["Voltage_DC_Minimum_Cell"],
-                "unit": "V",
+                "unit": VOLT,
             }
         if "StateOfCharge_Relative" in data:
             module["state_of_charge"] = {
                 "value": data["StateOfCharge_Relative"],
-                "unit": "%",
+                "unit": PERCENT,
             }
         if "Temperature_Cell" in data:
             module["temperature_cell"] = {
                 "value": data["Temperature_Cell"],
-                "unit": "C",
+                "unit": DEGREE_CELSIUS,
             }
         if "Temperature_Cell_Maximum" in data:
             module["temperature_cell_maximum"] = {
                 "value": data["Temperature_Cell_Maximum"],
-                "unit": "C",
+                "unit": DEGREE_CELSIUS,
             }
         if "Temperature_Cell_Minimum" in data:
             module["temperature_cell_minimum"] = {
                 "value": data["Temperature_Cell_Minimum"],
-                "unit": "C",
+                "unit": DEGREE_CELSIUS,
             }
         if "CycleCount_BatteryCell" in data:
             module["cycle_count_cell"] = {"value": data["CycleCount_BatteryCell"]}
