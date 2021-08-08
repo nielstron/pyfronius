@@ -11,6 +11,7 @@ import aiohttp
 import json
 import logging
 import enum
+import re
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,7 +91,7 @@ class Fronius:
         Constructor
         """
         self._aio_session = session
-        self.url = url
+        self.url = re.sub(r"/+$", "", url)
         self.api_version = api_version
         self.base_url = API_BASEPATHS.get(API_VERSION)
 
