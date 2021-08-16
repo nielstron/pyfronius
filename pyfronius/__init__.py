@@ -636,20 +636,17 @@ class Fronius:
         if "PowerFactor_Phase_1" in data:
             meter["power_factor_phase_1"] = {
                 "value": data["PowerFactor_Phase_1"],
-                "unit": WATT,
             }
         if "PowerFactor_Phase_2" in data:
             meter["power_factor_phase_2"] = {
                 "value": data["PowerFactor_Phase_2"],
-                "unit": WATT,
             }
         if "PowerFactor_Phase_3" in data:
             meter["power_factor_phase_3"] = {
                 "value": data["PowerFactor_Phase_3"],
-                "unit": WATT,
             }
         if "PowerFactor_Sum" in data:
-            meter["power_factor"] = {"value": data["PowerFactor_Sum"], "unit": WATT}
+            meter["power_factor"] = {"value": data["PowerFactor_Sum"]}
         if "PowerReactive_Q_Phase_1" in data:
             meter["power_reactive_phase_1"] = {
                 "value": data["PowerReactive_Q_Phase_1"],
