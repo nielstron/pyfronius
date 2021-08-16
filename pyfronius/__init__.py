@@ -17,11 +17,13 @@ _LOGGER = logging.getLogger(__name__)
 DEGREE_CELSIUS = "°C"
 WATT = "W"
 WATT_HOUR = "Wh"
-KILOWATT_HOUR = "kWh"
 AMPERE = "A"
 VOLT = "V"
 PERCENT = "%"
 HERTZ = "Hz"
+VOLTAMPEREREACTIVE = "VAr"
+VOLTAMPEREREACTIVE_HOUR = "VArh"
+VOLTAMPERE = "VA"
 
 
 class API_VERSION(enum.Enum):
@@ -571,12 +573,12 @@ class Fronius:
         if "EnergyReactive_VArAC_Sum_Consumed" in data:
             meter["energy_reactive_ac_consumed"] = {
                 "value": data["EnergyReactive_VArAC_Sum_Consumed"],
-                "unit": WATT_HOUR,
+                "unit": VOLTAMPEREREACTIVE_HOUR,
             }
         if "EnergyReactive_VArAC_Sum_Produced" in data:
             meter["energy_reactive_ac_produced"] = {
                 "value": data["EnergyReactive_VArAC_Sum_Produced"],
-                "unit": WATT_HOUR,
+                "unit": VOLTAMPEREREACTIVE_HOUR,
             }
         if "EnergyReal_WAC_Minus_Absolute" in data:
             meter["energy_real_ac_minus"] = {
@@ -616,22 +618,22 @@ class Fronius:
         if "PowerApparent_S_Phase_1" in data:
             meter["power_apparent_phase_1"] = {
                 "value": data["PowerApparent_S_Phase_1"],
-                "unit": WATT,
+                "unit": VOLTAMPERE,
             }
         if "PowerApparent_S_Phase_2" in data:
             meter["power_apparent_phase_2"] = {
                 "value": data["PowerApparent_S_Phase_2"],
-                "unit": WATT,
+                "unit": VOLTAMPERE,
             }
         if "PowerApparent_S_Phase_3" in data:
             meter["power_apparent_phase_3"] = {
                 "value": data["PowerApparent_S_Phase_3"],
-                "unit": WATT,
+                "unit": VOLTAMPERE,
             }
         if "PowerApparent_S_Sum" in data:
             meter["power_apparent"] = {
                 "value": data["PowerApparent_S_Sum"],
-                "unit": WATT,
+                "unit": VOLTAMPERE,
             }
         if "PowerFactor_Phase_1" in data:
             meter["power_factor_phase_1"] = {
@@ -650,22 +652,22 @@ class Fronius:
         if "PowerReactive_Q_Phase_1" in data:
             meter["power_reactive_phase_1"] = {
                 "value": data["PowerReactive_Q_Phase_1"],
-                "unit": WATT,
+                "unit": VOLTAMPEREREACTIVE,
             }
         if "PowerReactive_Q_Phase_2" in data:
             meter["power_reactive_phase_2"] = {
                 "value": data["PowerReactive_Q_Phase_2"],
-                "unit": WATT,
+                "unit": VOLTAMPEREREACTIVE,
             }
         if "PowerReactive_Q_Phase_3" in data:
             meter["power_reactive_phase_3"] = {
                 "value": data["PowerReactive_Q_Phase_3"],
-                "unit": WATT,
+                "unit": VOLTAMPEREREACTIVE,
             }
         if "PowerReactive_Q_Sum" in data:
             meter["power_reactive"] = {
                 "value": data["PowerReactive_Q_Sum"],
-                "unit": WATT,
+                "unit": VOLTAMPEREREACTIVE,
             }
         if "PowerReal_P_Phase_1" in data:
             meter["power_real_phase_1"] = {
