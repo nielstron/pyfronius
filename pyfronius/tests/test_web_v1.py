@@ -254,6 +254,7 @@ class FroniusWebTestV1(unittest.TestCase):
             res,
             [
                 GET_ACTIVE_DEVICE_INFO,
+                GET_LOGGER_INFO,
                 GET_POWER_FLOW_REALTIME_DATA,
                 GET_METER_REALTIME_DATA_SYSTEM,
                 GET_INVERTER_REALTIME_DATA_SYSTEM,
