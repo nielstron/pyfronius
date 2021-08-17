@@ -102,6 +102,9 @@ class Fronius:
         """
         self._aio_session = session
         self.url = re.sub(r"/+$", "", url)
+        # prepend http:// if missing, by fronius API this is the only supported protocol
+        if not self.url.startswith("http"):
+            self.url = "http://{}".format(self.url)
         self.api_version = api_version
         self.base_url = API_BASEPATHS.get(API_VERSION)
 
