@@ -531,7 +531,18 @@ class Fronius:
                 "unit": data["UDC_2"]["Unit"],
             }
         if "DeviceStatus" in data:
-            sensor["inverter_state"] = {"value": data["DeviceStatus"]["InverterState"]}
+            if "InverterState" in data["DeviceStatus"]:
+                sensor["inverter_state"] = {
+                    "value": data["DeviceStatus"]["InverterState"]
+                }
+            if "ErrorCode" in data["DeviceStatus"]:
+                sensor["error_code"] = {"value": data["DeviceStatus"]["ErrorCode"]}
+            if "StatusCode" in data["DeviceStatus"]:
+                sensor["status_code"] = {"value": data["DeviceStatus"]["StatusCode"]}
+            if "LEDState" in data["DeviceStatus"]:
+                sensor["led_state"] = {"value": data["DeviceStatus"]["LEDState"]}
+            if "LEDColor" in data["DeviceStatus"]:
+                sensor["led_color"] = {"value": data["DeviceStatus"]["LEDColor"]}
 
         return sensor
 

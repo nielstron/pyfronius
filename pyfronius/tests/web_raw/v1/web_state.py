@@ -46,6 +46,10 @@ GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
     "energy_day": {"value": 0, "unit": "Wh"},
     "energy_total": {"value": 26213502, "unit": "Wh"},
     "energy_year": {"value": 12400.1, "unit": "Wh"},
+    "status_code": {"value": 3},
+    "error_code": {"value": 523},
+    "led_state": {"value": 0},
+    "led_color": {"value": 1},
 }
 
 GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE = {

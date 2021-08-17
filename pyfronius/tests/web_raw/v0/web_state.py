@@ -10,6 +10,10 @@ GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
     "power_ac": {"value": 1762, "unit": "W"},
     "voltage_ac": {"value": 241, "unit": "V"},
     "voltage_dc": {"value": 286, "unit": "V"},
+    "status_code": {"value": 7},
+    "error_code": {"value": 0},
+    "led_state": {"value": 0},
+    "led_color": {"value": 2},
 }
 
 GET_INVERTER_REALTIME_DATA_SYSTEM = {
