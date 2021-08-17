@@ -184,6 +184,7 @@ class Fronius:
 
     async def fetch(
         self,
+        active_device_info=True,
         power_flow=True,
         system_meter=True,
         system_inverter=True,
@@ -194,6 +195,8 @@ class Fronius:
         loop=None,
     ):
         requests = []
+        if active_device_info:
+            requests.append(self.current_active_device_info())
         if power_flow:
             requests.append(self.current_power_flow())
         if system_meter:

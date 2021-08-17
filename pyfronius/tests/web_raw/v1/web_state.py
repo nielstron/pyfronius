@@ -82,3 +82,5 @@ GET_LOGGER_LED_INFO_STATE = {
     "solar_web_led": {"color": "none", "state": "off"},
     "wlan_led": {"color": "green", "state": "on"},
 }
+
+GET_ACTIVE_DEVICE_INFO = {'timestamp': {'value': '2021-08-17T14:12:17+02:00'}, 'status': {'Code': 0, 'Reason': '', 'UserMessage': ''}, 'inverters': [{'device_id': '1', 'device_type': 122, 'serial_number': '30412345'}], 'meters': [{'device_id': '0', 'serial_number': '18412345'}], 'ohmpilots': [], 'sensor_cards': [], 'storages': [], 'string_controls': []}

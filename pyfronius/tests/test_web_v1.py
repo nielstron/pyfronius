@@ -14,15 +14,7 @@ import time
 import aiohttp
 import asyncio
 import pyfronius
-from pyfronius.tests.web_raw.v1.web_state import (
-    GET_METER_REALTIME_DATA_SCOPE_DEVICE,
-    GET_METER_REALTIME_DATA_SYSTEM,
-    GET_POWER_FLOW_REALTIME_DATA,
-    GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
-    GET_INVERTER_REALTIME_DATA_SYSTEM,
-    GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE,
-    GET_LOGGER_LED_INFO_STATE,
-)
+from pyfronius.tests.web_raw.v1.web_state import *
 
 ADDRESS = "localhost"
 
@@ -213,6 +205,12 @@ class FroniusWebTestV1(unittest.TestCase):
             self.fronius.current_led_data()
         )
         self.assertDictEqual(res, GET_LOGGER_LED_INFO_STATE)
+
+    def test_fronius_get_active_device_info(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_active_device_info()
+        )
+        self.assertDictEqual(res, GET_ACTIVE_DEVICE_INFO)
 
     def test_fronius_get_no_data(self):
         # Storage data for device 0 is not provided ATM
