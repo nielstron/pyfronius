@@ -207,6 +207,12 @@ class FroniusWebTestV0(unittest.TestCase):
         )
         self.assertDictEqual(res, {})
 
+    def test_fronius_get_active_device_info(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_active_device_info()
+        )
+        self.assertDictEqual(res, {})
+
     def test_fronius_get_no_data(self):
         # Storage data for device 0 is not provided ATM
         # TODO someone add some storage data for a device 1?
