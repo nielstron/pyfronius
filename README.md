@@ -15,6 +15,8 @@ The package supports the following data provided by fronius devices:
 - Meter (System and Device scope)
 - Inverter (System and Device scope)
 - Storage (Device scope only) 
+- Active Devices
+- Logger Information
 
 The package currently supportes the Fronius API V1 and V0.
 Support may be enhanced based on the official documentation ([V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf), [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf)).
