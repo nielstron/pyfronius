@@ -75,7 +75,9 @@ URL_DEVICE_INVERTER_COMMON = {
         "DataCollection=CommonInverterData"
     ),
 }
-URL_ACTIVE_DEVICE_INFO_SYSTEM = {API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"}
+URL_ACTIVE_DEVICE_INFO_SYSTEM = {
+    API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"
+}
 
 
 class NotSupportedError(ValueError):
@@ -326,7 +328,9 @@ class Fronius:
         Get info about the current active devices in a smart meter system.
         """
         return await self._current_data(
-            Fronius._system_active_device_info, URL_ACTIVE_DEVICE_INFO_SYSTEM, "current active device info"
+            Fronius._system_active_device_info,
+            URL_ACTIVE_DEVICE_INFO_SYSTEM,
+            "current active device info",
         )
 
     @staticmethod
@@ -913,7 +917,9 @@ class Fronius:
             sensor_card = {"device_id": device_id, "device_type": device["DT"]}
             if "Serial" in device:
                 sensor_card["serial_number"] = device["Serial"]
-            sensor_card["channel_names"] = list(map(lambda x: x.lower(), device["ChannelNames"]))
+            sensor_card["channel_names"] = list(
+                map(lambda x: x.lower(), device["ChannelNames"])
+            )
             sensor_cards.append(sensor_card)
         sensor["sensor_cards"] = sensor_cards
 
