@@ -256,19 +256,24 @@ class Fronius:
                 "Device type {} not supported by the fronius device".format(spec_name)
             )
 
-        # no error should be thrown here, ever
-        sensor.update(Fronius._status_data(res))
+        try:
+            sensor.update(Fronius._status_data(res))
+        except (TypeError, KeyError):
+            # break if Data is empty
+            _LOGGER.info(
+                "No header data returned from {} ({})".format(spec, spec_formattings)
+            )
         try:
             # TODO use update here as well
-            sensor = fun(sensor, res["Body"]["Data"])
+            fun(sensor, res["Body"]["Data"])
         except (TypeError, KeyError):
             # LoggerInfo oddly deviates from the default scheme
             try:
-                sensor = fun(sensor, res["Body"]["LoggerInfo"])
+                fun(sensor, res["Body"]["LoggerInfo"])
             except (TypeError, KeyError):
                 # break if Data is empty
                 _LOGGER.info(
-                    "No data returned from {} ({})".format(spec, spec_formattings)
+                    "No body data returned from {} ({})".format(spec, spec_formattings)
                 )
         return sensor
 
