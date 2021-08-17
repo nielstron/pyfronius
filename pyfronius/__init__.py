@@ -922,7 +922,7 @@ class Fronius:
                 if "Serial" in device:
                     sensor_card["serial_number"] = device["Serial"]
                 sensor_card["channel_names"] = list(
-                    map(lambda x: x.lower(), device["ChannelNames"])
+                    map(lambda x: x.lower().replace(" ", "_"), device["ChannelNames"])
                 )
                 sensor_cards.append(sensor_card)
             sensor["sensor_cards"] = sensor_cards
