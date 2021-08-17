@@ -24,6 +24,7 @@ HERTZ = "Hz"
 VOLTAMPEREREACTIVE = "VAr"
 VOLTAMPEREREACTIVE_HOUR = "VArh"
 VOLTAMPERE = "VA"
+KILOGRAM_PER_KILOWATTHOUR = "kg/kWh"
 
 
 class API_VERSION(enum.Enum):
@@ -77,6 +78,10 @@ URL_DEVICE_INVERTER_COMMON = {
 }
 URL_ACTIVE_DEVICE_INFO_SYSTEM = {
     API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"
+}
+URL_LOGGER_INFO = {
+    API_VERSION.V0: "GetLoggerInfo.cgi",
+    API_VERSION.V1: "GetLoggerInfo.cgi",
 }
 
 
@@ -251,13 +256,20 @@ class Fronius:
                 "Device type {} not supported by the fronius device".format(spec_name)
             )
 
+        # no error should be thrown here, ever
+        sensor.update(Fronius._status_data(res))
         try:
-            sensor.update(Fronius._status_data(res))
             # TODO use update here as well
             sensor = fun(sensor, res["Body"]["Data"])
         except (TypeError, KeyError):
-            # break if Data is empty
-            _LOGGER.info("No data returned from {}".format(spec))
+            # LoggerInfo oddly deviates from the default scheme
+            try:
+                sensor = fun(sensor, res["Body"]["LoggerInfo"])
+            except (TypeError, KeyError):
+                # break if Data is empty
+                _LOGGER.info(
+                    "No data returned from {} ({})".format(spec, spec_formattings)
+                )
         return sensor
 
     async def current_power_flow(self):
@@ -331,6 +343,14 @@ class Fronius:
             Fronius._system_active_device_info,
             URL_ACTIVE_DEVICE_INFO_SYSTEM,
             "current active device info",
+        )
+
+    async def current_logger_info(self):
+        """
+        Get the current logger info of a smart meter system.
+        """
+        return await self._current_data(
+            Fronius._logger_info, URL_LOGGER_INFO, "current logger info"
         )
 
     @staticmethod
@@ -944,5 +964,52 @@ class Fronius:
                     string_control["serial_number"] = device["Serial"]
                 string_controls.append(string_control)
             sensor["string_controls"] = string_controls
+
+        return sensor
+
+    @staticmethod
+    def _logger_info(sensor, data):
+        _LOGGER.debug("Converting Logger info: '{}'".format(data))
+
+        if "CO2Factor" in data and "CO2Unit" in data:
+            sensor["co2_factor"] = {
+                "value": data["CO2Factor"],
+                "unit": "{}/kWh".format(data["CO2Unit"]),
+            }
+
+        if "CashFactor" in data:
+            # which unit does this have?
+            sensor["cash_factor"] = {"value": data["CashFactor"]}
+
+        if "DeliveryFactor" in data:
+            # which unit does this have?
+            sensor["delivery_factor"] = {"value": data["DeliveryFactor"]}
+
+        if "CashCurrency" in data:
+            sensor["cash_currency"] = {"value": data["CashCurrency"]}
+
+        if "HWVersion" in data:
+            sensor["hardware_version"] = {"value": data["HWVersion"]}
+
+        if "SWVersion" in data:
+            sensor["software_version"] = {"value": data["SWVersion"]}
+
+        if "PlatformID" in data:
+            sensor["hardware_platform"] = {"value": data["PlatformID"]}
+
+        if "ProductID" in data:
+            sensor["product_type"] = {"value": data["ProductID"]}
+
+        if "TimezoneLocation" in data:
+            sensor["time_zone_location"] = {"value": data["TimezoneLocation"]}
+
+        if "TimezoneName" in data:
+            sensor["time_zone"] = {"value": data["TimezoneName"]}
+
+        if "UTCOffset" in data:
+            sensor["utc_offset"] = {"value": data["UTCOffset"]}
+
+        if "UniqueID" in data:
+            sensor["unique_identifier"] = {"value": data["UniqueID"]}
 
         return sensor

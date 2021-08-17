@@ -93,3 +93,20 @@ GET_ACTIVE_DEVICE_INFO = {
     "storages": [],
     "string_controls": [],
 }
+
+GET_LOGGER_INFO = {
+    "timestamp": {"value": "2021-08-17T14:36:40+02:00"},
+    "status": {"Code": 0, "Reason": "", "UserMessage": ""},
+    "co2_factor": {"value": 0.5299999713897705, "unit": "kg/kWh"},
+    "cash_factor": {"value": 0.07599999755620956},
+    "delivery_factor": {"value": 0.15000000596046448},
+    "cash_currency": {"value": "EUR"},
+    "hardware_version": {"value": "2.4E"},
+    "software_version": {"value": "3.18.7-1"},
+    "hardware_platform": {"value": "wilma"},
+    "product_type": {"value": "fronius-datamanager-card"},
+    "time_zone_location": {"value": "Vienna"},
+    "time_zone": {"value": "CEST"},
+    "utc_offset": {"value": 7200},
+    "unique_identifier": {"value": "240.123456"},
+}
