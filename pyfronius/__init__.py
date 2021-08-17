@@ -888,55 +888,61 @@ class Fronius:
     def _system_active_device_info(sensor: dict, data: dict):
         _LOGGER.debug("Converting system active device data: '{}'".format(data))
 
-        inverters = []
-        for device_id, device in data["Inverter"].items():
-            inverter = {"device_id": device_id, "device_type": device["DT"]}
-            if "Serial" in device:
-                inverter["serial_number"] = device["Serial"]
-            inverters.append(inverter)
-        sensor["inverters"] = inverters
+        if "Inverter" in data:
+            inverters = []
+            for device_id, device in data["Inverter"].items():
+                inverter = {"device_id": device_id, "device_type": device["DT"]}
+                if "Serial" in device:
+                    inverter["serial_number"] = device["Serial"]
+                inverters.append(inverter)
+            sensor["inverters"] = inverters
 
-        meters = []
-        for device_id, device in data["Meter"].items():
-            meter = {"device_id": device_id}
-            if "Serial" in device:
-                meter["serial_number"] = device["Serial"]
-            meters.append(meter)
-        sensor["meters"] = meters
+        if "Meter" in data:
+            meters = []
+            for device_id, device in data["Meter"].items():
+                meter = {"device_id": device_id}
+                if "Serial" in device:
+                    meter["serial_number"] = device["Serial"]
+                meters.append(meter)
+            sensor["meters"] = meters
 
-        ohmpilots = []
-        for device_id, device in data["Ohmpilot"].items():
-            ohmpilot = {"device_id": device_id}
-            if "Serial" in device:
-                ohmpilot["serial_number"] = device["Serial"]
-            ohmpilots.append(ohmpilot)
-        sensor["ohmpilots"] = ohmpilots
+        if "Ohmpilot" in data:
+            ohmpilots = []
+            for device_id, device in data["Ohmpilot"].items():
+                ohmpilot = {"device_id": device_id}
+                if "Serial" in device:
+                    ohmpilot["serial_number"] = device["Serial"]
+                ohmpilots.append(ohmpilot)
+            sensor["ohmpilots"] = ohmpilots
 
-        sensor_cards = []
-        for device_id, device in data["SensorCard"].items():
-            sensor_card = {"device_id": device_id, "device_type": device["DT"]}
-            if "Serial" in device:
-                sensor_card["serial_number"] = device["Serial"]
-            sensor_card["channel_names"] = list(
-                map(lambda x: x.lower(), device["ChannelNames"])
-            )
-            sensor_cards.append(sensor_card)
-        sensor["sensor_cards"] = sensor_cards
+        if "SensorCard" in data:
+            sensor_cards = []
+            for device_id, device in data["SensorCard"].items():
+                sensor_card = {"device_id": device_id, "device_type": device["DT"]}
+                if "Serial" in device:
+                    sensor_card["serial_number"] = device["Serial"]
+                sensor_card["channel_names"] = list(
+                    map(lambda x: x.lower(), device["ChannelNames"])
+                )
+                sensor_cards.append(sensor_card)
+            sensor["sensor_cards"] = sensor_cards
 
-        storages = []
-        for device_id, device in data["Storage"].items():
-            storage = {"device_id": device_id}
-            if "Serial" in device:
-                storage["serial_number"] = device["Serial"]
-            storages.append(storage)
-        sensor["storages"] = storages
+        if "Storage" in data:
+            storages = []
+            for device_id, device in data["Storage"].items():
+                storage = {"device_id": device_id}
+                if "Serial" in device:
+                    storage["serial_number"] = device["Serial"]
+                storages.append(storage)
+            sensor["storages"] = storages
 
-        string_controls = []
-        for device_id, device in data["StringControl"].items():
-            string_control = {"device_id": device_id}
-            if "Serial" in device:
-                string_control["serial_number"] = device["Serial"]
-            string_controls.append(string_control)
-        sensor["string_controls"] = string_controls
+        if "StringControl" in data:
+            string_controls = []
+            for device_id, device in data["StringControl"].items():
+                string_control = {"device_id": device_id}
+                if "Serial" in device:
+                    string_control["serial_number"] = device["Serial"]
+                string_controls.append(string_control)
+            sensor["string_controls"] = string_controls
 
         return sensor
