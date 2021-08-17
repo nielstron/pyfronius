@@ -75,6 +75,7 @@ URL_DEVICE_INVERTER_COMMON = {
         "DataCollection=CommonInverterData"
     ),
 }
+URL_ACTIVE_DEVICE_INFO_SYSTEM = {API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"}
 
 
 class NotSupportedError(ValueError):
@@ -315,6 +316,14 @@ class Fronius:
         """
         return await self._current_data(
             Fronius._system_led_data, URL_SYSTEM_LED, "current led"
+        )
+
+    async def current_active_device_info(self):
+        """
+        Get info about the current active devices in a smart meter system.
+        """
+        return await self._current_data(
+            Fronius._system_active_device_info, URL_ACTIVE_DEVICE_INFO_SYSTEM, "current active device info"
         )
 
     @staticmethod
@@ -867,3 +876,58 @@ class Fronius:
             module["serial"] = {"value": data["Details"]["Serial"]}
 
         return module
+
+    @staticmethod
+    def _system_active_device_info(sensor: dict, data: dict):
+        _LOGGER.debug("Converting system active device data: '{}'".format(data))
+
+        inverters = []
+        for device_id, device in data["Inverter"].items():
+            inverter = {"device_id": device_id, "device_type": device["DT"]}
+            if "Serial" in device:
+                inverter["serial_number"] = device["Serial"]
+            inverters.append(inverter)
+        sensor["inverters"] = inverters
+
+        meters = []
+        for device_id, device in data["Meter"].items():
+            meter = {"device_id": device_id}
+            if "Serial" in device:
+                meter["serial_number"] = device["Serial"]
+            meters.append(meter)
+        sensor["meters"] = meters
+
+        ohmpilots = []
+        for device_id, device in data["Ohmpilot"].items():
+            ohmpilot = {"device_id": device_id}
+            if "Serial" in device:
+                ohmpilot["serial_number"] = device["Serial"]
+            ohmpilots.append(ohmpilot)
+        sensor["ohmpilots"] = ohmpilots
+
+        sensor_cards = []
+        for device_id, device in data["SensorCard"].items():
+            sensor_card = {"device_id": device_id, "device_type": device["DT"]}
+            if "Serial" in device:
+                sensor_card["serial_number"] = device["Serial"]
+            sensor_card["channel_names"] = list(map(lambda x: x.lower(), device["ChannelNames"]))
+            sensor_cards.append(sensor_card)
+        sensor["sensor_cards"] = sensor_cards
+
+        storages = []
+        for device_id, device in data["Storage"].items():
+            storage = {"device_id": device_id}
+            if "Serial" in device:
+                storage["serial_number"] = device["Serial"]
+            storages.append(storage)
+        sensor["storages"] = storages
+
+        string_controls = []
+        for device_id, device in data["StringControl"].items():
+            string_control = {"device_id": device_id}
+            if "Serial" in device:
+                string_control["serial_number"] = device["Serial"]
+            string_controls.append(string_control)
+        sensor["string_controls"] = string_controls
+
+        return sensor

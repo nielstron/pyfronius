@@ -1,0 +1,33 @@
+{
+   "Body" : {
+      "Data" : {
+         "Inverter" : {
+            "1" : {
+               "DT" : 122,
+               "Serial" : "30412345"
+            }
+         },
+         "Meter" : {
+            "0" : {
+               "DT" : -1,
+               "Serial" : "18412345"
+            }
+         },
+         "Ohmpilot" : {},
+         "SensorCard" : {},
+         "Storage" : {},
+         "StringControl" : {}
+      }
+   },
+   "Head" : {
+      "RequestArguments" : {
+         "DeviceClass" : "System"
+      },
+      "Status" : {
+         "Code" : 0,
+         "Reason" : "",
+         "UserMessage" : ""
+      },
+      "Timestamp" : "2021-08-17T14:12:17+02:00"
+   }
+}
