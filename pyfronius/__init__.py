@@ -267,12 +267,11 @@ class Fronius:
                 "No header data returned from {} ({})".format(spec, spec_formattings)
             )
         try:
-            # TODO use update here as well
-            fun(sensor, res["Body"]["Data"])
+            sensor.update(fun(res["Body"]["Data"]))
         except (TypeError, KeyError):
             # LoggerInfo oddly deviates from the default scheme
             try:
-                fun(sensor, res["Body"]["LoggerInfo"])
+                sensor.update(fun(res["Body"]["LoggerInfo"]))
             except (TypeError, KeyError):
                 # break if Data is empty
                 _LOGGER.info(
@@ -362,8 +361,9 @@ class Fronius:
         )
 
     @staticmethod
-    def _system_led_data(sensor, data):
+    def _system_led_data(data):
         _LOGGER.debug("Converting system led data: '{}'".format(data))
+        sensor = {}
 
         _map = {
             "PowerLED": "power_led",
@@ -382,8 +382,9 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_power_flow(sensor, data):
+    def _system_power_flow(data):
         _LOGGER.debug("Converting system power flow data: '{}'".format(data))
+        sensor = {}
 
         site = data["Site"]
         # Backwards compatability
@@ -439,10 +440,10 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_meter_data(sensor, data):
+    def _system_meter_data(data):
         _LOGGER.debug("Converting system meter data: '{}'".format(data))
 
-        sensor["meters"] = {}
+        sensor = {"meters": {}}
 
         for i in data:
             sensor["meters"][i] = Fronius._meter_data(data[i])
@@ -450,8 +451,9 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_inverter_data(sensor, data):
+    def _system_inverter_data(data):
         _LOGGER.debug("Converting system inverter data: '{}'".format(data))
+        sensor = {}
 
         sensor["energy_day"] = {"value": 0, "unit": WATT_HOUR}
         sensor["energy_total"] = {"value": 0, "unit": WATT_HOUR}
@@ -493,16 +495,18 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _device_meter_data(sensor, data):
+    def _device_meter_data(data):
         _LOGGER.debug("Converting meter data: '{}'".format(data))
+        sensor = {}
 
         sensor.update(Fronius._meter_data(data))
 
         return sensor
 
     @staticmethod
-    def _device_storage_data(sensor, data):
+    def _device_storage_data(data):
         _LOGGER.debug("Converting storage data from '{}'".format(data))
+        sensor = {}
 
         if "Controller" in data:
             controller = Fronius._controller_data(data["Controller"])
@@ -519,8 +523,9 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _device_inverter_data(sensor, data):
+    def _device_inverter_data(data):
         _LOGGER.debug("Converting inverter data from '{}'".format(data))
+        sensor = {}
 
         if "DAY_ENERGY" in data:
             sensor["energy_day"] = {
@@ -913,8 +918,9 @@ class Fronius:
         return module
 
     @staticmethod
-    def _system_active_device_info(sensor: dict, data: dict):
+    def _system_active_device_info(data: dict):
         _LOGGER.debug("Converting system active device data: '{}'".format(data))
+        sensor = {}
 
         if "Inverter" in data:
             inverters = []
@@ -976,8 +982,9 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _logger_info(sensor, data):
+    def _logger_info(data):
         _LOGGER.debug("Converting Logger info: '{}'".format(data))
+        sensor = {}
 
         if "CO2Factor" in data and "CO2Unit" in data:
             sensor["co2_factor"] = {
