@@ -124,7 +124,7 @@ class Fronius:
             async with self._aio_session.get(url) as res:
                 text = await res.text()
                 text = json.loads(text)
-        except aiohttp.ServerTimeoutError:
+        except (aiohttp.ServerTimeoutError, asyncio.TimeoutError):
             raise ConnectionError(
                 "Connection to Fronius device timed out at {}.".format(url)
             )
