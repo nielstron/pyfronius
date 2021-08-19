@@ -6,12 +6,11 @@ Created on 27.09.2017
 """
 
 import asyncio
+import enum
+import logging
+import re
 
 import aiohttp
-import json
-import logging
-import enum
-import re
 
 _LOGGER = logging.getLogger(__name__)
 DEGREE_CELSIUS = "°C"
@@ -122,8 +121,7 @@ class Fronius:
         """
         try:
             async with self._aio_session.get(url) as res:
-                text = await res.text()
-                text = json.loads(text)
+                result = await res.json()
         except (aiohttp.ServerTimeoutError, asyncio.TimeoutError):
             raise ConnectionError(
                 "Connection to Fronius device timed out at {}.".format(url)
@@ -132,9 +130,9 @@ class Fronius:
             raise ConnectionError(
                 "Connection to Fronius device failed at {}.".format(url)
             )
-        except json.JSONDecodeError:
+        except aiohttp.ContentTypeError:
             raise ValueError("Host returned a non-JSON reply at {}.".format(url))
-        return text
+        return result
 
     async def fetch_api_version(self):
         """
