@@ -103,7 +103,9 @@ class Fronius:
         api_version  Version of Fronius API to use
     """
 
-    def __init__(self, session, url, api_version=API_VERSION.AUTO):
+    def __init__(
+        self, session: aiohttp.ClientSession, url: str, api_version=API_VERSION.AUTO
+    ):
         """
         Constructor
         """
@@ -121,7 +123,7 @@ class Fronius:
         """
         try:
             async with self._aio_session.get(url) as res:
-                result = await res.json()
+                result = await res.json(content_type=None)
         except (aiohttp.ServerTimeoutError, asyncio.TimeoutError):
             raise ConnectionError(
                 "Connection to Fronius device timed out at {}.".format(url)
