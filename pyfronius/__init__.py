@@ -445,8 +445,8 @@ class Fronius:
 
         sensor = {"meters": {}}
 
-        for i in data:
-            sensor["meters"][i] = Fronius._meter_data(data[i])
+        for device_id, device_data in data.items():
+            sensor["meters"][device_id] = Fronius._device_meter_data(device_data)
 
         return sensor
 
@@ -497,109 +497,6 @@ class Fronius:
     @staticmethod
     def _device_meter_data(data):
         _LOGGER.debug("Converting meter data: '{}'".format(data))
-        sensor = {}
-
-        sensor.update(Fronius._meter_data(data))
-
-        return sensor
-
-    @staticmethod
-    def _device_storage_data(data):
-        _LOGGER.debug("Converting storage data from '{}'".format(data))
-        sensor = {}
-
-        if "Controller" in data:
-            controller = Fronius._controller_data(data["Controller"])
-            sensor.update(controller)
-
-        if "Modules" in data:
-            sensor["modules"] = {}
-            module_count = 0
-
-            for module in data["Modules"]:
-                sensor["modules"][module_count] = Fronius._module_data(module)
-                module_count += 1
-
-        return sensor
-
-    @staticmethod
-    def _device_inverter_data(data):
-        _LOGGER.debug("Converting inverter data from '{}'".format(data))
-        sensor = {}
-
-        if "DAY_ENERGY" in data:
-            sensor["energy_day"] = {
-                "value": data["DAY_ENERGY"]["Value"],
-                "unit": data["DAY_ENERGY"]["Unit"],
-            }
-        if "TOTAL_ENERGY" in data:
-            sensor["energy_total"] = {
-                "value": data["TOTAL_ENERGY"]["Value"],
-                "unit": data["TOTAL_ENERGY"]["Unit"],
-            }
-        if "YEAR_ENERGY" in data:
-            sensor["energy_year"] = {
-                "value": data["YEAR_ENERGY"]["Value"],
-                "unit": data["YEAR_ENERGY"]["Unit"],
-            }
-        if "FAC" in data:
-            sensor["frequency_ac"] = {
-                "value": data["FAC"]["Value"],
-                "unit": data["FAC"]["Unit"],
-            }
-        if "IAC" in data:
-            sensor["current_ac"] = {
-                "value": data["IAC"]["Value"],
-                "unit": data["IAC"]["Unit"],
-            }
-        if "IDC" in data:
-            sensor["current_dc"] = {
-                "value": data["IDC"]["Value"],
-                "unit": data["IDC"]["Unit"],
-            }
-        if "IDC_2" in data:
-            sensor["current_dc_2"] = {
-                "value": data["IDC_2"]["Value"],
-                "unit": data["IDC_2"]["Unit"],
-            }
-        if "PAC" in data:
-            sensor["power_ac"] = {
-                "value": data["PAC"]["Value"],
-                "unit": data["PAC"]["Unit"],
-            }
-        if "UAC" in data:
-            sensor["voltage_ac"] = {
-                "value": data["UAC"]["Value"],
-                "unit": data["UAC"]["Unit"],
-            }
-        if "UDC" in data:
-            sensor["voltage_dc"] = {
-                "value": data["UDC"]["Value"],
-                "unit": data["UDC"]["Unit"],
-            }
-        if "UDC_2" in data:
-            sensor["voltage_dc_2"] = {
-                "value": data["UDC_2"]["Value"],
-                "unit": data["UDC_2"]["Unit"],
-            }
-        if "DeviceStatus" in data:
-            if "InverterState" in data["DeviceStatus"]:
-                sensor["inverter_state"] = {
-                    "value": data["DeviceStatus"]["InverterState"]
-                }
-            if "ErrorCode" in data["DeviceStatus"]:
-                sensor["error_code"] = {"value": data["DeviceStatus"]["ErrorCode"]}
-            if "StatusCode" in data["DeviceStatus"]:
-                sensor["status_code"] = {"value": data["DeviceStatus"]["StatusCode"]}
-            if "LEDState" in data["DeviceStatus"]:
-                sensor["led_state"] = {"value": data["DeviceStatus"]["LEDState"]}
-            if "LEDColor" in data["DeviceStatus"]:
-                sensor["led_color"] = {"value": data["DeviceStatus"]["LEDColor"]}
-
-        return sensor
-
-    @staticmethod
-    def _meter_data(data):
 
         meter = {}
 
@@ -806,6 +703,101 @@ class Fronius:
             meter["serial"] = {"value": data["Details"]["Serial"]}
 
         return meter
+
+    @staticmethod
+    def _device_storage_data(data):
+        _LOGGER.debug("Converting storage data from '{}'".format(data))
+        sensor = {}
+
+        if "Controller" in data:
+            controller = Fronius._controller_data(data["Controller"])
+            sensor.update(controller)
+
+        if "Modules" in data:
+            sensor["modules"] = {}
+            module_count = 0
+
+            for module in data["Modules"]:
+                sensor["modules"][module_count] = Fronius._module_data(module)
+                module_count += 1
+
+        return sensor
+
+    @staticmethod
+    def _device_inverter_data(data):
+        _LOGGER.debug("Converting inverter data from '{}'".format(data))
+        sensor = {}
+
+        if "DAY_ENERGY" in data:
+            sensor["energy_day"] = {
+                "value": data["DAY_ENERGY"]["Value"],
+                "unit": data["DAY_ENERGY"]["Unit"],
+            }
+        if "TOTAL_ENERGY" in data:
+            sensor["energy_total"] = {
+                "value": data["TOTAL_ENERGY"]["Value"],
+                "unit": data["TOTAL_ENERGY"]["Unit"],
+            }
+        if "YEAR_ENERGY" in data:
+            sensor["energy_year"] = {
+                "value": data["YEAR_ENERGY"]["Value"],
+                "unit": data["YEAR_ENERGY"]["Unit"],
+            }
+        if "FAC" in data:
+            sensor["frequency_ac"] = {
+                "value": data["FAC"]["Value"],
+                "unit": data["FAC"]["Unit"],
+            }
+        if "IAC" in data:
+            sensor["current_ac"] = {
+                "value": data["IAC"]["Value"],
+                "unit": data["IAC"]["Unit"],
+            }
+        if "IDC" in data:
+            sensor["current_dc"] = {
+                "value": data["IDC"]["Value"],
+                "unit": data["IDC"]["Unit"],
+            }
+        if "IDC_2" in data:
+            sensor["current_dc_2"] = {
+                "value": data["IDC_2"]["Value"],
+                "unit": data["IDC_2"]["Unit"],
+            }
+        if "PAC" in data:
+            sensor["power_ac"] = {
+                "value": data["PAC"]["Value"],
+                "unit": data["PAC"]["Unit"],
+            }
+        if "UAC" in data:
+            sensor["voltage_ac"] = {
+                "value": data["UAC"]["Value"],
+                "unit": data["UAC"]["Unit"],
+            }
+        if "UDC" in data:
+            sensor["voltage_dc"] = {
+                "value": data["UDC"]["Value"],
+                "unit": data["UDC"]["Unit"],
+            }
+        if "UDC_2" in data:
+            sensor["voltage_dc_2"] = {
+                "value": data["UDC_2"]["Value"],
+                "unit": data["UDC_2"]["Unit"],
+            }
+        if "DeviceStatus" in data:
+            if "InverterState" in data["DeviceStatus"]:
+                sensor["inverter_state"] = {
+                    "value": data["DeviceStatus"]["InverterState"]
+                }
+            if "ErrorCode" in data["DeviceStatus"]:
+                sensor["error_code"] = {"value": data["DeviceStatus"]["ErrorCode"]}
+            if "StatusCode" in data["DeviceStatus"]:
+                sensor["status_code"] = {"value": data["DeviceStatus"]["StatusCode"]}
+            if "LEDState" in data["DeviceStatus"]:
+                sensor["led_state"] = {"value": data["DeviceStatus"]["LEDState"]}
+            if "LEDColor" in data["DeviceStatus"]:
+                sensor["led_color"] = {"value": data["DeviceStatus"]["LEDColor"]}
+
+        return sensor
 
     @staticmethod
     def _controller_data(data):
