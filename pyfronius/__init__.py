@@ -323,6 +323,15 @@ class Fronius:
             Fronius._device_storage_data, URL_DEVICE_STORAGE, "current storage", device
         )
 
+    async def current_system_storage_data(self):
+        """
+        Get the current storage data for a device.
+        Provides data about batteries.
+        """
+        return await self._current_data(
+            Fronius._system_storage_data, URL_DEVICE_STORAGE, "current system storage"
+        )
+
     async def current_inverter_data(self, device=1):
         """
         Get the current inverter data of one device.
@@ -720,6 +729,17 @@ class Fronius:
             for module in data["Modules"]:
                 sensor["modules"][module_count] = Fronius._module_data(module)
                 module_count += 1
+
+        return sensor
+
+    @staticmethod
+    def _system_storage_data(data):
+        _LOGGER.debug("Converting system storage data: '{}'".format(data))
+
+        sensor = {"storages": {}}
+
+        for device_id, device_data in data.items():
+            sensor["storages"][device_id] = Fronius._device_storage_data(device_data)
 
         return sensor
 
