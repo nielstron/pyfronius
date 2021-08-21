@@ -9,7 +9,6 @@ import asyncio
 import enum
 from html import unescape
 import logging
-import re
 
 import aiohttp
 
@@ -115,7 +114,9 @@ class Fronius:
         Constructor
         """
         self._aio_session = session
-        self.url = re.sub(r"/+$", "", url)
+        while url[-1] == "/":
+            url = url[:-1]
+        self.url = url
         # prepend http:// if missing, by fronius API this is the only supported protocol
         if not self.url.startswith("http"):
             self.url = "http://{}".format(self.url)
@@ -129,7 +130,7 @@ class Fronius:
         try:
             async with self._aio_session.get(url) as res:
                 result = await res.json(content_type=None)
-        except (aiohttp.ServerTimeoutError, asyncio.TimeoutError):
+        except asyncio.TimeoutError:
             raise ConnectionError(
                 "Connection to Fronius device timed out at {}.".format(url)
             )
