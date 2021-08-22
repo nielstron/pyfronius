@@ -36,6 +36,14 @@
         "Show": 1,
         "StatusCode": 7,
         "UniqueID": "100372"
+      },
+      "240": {
+        "CustomName": "tr-3pn-01",
+        "DT": 1,
+        "PVPower": 0,
+        "Show": 1,
+        "StatusCode": "Running",
+        "UniqueID": "29301000987160033"
       }
     }
   },
