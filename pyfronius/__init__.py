@@ -1014,7 +1014,9 @@ class Fronius:
             {
                 **inverter_info,
                 "device_id": inverter_index,
-                "CustomName": unescape(inverter_info["CustomName"])
+                # "CustomName" not available on API V0 so default to ""
+                # html escaped by V1 Snap-In, UTF-8 by V1 Gen24
+                "CustomName": unescape(inverter_info.get("CustomName", ""))
             }
             for inverter_index, inverter_info in data.items()
         ]

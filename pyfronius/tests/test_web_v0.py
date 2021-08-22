@@ -18,6 +18,7 @@ from pyfronius.tests.web_raw.v0.web_state import (
     GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
     GET_INVERTER_REALTIME_DATA_SYSTEM,
     GET_LOGGER_INFO,
+    GET_INVERTER_INFO,
 )
 
 ADDRESS = "localhost"
@@ -219,6 +220,13 @@ class FroniusWebTestV0(unittest.TestCase):
             self.fronius.current_logger_info()
         )
         self.assertDictEqual(res, GET_LOGGER_INFO)
+
+    def test_fronius_get_inverter_info(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.inverter_info()
+        )
+        self.maxDiff = None
+        self.assertDictEqual(res, GET_INVERTER_INFO)
 
     def test_fronius_get_no_data(self):
         # Storage data for device 0 is not provided ATM

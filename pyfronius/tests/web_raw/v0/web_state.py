@@ -44,3 +44,27 @@ GET_LOGGER_INFO = {
     "utc_offset": {"value": 7200},
     "unique_identifier": {"value": "240.123456"},
 }
+GET_INVERTER_INFO = {
+    "timestamp": {"value": "2019-06-12T15:31:02+02:00"},
+    "status": {"Code": 0, "Reason": "", "UserMessage": ""},
+    "inverters": [
+        {
+            "device_id": "1",
+            "DT": 192,
+            "PVPower": 5000,
+            "UniqueID": "123456",
+            "ErrorCode": 0,
+            "StatusCode": 7,
+            "CustomName": "",
+        },
+        {
+            "device_id": "2",
+            "DT": 192,
+            "PVPower": 5000,
+            "UniqueID": "234567",
+            "ErrorCode": 0,
+            "StatusCode": 7,
+            "CustomName": "",
+        },
+    ]
+}
