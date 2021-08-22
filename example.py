@@ -15,17 +15,19 @@ async def main(loop, host):
 
         # use the optional fetch parameters to configure
         # which endpoints are acessed
+        # NOTE: configuring the wrong devices may cause Exceptions to be thrown
         res = await fronius.fetch(
             active_device_info=True,
             logger_info=True,
             power_flow=True,
             system_meter=True,
             system_inverter=True,
+            system_storage=True,
             device_meter=frozenset([0]),
             # storage is not necessarily supported by every fronius device
             device_storage=frozenset([0]),
             device_inverter=frozenset([1]),
-            loop=loop
+            loop=loop,
         )
         for r in res:
             print(r)

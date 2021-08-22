@@ -251,6 +251,7 @@ class FroniusWebTestV1(unittest.TestCase):
                 power_flow=True,
                 system_meter=True,
                 system_inverter=True,
+                system_storage=False,
                 device_meter={0},
                 device_storage={0},
                 device_inverter={1},

@@ -203,6 +203,7 @@ class Fronius:
         power_flow=True,
         system_meter=True,
         system_inverter=True,
+        system_storage=True,
         device_meter=frozenset([0]),
         # storage is not necessarily supported by every fronius device
         device_storage=frozenset([0]),
@@ -222,6 +223,8 @@ class Fronius:
             requests.append(self.current_system_meter_data())
         if system_inverter:
             requests.append(self.current_system_inverter_data())
+        if system_storage:
+            requests.append(self.current_system_storage_data())
         for i in device_meter:
             requests.append(self.current_meter_data(i))
         for i in device_storage:
