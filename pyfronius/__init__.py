@@ -7,6 +7,7 @@ Created on 27.09.2017
 
 import asyncio
 import enum
+from html import unescape
 import logging
 import re
 
@@ -77,6 +78,10 @@ URL_DEVICE_INVERTER_COMMON = {
 }
 URL_ACTIVE_DEVICE_INFO_SYSTEM = {
     API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"
+}
+URL_INVERTER_INFO = {
+    API_VERSION.V0: "GetInverterInfo.cgi",
+    API_VERSION.V1: "GetInverterInfo.cgi",
 }
 URL_LOGGER_INFO = {
     API_VERSION.V0: "GetLoggerInfo.cgi",
@@ -367,6 +372,14 @@ class Fronius:
         """
         return await self._current_data(
             Fronius._logger_info, URL_LOGGER_INFO, "current logger info"
+        )
+
+    async def inverter_info(self):
+        """
+        Get the general infos of an inverter.
+        """
+        return await self._current_data(
+            Fronius._inverter_info, URL_INVERTER_INFO, "inverter info"
         )
 
     @staticmethod
@@ -992,6 +1005,20 @@ class Fronius:
             sensor["string_controls"] = string_controls
 
         return sensor
+
+    @staticmethod
+    def _inverter_info(data):
+        """Parse inverter info."""
+        _LOGGER.debug("Converting inverter info: '{}'".format(data))
+        inverters = [
+            {
+                **inverter_info,
+                "device_id": inverter_index,
+                "CustomName": unescape(inverter_info["CustomName"])
+            }
+            for inverter_index, inverter_info in data.items()
+        ]
+        return {"inverters": inverters}
 
     @staticmethod
     def _logger_info(data):
