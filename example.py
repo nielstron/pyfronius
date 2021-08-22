@@ -13,7 +13,20 @@ async def main(loop, host):
     async with aiohttp.ClientSession(loop=loop, timeout=timeout) as session:
         fronius = pyfronius.Fronius(session, host)
 
-        res = await fronius.fetch(loop=loop)
+        # use the optional fetch parameters to configure
+        # which endpoints are acessed
+        res = await fronius.fetch(
+            active_device_info=True,
+            logger_info=True,
+            power_flow=True,
+            system_meter=True,
+            system_inverter=True,
+            device_meter=frozenset([0]),
+            # storage is not necessarily supported by every fronius device
+            device_storage=frozenset([0]),
+            device_inverter=frozenset([1]),
+            loop=loop
+        )
         for r in res:
             print(r)
 
