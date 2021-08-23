@@ -111,7 +111,6 @@ GET_LOGGER_INFO = {
 }
 
 GET_INVERTER_INFO = {
-
     "timestamp": {"value": "2019-06-12T15:31:02+02:00"},
     "status": {"Code": 0, "Reason": "", "UserMessage": ""},
     "inverters": [
@@ -123,7 +122,7 @@ GET_INVERTER_INFO = {
             "pv_power": {
                 "value": 500,
                 "unit": "W",
-                },
+            },
             "show": {"value": 1},
             "status_code": {"value": 7},
             "unique_id": {"value": "38183"},
@@ -136,7 +135,7 @@ GET_INVERTER_INFO = {
             "pv_power": {
                 "value": 500,
                 "unit": "W",
-                },
+            },
             "show": {"value": 1},
             "status_code": {"value": 7},
             "unique_id": {"value": "16777215"},
@@ -149,7 +148,7 @@ GET_INVERTER_INFO = {
             "pv_power": {
                 "value": 500,
                 "unit": "W",
-                },
+            },
             "show": {"value": 1},
             "status_code": {"value": 7},
             "unique_id": {"value": "7262"},
@@ -162,23 +161,22 @@ GET_INVERTER_INFO = {
             "pv_power": {
                 "value": 500,
                 "unit": "W",
-                },
+            },
             "show": {"value": 1},
             "status_code": {"value": 7},
             "unique_id": {"value": "100372"},
         },
         {
             "device_id": {"value": "240"},
-            "custom_name" : {"value": "tr-3pn-01"},
+            "custom_name": {"value": "tr-3pn-01"},
             "device_type": {"value": 1},
-            "error_code": {"value": None},
-            "pv_power" : {
+            "pv_power": {
                 "value": 0,
                 "unit": "W",
-                },
-            "show" : {"value": 1},
-            "status_code" : {"value": "Running"},
-            "unique_id" : {"value": "29301000987160033"}
+            },
+            "show": {"value": 1},
+            "status_code": {"value": "Running"},
+            "unique_id": {"value": "29301000987160033"},
         },
-    ]
+    ],
 }

@@ -222,9 +222,7 @@ class FroniusWebTestV0(unittest.TestCase):
         self.assertDictEqual(res, GET_LOGGER_INFO)
 
     def test_fronius_get_inverter_info(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.inverter_info()
-        )
+        res = asyncio.get_event_loop().run_until_complete(self.fronius.inverter_info())
         self.assertDictEqual(res, GET_INVERTER_INFO)
 
     def test_fronius_get_no_data(self):

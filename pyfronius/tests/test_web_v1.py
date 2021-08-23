@@ -230,9 +230,7 @@ class FroniusWebTestV1(unittest.TestCase):
         self.assertDictEqual(res, GET_LOGGER_INFO)
 
     def test_fronius_get_inverter_info(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.inverter_info()
-        )
+        res = asyncio.get_event_loop().run_until_complete(self.fronius.inverter_info())
         self.assertDictEqual(res, GET_INVERTER_INFO)
 
     def test_fronius_get_no_data(self):
@@ -249,6 +247,7 @@ class FroniusWebTestV1(unittest.TestCase):
         res = asyncio.get_event_loop().run_until_complete(
             self.fronius.fetch(
                 active_device_info=True,
+                inverter_info=True,
                 power_flow=True,
                 system_meter=True,
                 system_inverter=True,
@@ -261,6 +260,7 @@ class FroniusWebTestV1(unittest.TestCase):
             res,
             [
                 GET_ACTIVE_DEVICE_INFO,
+                GET_INVERTER_INFO,
                 GET_LOGGER_INFO,
                 GET_POWER_FLOW_REALTIME_DATA,
                 GET_METER_REALTIME_DATA_SYSTEM,

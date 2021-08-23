@@ -54,12 +54,10 @@ GET_INVERTER_INFO = {
             "pv_power": {
                 "value": 5000,
                 "unit": "W",
-                },
+            },
             "unique_id": {"value": "123456"},
             "error_code": {"value": 0},
             "status_code": {"value": 7},
-            "custom_name": {"value": ""},
-            "show": {"value": None},
         },
         {
             "device_id": {"value": "2"},
@@ -67,12 +65,10 @@ GET_INVERTER_INFO = {
             "pv_power": {
                 "value": 5000,
                 "unit": "W",
-                },
+            },
             "unique_id": {"value": "234567"},
             "error_code": {"value": 0},
             "status_code": {"value": 7},
-            "custom_name": {"value": ""},
-            "show": {"value": None},
         },
-    ]
+    ],
 }

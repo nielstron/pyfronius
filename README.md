@@ -20,6 +20,7 @@ The package supports the following data provided by Fronius devices:
 - Storage (System and Device scope, Experimental) 
 - Active Devices
 - Logger Information
+- Inverter Information
 
 The package currently supportes the Fronius API V1 and V0
 and aims to support as many different device types as possible (Hybrid, GEN24,...).

@@ -197,6 +197,7 @@ class Fronius:
     async def fetch(
         self,
         active_device_info=True,
+        inverter_info=True,
         logger_info=True,
         power_flow=True,
         system_meter=True,
@@ -210,6 +211,8 @@ class Fronius:
         requests = []
         if active_device_info:
             requests.append(self.current_active_device_info())
+        if inverter_info:
+            requests.append(self.inverter_info())
         if logger_info:
             requests.append(self.current_logger_info())
         if power_flow:
@@ -1010,26 +1013,28 @@ class Fronius:
     def _inverter_info(data):
         """Parse inverter info."""
         _LOGGER.debug("Converting inverter info: '{}'".format(data))
-        inverters = [
-            {
+        inverters = []
+        for inverter_index, inverter_info in data.items():
+            inverter = {
                 "device_id": {"value": inverter_index},
-                # "CustomName" not available on API V0 so default to ""
-                # html escaped by V1 Snap-In, UTF-8 by V1 Gen24
-                "custom_name": {"value": unescape(inverter_info.get("CustomName", ""))},
                 "device_type": {"value": inverter_info["DT"]},
-                # "ErrorCode" not in V1-Gen24
-                "error_code": {"value": inverter_info.get("ErrorCode")},
-                "pv_power": {
-                    "value": inverter_info["PVPower"],
-                    "unit": WATT
-                    },
-                # "Show" not in V0
-                "show": {"value": inverter_info.get("Show")},
+                "pv_power": {"value": inverter_info["PVPower"], "unit": WATT},
                 "status_code": {"value": inverter_info["StatusCode"]},
                 "unique_id": {"value": inverter_info["UniqueID"]},
             }
-            for inverter_index, inverter_info in data.items()
-        ]
+            # "CustomName" not available on API V0 so default to ""
+            # html escaped by V1 Snap-In, UTF-8 by V1 Gen24
+            if "CustomName" in inverter_info:
+                inverter["custom_name"] = {
+                    "value": unescape(inverter_info["CustomName"])
+                }
+            # "ErrorCode" not in V1-Gen24
+            if "ErrorCode" in inverter_info:
+                inverter["error_code"] = {"value": inverter_info["ErrorCode"]}
+            # "Show" not in V0
+            if "Show" in inverter_info:
+                inverter["show"] = {"value": inverter_info["Show"]}
+            inverters.append(inverter)
         return {"inverters": inverters}
 
     @staticmethod
