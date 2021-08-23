@@ -225,7 +225,6 @@ class FroniusWebTestV0(unittest.TestCase):
         res = asyncio.get_event_loop().run_until_complete(
             self.fronius.inverter_info()
         )
-        self.maxDiff = None
         self.assertDictEqual(res, GET_INVERTER_INFO)
 
     def test_fronius_get_no_data(self):

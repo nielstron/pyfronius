@@ -1012,21 +1012,21 @@ class Fronius:
         _LOGGER.debug("Converting inverter info: '{}'".format(data))
         inverters = [
             {
-                "device_id": inverter_index,
+                "device_id": {"value": inverter_index},
                 # "CustomName" not available on API V0 so default to ""
                 # html escaped by V1 Snap-In, UTF-8 by V1 Gen24
-                "custom_name": unescape(inverter_info.get("CustomName", "")),
-                "device_type": inverter_info["DT"],
+                "custom_name": {"value": unescape(inverter_info.get("CustomName", ""))},
+                "device_type": {"value": inverter_info["DT"]},
                 # "ErrorCode" not in V1-Gen24
-                "error_code": inverter_info.get("ErrorCode"),
+                "error_code": {"value": inverter_info.get("ErrorCode")},
                 "pv_power": {
                     "value": inverter_info["PVPower"],
                     "unit": WATT
                     },
                 # "Show" not in V0
-                "show": inverter_info.get("Show"),
-                "status_code": inverter_info["StatusCode"],
-                "unique_id": inverter_info["UniqueID"],
+                "show": {"value": inverter_info.get("Show")},
+                "status_code": {"value": inverter_info["StatusCode"]},
+                "unique_id": {"value": inverter_info["UniqueID"]},
                 
                 
             }
