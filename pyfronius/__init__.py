@@ -1027,8 +1027,6 @@ class Fronius:
                 "show": {"value": inverter_info.get("Show")},
                 "status_code": {"value": inverter_info["StatusCode"]},
                 "unique_id": {"value": inverter_info["UniqueID"]},
-                
-                
             }
             for inverter_index, inverter_info in data.items()
         ]
