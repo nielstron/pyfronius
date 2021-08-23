@@ -9,6 +9,7 @@ import asyncio
 import enum
 from html import unescape
 import logging
+import json
 
 import aiohttp
 
@@ -88,12 +89,30 @@ URL_LOGGER_INFO = {
 }
 
 
-class NotSupportedError(ValueError):
+class FroniusError(Exception):
     """
-    An error to be raised if a specific feature is not supported by the specified device
+    A superclass that covers all errors occuring during the
+    connection to a Fronius device
     """
 
-    pass
+
+class NotSupportedError(ValueError, FroniusError):
+    """
+    An error to be raised if a specific feature
+    is not supported by the specified device
+    """
+
+
+class ConnectionError(ConnectionError, FroniusError):
+    """
+    An error to be raised if the connection to the fronius device failed
+    """
+
+
+class InvalidAnswerError(ValueError, FroniusError):
+    """
+    An error to be raised if the host Fronius device could not answer a request
+    """
 
 
 class Fronius:
@@ -138,8 +157,10 @@ class Fronius:
             raise ConnectionError(
                 "Connection to Fronius device failed at {}.".format(url)
             )
-        except aiohttp.ContentTypeError:
-            raise ValueError("Host returned a non-JSON reply at {}.".format(url))
+        except (aiohttp.ContentTypeError, json.decoder.JSONDecodeError):
+            raise InvalidAnswerError(
+                "Host returned a non-JSON reply at {}.".format(url)
+            )
         return result
 
     async def fetch_api_version(self):
@@ -150,7 +171,7 @@ class Fronius:
         try:
             res = await self._fetch_json("{}/{}".format(self.url, URL_API_VERSION))
             api_version, base_url = API_VERSION(res["APIVersion"]), res["BaseURL"]
-        except ValueError:
+        except InvalidAnswerError:
             # Host returns 404 response if API version is 0
             api_version, base_url = API_VERSION.V0, API_BASEPATHS[API_VERSION.V0]
 
@@ -265,7 +286,7 @@ class Fronius:
         sensor = {}
         try:
             res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
-        except ValueError:
+        except InvalidAnswerError:
             # except if Host returns 404
             raise NotSupportedError(
                 "Device type {} not supported by the fronius device".format(spec_name)
