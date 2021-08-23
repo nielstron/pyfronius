@@ -36,7 +36,7 @@ class API_VERSION(enum.Enum):
 
 API_BASEPATHS = {
     API_VERSION.V0: "/solar_api/",
-    API_VERSION.V1: "/solar_api/v1",
+    API_VERSION.V1: "/solar_api/v1/",
 }
 
 URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
@@ -121,7 +121,7 @@ class Fronius:
         if not self.url.startswith("http"):
             self.url = "http://{}".format(self.url)
         self.api_version = api_version
-        self.base_url = API_BASEPATHS.get(API_VERSION)
+        self.base_url = API_BASEPATHS.get(api_version)
 
     async def _fetch_json(self, url):
         """
