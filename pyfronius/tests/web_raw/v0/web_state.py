@@ -50,21 +50,29 @@ GET_INVERTER_INFO = {
     "inverters": [
         {
             "device_id": "1",
-            "DT": 192,
-            "PVPower": 5000,
-            "UniqueID": "123456",
-            "ErrorCode": 0,
-            "StatusCode": 7,
-            "CustomName": "",
+            "device_type": 192,
+            "pv_power": {
+                "value": 5000,
+                "unit": "W",
+                },
+            "unique_id": "123456",
+            "error_code": 0,
+            "status_code": 7,
+            "custom_name": "",
+            "show": None,
         },
         {
             "device_id": "2",
-            "DT": 192,
-            "PVPower": 5000,
-            "UniqueID": "234567",
-            "ErrorCode": 0,
-            "StatusCode": 7,
-            "CustomName": "",
+            "device_type": 192,
+            "pv_power": {
+                "value": 5000,
+                "unit": "W",
+                },
+            "unique_id": "234567",
+            "error_code": 0,
+            "status_code": 7,
+            "custom_name": "",
+            "show": None,
         },
     ]
 }
