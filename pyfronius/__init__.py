@@ -240,12 +240,11 @@ class Fronius:
                 )
         spec_url = spec.get(self.api_version)
         if spec_url is None:
-            _LOGGER.warning(
+            raise NotSupportedError(
                 "API version {} does not support request of {} data".format(
                     self.api_version, spec_name
                 )
             )
-            return None
         if spec_formattings:
             spec_url = spec_url.format(*spec_formattings)
 
@@ -340,8 +339,7 @@ class Fronius:
         try:
             sensor.update(Fronius._status_data(res))
         except (TypeError, KeyError):
-            # break if Data is empty
-            _LOGGER.info(
+            raise InvalidAnswerError(
                 "No header data returned from {} ({})".format(spec, spec_formattings)
             )
         else:
@@ -357,8 +355,7 @@ class Fronius:
             try:
                 sensor.update(fun(res["Body"]["LoggerInfo"]))
             except (TypeError, KeyError):
-                # break if Data is empty
-                _LOGGER.info(
+                raise InvalidAnswerError(
                     "No body data returned from {} ({})".format(spec, spec_formattings)
                 )
         return sensor
