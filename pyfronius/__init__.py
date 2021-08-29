@@ -7,7 +7,6 @@ Created on 27.09.2017
 
 import asyncio
 import enum
-from contextlib import suppress
 from html import unescape
 import logging
 import json
@@ -283,7 +282,14 @@ class Fronius:
         for i in device_inverter:
             requests.append(self.current_inverter_data(i))
 
-        responses = await asyncio.gather(*requests, loop=loop)
+        res = await asyncio.gather(*requests, loop=loop, return_exceptions=True)
+        responses = []
+        for resopnse in res:
+            if isinstance(resopnse, FroniusError):
+                _LOGGER.warning(resopnse)
+                responses.append({})
+                continue
+            responses.append(resopnse)
         return responses
 
     @staticmethod
