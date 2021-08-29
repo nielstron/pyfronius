@@ -236,12 +236,12 @@ class FroniusWebTestV1(unittest.TestCase):
     def test_fronius_get_no_data(self):
         # Storage data for device 0 is not provided ATM
         # TODO someone add some storage data for a device 1?
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_storage_data()
-        )
-        self.assertIn("timestamp", res)
-        self.assertIn("status", res)
-        # Mainly asserts that no error is thrown by illegal access!
+        with self.assertRaises(pyfronius.BadStatusError):
+            res = asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_storage_data()
+            )
+            self.assertIn("timestamp", res.result)
+            self.assertIn("status", res.result)
 
     def test_fronius_fetch(self):
         res = asyncio.get_event_loop().run_until_complete(

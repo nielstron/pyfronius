@@ -8,8 +8,9 @@ Created on 27.09.2017
 import asyncio
 import enum
 from html import unescape
-import logging
 import json
+import logging
+from typing import Any
 
 import aiohttp
 
@@ -134,8 +135,15 @@ class InvalidAnswerError(ValueError, FroniusError):
 
 class BadStatusError(FroniusError):
     """A bad status code was returned."""
-    def __init__(self, endpoint: str, code: int, reason=None) -> None:
+    def __init__(
+            self,
+            endpoint: str,
+            code: int,
+            reason: str = None,
+            response: dict[str, Any] = {},
+            ) -> None:
         """Instantiate exception."""
+        self.response = response
         message = (
             f"BadStatusError at {endpoint}. "
             f"Code: {code} - {HEADER_STATUS_CODES.get(code, 'unknown status code')}. "
@@ -284,12 +292,13 @@ class Fronius:
 
         res = await asyncio.gather(*requests, loop=loop, return_exceptions=True)
         responses = []
-        for resopnse in res:
-            if isinstance(resopnse, FroniusError):
-                _LOGGER.warning(resopnse)
-                responses.append({})
+        for result in res:
+            if isinstance(result, FroniusError):
+                _LOGGER.warning(result)
+                if isinstance(result, BadStatusError):
+                    responses.append(result.response)
                 continue
-            responses.append(resopnse)
+            responses.append(result)
         return responses
 
     @staticmethod
@@ -340,7 +349,7 @@ class Fronius:
                 endpoint = spec[self.api_version]
                 code = sensor["status"]["Code"]
                 reason = sensor["status"]["Reason"]
-                raise BadStatusError(endpoint, code, reason=reason)
+                raise BadStatusError(endpoint, code, reason=reason, response=sensor)
         try:
             sensor.update(fun(res["Body"]["Data"]))
         except (TypeError, KeyError):
