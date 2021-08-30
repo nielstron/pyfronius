@@ -186,34 +186,34 @@ class FroniusWebTestV0(unittest.TestCase):
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
 
     def test_fronius_get_meter_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_system_meter_data()
-        )
-        self.assertDictEqual(res, {})
+        with self.assertRaises(pyfronius.NotSupportedError):
+            asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_system_meter_data()
+            )
 
     def test_fronius_get_meter_realtime_data_device(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_meter_data()
-        )
-        self.assertDictEqual(res, {})
+        with self.assertRaises(pyfronius.NotSupportedError):
+            asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_meter_data()
+            )
 
     def test_fronius_get_power_flow_realtime_data(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_power_flow()
-        )
-        self.assertDictEqual(res, {})
+        with self.assertRaises(pyfronius.NotSupportedError):
+            asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_power_flow()
+            )
 
     def test_fronius_get_led_info_data(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_led_data()
-        )
-        self.assertDictEqual(res, {})
+        with self.assertRaises(pyfronius.NotSupportedError):
+            asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_led_data()
+            )
 
     def test_fronius_get_active_device_info(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_active_device_info()
-        )
-        self.assertDictEqual(res, {})
+        with self.assertRaises(pyfronius.NotSupportedError):
+            asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_active_device_info()
+            )
 
     def test_fronius_get_logger_info(self):
         res = asyncio.get_event_loop().run_until_complete(
@@ -228,11 +228,10 @@ class FroniusWebTestV0(unittest.TestCase):
     def test_fronius_get_no_data(self):
         # Storage data for device 0 is not provided ATM
         # TODO someone add some storage data for a device 1?
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_storage_data()
-        )
-        self.assertDictEqual(res, {})
-        # Mainly asserts that no error is thrown by illegal access!
+        with self.assertRaises(pyfronius.NotSupportedError):
+            asyncio.get_event_loop().run_until_complete(
+                self.fronius.current_storage_data()
+            )
 
     def tearDown(self):
         asyncio.get_event_loop().run_until_complete(self.session.close())

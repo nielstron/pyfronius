@@ -8,8 +8,9 @@ Created on 27.09.2017
 import asyncio
 import enum
 from html import unescape
-import logging
 import json
+import logging
+from typing import Any, Dict
 
 import aiohttp
 
@@ -88,6 +89,23 @@ URL_LOGGER_INFO = {
     API_VERSION.V1: "GetLoggerInfo.cgi",
 }
 
+HEADER_STATUS_CODES = {
+    0: "OKAY",
+    1: "NotImplemented",
+    2: "Uninitialized",
+    3: "Initialized",
+    4: "Running",
+    5: "Timeout",
+    6: "Argument Error",
+    7: "LNRequestError",
+    8: "LNRequestTimeout",
+    9: "LNParseError",
+    10: "ConfigIOError",
+    11: "NotSupported",
+    12: "DeviceNotAvailable",
+    255: "UnknownError",
+}
+
 
 class FroniusError(Exception):
     """
@@ -113,6 +131,25 @@ class InvalidAnswerError(ValueError, FroniusError):
     """
     An error to be raised if the host Fronius device could not answer a request
     """
+
+
+class BadStatusError(FroniusError):
+    """A bad status code was returned."""
+    def __init__(
+            self,
+            endpoint: str,
+            code: int,
+            reason: str = None,
+            response: Dict[str, Any] = {},
+            ) -> None:
+        """Instantiate exception."""
+        self.response = response
+        message = (
+            f"BadStatusError at {endpoint}. "
+            f"Code: {code} - {HEADER_STATUS_CODES.get(code, 'unknown status code')}. "
+            f"Reason: {reason or 'unknown'}."
+        )
+        super().__init__(message)
 
 
 class Fronius:
@@ -203,12 +240,11 @@ class Fronius:
                 )
         spec_url = spec.get(self.api_version)
         if spec_url is None:
-            _LOGGER.warning(
+            raise NotSupportedError(
                 "API version {} does not support request of {} data".format(
                     self.api_version, spec_name
                 )
             )
-            return None
         if spec_formattings:
             spec_url = spec_url.format(*spec_formattings)
 
@@ -253,7 +289,15 @@ class Fronius:
         for i in device_inverter:
             requests.append(self.current_inverter_data(i))
 
-        responses = await asyncio.gather(*requests, loop=loop)
+        res = await asyncio.gather(*requests, loop=loop, return_exceptions=True)
+        responses = []
+        for result in res:
+            if isinstance(result, FroniusError):
+                _LOGGER.warning(result)
+                if isinstance(result, BadStatusError):
+                    responses.append(result.response)
+                continue
+            responses.append(result)
         return responses
 
     @staticmethod
@@ -295,10 +339,15 @@ class Fronius:
         try:
             sensor.update(Fronius._status_data(res))
         except (TypeError, KeyError):
-            # break if Data is empty
-            _LOGGER.info(
+            raise InvalidAnswerError(
                 "No header data returned from {} ({})".format(spec, spec_formattings)
             )
+        else:
+            if sensor["status"]["Code"] != 0:
+                endpoint = spec[self.api_version]
+                code = sensor["status"]["Code"]
+                reason = sensor["status"]["Reason"]
+                raise BadStatusError(endpoint, code, reason=reason, response=sensor)
         try:
             sensor.update(fun(res["Body"]["Data"]))
         except (TypeError, KeyError):
@@ -306,8 +355,7 @@ class Fronius:
             try:
                 sensor.update(fun(res["Body"]["LoggerInfo"]))
             except (TypeError, KeyError):
-                # break if Data is empty
-                _LOGGER.info(
+                raise InvalidAnswerError(
                     "No body data returned from {} ({})".format(spec, spec_formattings)
                 )
         return sensor
