@@ -261,10 +261,10 @@ class Fronius:
         system_meter=True,
         system_inverter=True,
         system_storage=True,
-        device_meter=frozenset([0]),
+        device_meter=frozenset(["0"]),
         # storage is not necessarily supported by every fronius device
-        device_storage=frozenset([0]),
-        device_inverter=frozenset([1]),
+        device_storage=frozenset(["0"]),
+        device_inverter=frozenset(["1"]),
         loop=None,
     ):
         requests = []
@@ -387,7 +387,7 @@ class Fronius:
             "current system inverter",
         )
 
-    async def current_meter_data(self, device=0):
+    async def current_meter_data(self, device: str = "0") -> Dict[str, Any]:
         """
         Get the current meter data for a device.
         """
@@ -395,7 +395,7 @@ class Fronius:
             Fronius._device_meter_data, URL_DEVICE_METER, "current meter", device
         )
 
-    async def current_storage_data(self, device=0):
+    async def current_storage_data(self, device: str = "0") -> Dict[str, Any]:
         """
         Get the current storage data for a device.
         Provides data about batteries.
@@ -413,7 +413,7 @@ class Fronius:
             Fronius._system_storage_data, URL_DEVICE_STORAGE, "current system storage"
         )
 
-    async def current_inverter_data(self, device=1):
+    async def current_inverter_data(self, device: str = "1") -> Dict[str, Any]:
         """
         Get the current inverter data of one device.
         """
