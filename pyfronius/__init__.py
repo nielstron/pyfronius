@@ -10,7 +10,7 @@ import enum
 from html import unescape
 import json
 import logging
-from typing import Any
+from typing import Any, Dict
 
 import aiohttp
 
@@ -140,7 +140,7 @@ class BadStatusError(FroniusError):
             endpoint: str,
             code: int,
             reason: str = None,
-            response: dict[str, Any] = {},
+            response: Dict[str, Any] = {},
             ) -> None:
         """Instantiate exception."""
         self.response = response
