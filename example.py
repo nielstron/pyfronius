@@ -25,10 +25,10 @@ async def main(loop, host):
             system_meter=True,
             system_inverter=True,
             system_storage=True,
-            device_meter=frozenset(["0"]),
+            device_meter=["0"],
             # storage is not necessarily supported by every fronius device
-            device_storage=frozenset(["0"]),
-            device_inverter=frozenset(["1"]),
+            device_storage=["0"],
+            device_inverter=["1"],
             loop=loop,
         )
         for r in res:
