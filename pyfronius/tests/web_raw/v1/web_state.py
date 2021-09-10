@@ -117,7 +117,11 @@ GET_INVERTER_INFO = {
         {
             "device_id": {"value": "1"},
             "custom_name": {"value": "Primo 8.2-1 ("},
-            "device_type": {"value": 102},
+            "device_type": {
+                "value": 102,
+                "manufacturer": "Fronius",
+                "model": "Primo 8.2-1",
+            },
             "error_code": {"value": 0},
             "pv_power": {
                 "value": 500,
@@ -130,7 +134,11 @@ GET_INVERTER_INFO = {
         {
             "device_id": {"value": "2"},
             "custom_name": {"value": "Primo 5.0-1 20"},
-            "device_type": {"value": 86},
+            "device_type": {
+                "value": 86,
+                "manufacturer": "Fronius",
+                "model": "Primo 5.0-1 208-240",
+            },
             "error_code": {"value": 0},
             "pv_power": {
                 "value": 500,
@@ -143,7 +151,11 @@ GET_INVERTER_INFO = {
         {
             "device_id": {"value": "3"},
             "custom_name": {"value": "Galvo 3.1-1 20"},
-            "device_type": {"value": 106},
+            "device_type": {
+                "value": 106,
+                "manufacturer": "Fronius",
+                "model": "Galvo 3.1-1 208-240",
+            },
             "error_code": {"value": 0},
             "pv_power": {
                 "value": 500,
@@ -156,7 +168,11 @@ GET_INVERTER_INFO = {
         {
             "device_id": {"value": "55"},
             "custom_name": {"value": "Galvo 3.0-1 (5"},
-            "device_type": {"value": 224},
+            "device_type": {
+                "value": 224,
+                "manufacturer": "Fronius",
+                "model": "Galvo 3.0-1",
+            },
             "error_code": {"value": 0},
             "pv_power": {
                 "value": 500,
@@ -169,7 +185,11 @@ GET_INVERTER_INFO = {
         {
             "device_id": {"value": "240"},
             "custom_name": {"value": "tr-3pn-01"},
-            "device_type": {"value": 1},
+            "device_type": {
+                "value": 1,
+                "manufacturer": "Fronius",
+                "model": "Gen24",
+            },
             "pv_power": {
                 "value": 0,
                 "unit": "W",
