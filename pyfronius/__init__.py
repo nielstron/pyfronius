@@ -47,6 +47,9 @@ URL_SYSTEM_INVERTER = {
     API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System",
 }
 URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
+URL_SYSTEM_STORAGE = {
+    API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"
+}
 URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
 URL_DEVICE_STORAGE = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
@@ -341,7 +344,7 @@ class Fronius:
         Provides data about batteries.
         """
         return await self._current_data(
-            Fronius._system_storage_data, URL_DEVICE_STORAGE, "current system storage"
+            Fronius._system_storage_data, URL_SYSTEM_STORAGE, "current system storage"
         )
 
     async def current_inverter_data(self, device=1):
