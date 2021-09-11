@@ -50,7 +50,11 @@ GET_INVERTER_INFO = {
     "inverters": [
         {
             "device_id": {"value": "1"},
-            "device_type": {"value": 192},
+            "device_type": {
+                "value": 192,
+                "manufacturer": "Fronius",
+                "model": "IG TL 5.0",
+            },
             "pv_power": {
                 "value": 5000,
                 "unit": "W",
@@ -61,7 +65,11 @@ GET_INVERTER_INFO = {
         },
         {
             "device_id": {"value": "2"},
-            "device_type": {"value": 192},
+            "device_type": {
+                "value": 192,
+                "manufacturer": "Fronius",
+                "model": "IG TL 5.0",
+            },
             "pv_power": {
                 "value": 5000,
                 "unit": "W",

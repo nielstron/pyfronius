@@ -14,6 +14,8 @@ from typing import Any, Dict
 
 import aiohttp
 
+from .const import INVERTER_DEVICE_TYPE
+
 _LOGGER = logging.getLogger(__name__)
 DEGREE_CELSIUS = "°C"
 WATT = "W"
@@ -1095,6 +1097,11 @@ class Fronius:
                 "status_code": {"value": inverter_info["StatusCode"]},
                 "unique_id": {"value": inverter_info["UniqueID"]},
             }
+            if inverter_info["DT"] in INVERTER_DEVICE_TYPE:
+                # add manufacturer and model if known
+                inverter["device_type"].update(
+                    INVERTER_DEVICE_TYPE[inverter_info["DT"]]
+                )
             # "CustomName" not available on API V0 so default to ""
             # html escaped by V1 Snap-In, UTF-8 by V1 Gen24
             if "CustomName" in inverter_info:
