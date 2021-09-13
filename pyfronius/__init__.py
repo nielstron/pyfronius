@@ -8,9 +8,13 @@ Created on 27.09.2017
 import asyncio
 import enum
 from html import unescape
+import json
 import logging
+from typing import Any, Dict
 
 import aiohttp
+
+from .const import INVERTER_DEVICE_TYPE
 
 _LOGGER = logging.getLogger(__name__)
 DEGREE_CELSIUS = "°C"
@@ -36,7 +40,7 @@ class API_VERSION(enum.Enum):
 
 API_BASEPATHS = {
     API_VERSION.V0: "/solar_api/",
-    API_VERSION.V1: "/solar_api/v1",
+    API_VERSION.V1: "/solar_api/v1/",
 }
 
 URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
@@ -90,13 +94,67 @@ URL_LOGGER_INFO = {
     API_VERSION.V1: "GetLoggerInfo.cgi",
 }
 
+HEADER_STATUS_CODES = {
+    0: "OKAY",
+    1: "NotImplemented",
+    2: "Uninitialized",
+    3: "Initialized",
+    4: "Running",
+    5: "Timeout",
+    6: "Argument Error",
+    7: "LNRequestError",
+    8: "LNRequestTimeout",
+    9: "LNParseError",
+    10: "ConfigIOError",
+    11: "NotSupported",
+    12: "DeviceNotAvailable",
+    255: "UnknownError",
+}
 
-class NotSupportedError(ValueError):
+
+class FroniusError(Exception):
     """
-    An error to be raised if a specific feature is not supported by the specified device
+    A superclass that covers all errors occuring during the
+    connection to a Fronius device
     """
 
-    pass
+
+class NotSupportedError(ValueError, FroniusError):
+    """
+    An error to be raised if a specific feature
+    is not supported by the specified device
+    """
+
+
+class ConnectionError(ConnectionError, FroniusError):
+    """
+    An error to be raised if the connection to the fronius device failed
+    """
+
+
+class InvalidAnswerError(ValueError, FroniusError):
+    """
+    An error to be raised if the host Fronius device could not answer a request
+    """
+
+
+class BadStatusError(FroniusError):
+    """A bad status code was returned."""
+    def __init__(
+            self,
+            endpoint: str,
+            code: int,
+            reason: str = None,
+            response: Dict[str, Any] = {},
+            ) -> None:
+        """Instantiate exception."""
+        self.response = response
+        message = (
+            f"BadStatusError at {endpoint}. "
+            f"Code: {code} - {HEADER_STATUS_CODES.get(code, 'unknown status code')}. "
+            f"Reason: {reason or 'unknown'}."
+        )
+        super().__init__(message)
 
 
 class Fronius:
@@ -124,7 +182,7 @@ class Fronius:
         if not self.url.startswith("http"):
             self.url = "http://{}".format(self.url)
         self.api_version = api_version
-        self.base_url = API_BASEPATHS.get(API_VERSION)
+        self.base_url = API_BASEPATHS.get(api_version)
 
     async def _fetch_json(self, url):
         """
@@ -141,8 +199,10 @@ class Fronius:
             raise ConnectionError(
                 "Connection to Fronius device failed at {}.".format(url)
             )
-        except aiohttp.ContentTypeError:
-            raise ValueError("Host returned a non-JSON reply at {}.".format(url))
+        except (aiohttp.ContentTypeError, json.decoder.JSONDecodeError):
+            raise InvalidAnswerError(
+                "Host returned a non-JSON reply at {}.".format(url)
+            )
         return result
 
     async def fetch_api_version(self):
@@ -153,7 +213,7 @@ class Fronius:
         try:
             res = await self._fetch_json("{}/{}".format(self.url, URL_API_VERSION))
             api_version, base_url = API_VERSION(res["APIVersion"]), res["BaseURL"]
-        except ValueError:
+        except InvalidAnswerError:
             # Host returns 404 response if API version is 0
             api_version, base_url = API_VERSION.V0, API_BASEPATHS[API_VERSION.V0]
 
@@ -185,12 +245,11 @@ class Fronius:
                 )
         spec_url = spec.get(self.api_version)
         if spec_url is None:
-            _LOGGER.warning(
+            raise NotSupportedError(
                 "API version {} does not support request of {} data".format(
                     self.api_version, spec_name
                 )
             )
-            return None
         if spec_formattings:
             spec_url = spec_url.format(*spec_formattings)
 
@@ -207,10 +266,10 @@ class Fronius:
         system_meter=True,
         system_inverter=True,
         system_storage=True,
-        device_meter=frozenset([0]),
+        device_meter=frozenset(["0"]),
         # storage is not necessarily supported by every fronius device
-        device_storage=frozenset([0]),
-        device_inverter=frozenset([1]),
+        device_storage=frozenset(["0"]),
+        device_inverter=frozenset(["1"]),
         loop=None,
     ):
         requests = []
@@ -235,7 +294,15 @@ class Fronius:
         for i in device_inverter:
             requests.append(self.current_inverter_data(i))
 
-        responses = await asyncio.gather(*requests, loop=loop)
+        res = await asyncio.gather(*requests, loop=loop, return_exceptions=True)
+        responses = []
+        for result in res:
+            if isinstance(result, FroniusError):
+                _LOGGER.warning(result)
+                if isinstance(result, BadStatusError):
+                    responses.append(result.response)
+                continue
+            responses.append(result)
         return responses
 
     @staticmethod
@@ -268,7 +335,7 @@ class Fronius:
         sensor = {}
         try:
             res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
-        except ValueError:
+        except InvalidAnswerError:
             # except if Host returns 404
             raise NotSupportedError(
                 "Device type {} not supported by the fronius device".format(spec_name)
@@ -277,10 +344,15 @@ class Fronius:
         try:
             sensor.update(Fronius._status_data(res))
         except (TypeError, KeyError):
-            # break if Data is empty
-            _LOGGER.info(
+            raise InvalidAnswerError(
                 "No header data returned from {} ({})".format(spec, spec_formattings)
             )
+        else:
+            if sensor["status"]["Code"] != 0:
+                endpoint = spec[self.api_version]
+                code = sensor["status"]["Code"]
+                reason = sensor["status"]["Reason"]
+                raise BadStatusError(endpoint, code, reason=reason, response=sensor)
         try:
             sensor.update(fun(res["Body"]["Data"]))
         except (TypeError, KeyError):
@@ -288,8 +360,7 @@ class Fronius:
             try:
                 sensor.update(fun(res["Body"]["LoggerInfo"]))
             except (TypeError, KeyError):
-                # break if Data is empty
-                _LOGGER.info(
+                raise InvalidAnswerError(
                     "No body data returned from {} ({})".format(spec, spec_formattings)
                 )
         return sensor
@@ -321,7 +392,7 @@ class Fronius:
             "current system inverter",
         )
 
-    async def current_meter_data(self, device=0):
+    async def current_meter_data(self, device: str = "0") -> Dict[str, Any]:
         """
         Get the current meter data for a device.
         """
@@ -329,7 +400,7 @@ class Fronius:
             Fronius._device_meter_data, URL_DEVICE_METER, "current meter", device
         )
 
-    async def current_storage_data(self, device=0):
+    async def current_storage_data(self, device: str = "0") -> Dict[str, Any]:
         """
         Get the current storage data for a device.
         Provides data about batteries.
@@ -347,7 +418,7 @@ class Fronius:
             Fronius._system_storage_data, URL_SYSTEM_STORAGE, "current system storage"
         )
 
-    async def current_inverter_data(self, device=1):
+    async def current_inverter_data(self, device: str = "1") -> Dict[str, Any]:
         """
         Get the current inverter data of one device.
         """
@@ -1029,6 +1100,11 @@ class Fronius:
                 "status_code": {"value": inverter_info["StatusCode"]},
                 "unique_id": {"value": inverter_info["UniqueID"]},
             }
+            if inverter_info["DT"] in INVERTER_DEVICE_TYPE:
+                # add manufacturer and model if known
+                inverter["device_type"].update(
+                    INVERTER_DEVICE_TYPE[inverter_info["DT"]]
+                )
             # "CustomName" not available on API V0 so default to ""
             # html escaped by V1 Snap-In, UTF-8 by V1 Gen24
             if "CustomName" in inverter_info:
