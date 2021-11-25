@@ -1,0 +1,32 @@
+{
+  "Body": {
+    "Data": {
+      "0": {
+        "CodeOfError": 926,
+        "CodeOfState": 0,
+        "Details": {
+          "Hardware": "3",
+          "Manufacturer": "Fronius",
+          "Model": "Ohmpilot",
+          "Serial": "28136344",
+          "Software": "1.0.19-1"
+        },
+        "EnergyReal_WAC_Sum_Consumed": 2964307,
+        "PowerReal_PAC_Sum": 0,
+        "Temperature_Channel_1": 23.9
+      }
+    }
+  },
+  "Head": {
+    "RequestArguments": {
+      "DeviceClass": "OhmPilot",
+      "Scope": "System"
+    },
+    "Status": {
+      "Code": 0,
+      "Reason": "",
+      "UserMessage": ""
+    },
+    "Timestamp": "2019-06-24T10:10:44+02:00"
+  }
+}
