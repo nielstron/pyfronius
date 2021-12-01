@@ -22,6 +22,7 @@ from pyfronius.tests.web_raw.v1.web_state import (
     GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
     GET_METER_REALTIME_DATA_SYSTEM,
     GET_LOGGER_LED_INFO_STATE,
+    GET_OHMPILOT_REALTIME_DATA_SYSTEM,
     GET_POWER_FLOW_REALTIME_DATA,
     GET_LOGGER_INFO,
     GET_INVERTER_INFO,
@@ -211,6 +212,12 @@ class FroniusWebTestV1(unittest.TestCase):
         )
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
 
+    def test_fronius_get_ohmpilot_realtime_data_system(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_system_ohmpilot_data()
+        )
+        self.assertDictEqual(res, GET_OHMPILOT_REALTIME_DATA_SYSTEM)
+
     def test_fronius_get_led_info_data(self):
         res = asyncio.get_event_loop().run_until_complete(
             self.fronius.current_led_data()
@@ -248,9 +255,11 @@ class FroniusWebTestV1(unittest.TestCase):
             self.fronius.fetch(
                 active_device_info=True,
                 inverter_info=True,
+                logger_info=True,
                 power_flow=True,
                 system_meter=True,
                 system_inverter=True,
+                system_ohmpilot=True,
                 system_storage=False,
                 device_meter={0},
                 device_storage={0},
@@ -266,6 +275,7 @@ class FroniusWebTestV1(unittest.TestCase):
                 GET_POWER_FLOW_REALTIME_DATA,
                 GET_METER_REALTIME_DATA_SYSTEM,
                 GET_INVERTER_REALTIME_DATA_SYSTEM,
+                GET_OHMPILOT_REALTIME_DATA_SYSTEM,
                 GET_METER_REALTIME_DATA_SCOPE_DEVICE,
                 GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE,
                 GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,

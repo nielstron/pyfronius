@@ -24,6 +24,7 @@ async def main(loop, host):
             power_flow=True,
             system_meter=True,
             system_inverter=True,
+            system_ohmpilot=True,
             system_storage=True,
             device_meter=["0"],
             # storage is not necessarily supported by every fronius device

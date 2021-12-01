@@ -14,7 +14,7 @@ from typing import Any, Dict
 
 import aiohttp
 
-from .const import INVERTER_DEVICE_TYPE
+from .const import INVERTER_DEVICE_TYPE, OHMPILOT_STATE_CODES
 
 _LOGGER = logging.getLogger(__name__)
 DEGREE_CELSIUS = "°C"
@@ -51,6 +51,7 @@ URL_SYSTEM_INVERTER = {
     API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System",
 }
 URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
+URL_SYSTEM_OHMPILOT = {API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"}
 URL_SYSTEM_STORAGE = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"
 }
@@ -265,6 +266,7 @@ class Fronius:
         power_flow=True,
         system_meter=True,
         system_inverter=True,
+        system_ohmpilot=True,
         system_storage=True,
         device_meter=frozenset(["0"]),
         # storage is not necessarily supported by every fronius device
@@ -285,6 +287,8 @@ class Fronius:
             requests.append(self.current_system_meter_data())
         if system_inverter:
             requests.append(self.current_system_inverter_data())
+        if system_ohmpilot:
+            requests.append(self.current_system_ohmpilot_data())
         if system_storage:
             requests.append(self.current_system_storage_data())
         for i in device_meter:
@@ -390,6 +394,16 @@ class Fronius:
             Fronius._system_inverter_data,
             URL_SYSTEM_INVERTER,
             "current system inverter",
+        )
+
+    async def current_system_ohmpilot_data(self):
+        """
+        Get the current ohmpilot data.
+        """
+        return await self._current_data(
+            Fronius._system_ohmpilot_data,
+            URL_SYSTEM_OHMPILOT,
+            "current system ohmpilot",
         )
 
     async def current_meter_data(self, device: str = "0") -> Dict[str, Any]:
@@ -594,6 +608,53 @@ class Fronius:
                     "unit": data["PAC"]["Unit"],
                 }
                 sensor["power_ac"]["value"] += data["PAC"]["Values"][i]
+
+        return sensor
+
+    @staticmethod
+    def _device_ohmpilot_data(data):
+        _LOGGER.debug("Converting ohmpilot data from '{}'".format(data))
+        device = {}
+
+        if "CodeOfError" in data:
+            device["error_code"] = {"value": data["CodeOfError"]}
+
+        if "CodeOfState" in data:
+            state_code = data["CodeOfState"]
+            device["state_code"] = {"value": state_code}
+            device["state_message"] = {
+                "value": OHMPILOT_STATE_CODES.get(state_code, "Unknown")
+                }
+
+        if "Details" in data:
+            device["hardware"] = {"value": data["Details"]["Hardware"]}
+            device["manufacturer"] = {"value": data["Details"]["Manufacturer"]}
+            device["model"] = {"value": data["Details"]["Model"]}
+            device["serial"] = {"value": data["Details"]["Serial"]}
+            device["software"] = {"value": data["Details"]["Software"]}
+
+        if "EnergyReal_WAC_Sum_Consumed" in data:
+            device["energy_real_ac_consumed"] = {
+                "value": data["EnergyReal_WAC_Sum_Consumed"], "unit": WATT_HOUR
+                }
+
+        if "PowerReal_PAC_Sum" in data:
+            device["power_real_ac"] = {"value": data["PowerReal_PAC_Sum"], "unit": WATT}
+
+        if "Temperature_Channel_1" in data:
+            device["temperature_channel_1"] = {
+                "value": data["Temperature_Channel_1"], "unit": DEGREE_CELSIUS
+                }
+
+        return device
+
+    @staticmethod
+    def _system_ohmpilot_data(data):
+        _LOGGER.debug("Converting system ohmpilot data: '{}'".format(data))
+        sensor = {"ohmpilots": {}}
+
+        for device_id, device_data in data.items():
+            sensor["ohmpilots"][device_id] = Fronius._device_ohmpilot_data(device_data)
 
         return sensor
 
