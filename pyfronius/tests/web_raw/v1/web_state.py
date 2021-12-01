@@ -74,6 +74,26 @@ GET_INVERTER_REALTIME_DATA_SYSTEM = {
     },
 }
 
+GET_OHMPILOT_REALTIME_DATA_SYSTEM = {
+    "timestamp": {"value": "2019-06-24T10:10:44+02:00"},
+    "status": {"Code": 0, "Reason": "", "UserMessage": ""},
+    "ohmpilots": {
+        "0": {
+            "error_code": {"value": 926},
+            "state_code": {"value": 0},
+            "state_message": {"value": "Up and running"},
+            "hardware": {"value": "3"},
+            "manufacturer": {"value": "Fronius"},
+            "model": {"value": "Ohmpilot"},
+            "serial": {"value": "28136344"},
+            "software": {"value": "1.0.19-1"},
+            "energy_real_ac_consumed": {"value": 2964307, "unit": "Wh"},
+            "power_real_ac": {"value": 0, "unit": "W"},
+            "temperature_channel_1": {"value": 23.9, "unit": "°C"},
+        }
+    },
+}
+
 GET_LOGGER_LED_INFO_STATE = {
     "timestamp": {"value": "2019-06-23T23:50:16+02:00"},
     "status": {"Code": 0, "Reason": "", "UserMessage": ""},

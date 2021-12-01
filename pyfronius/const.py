@@ -190,3 +190,12 @@ INVERTER_DEVICE_TYPE = {
     253: {"manufacturer": "Fronius", "model": "IG 20"},
     254: {"manufacturer": "Fronius", "model": "IG 15"},
 }
+
+OHMPILOT_STATE_CODES = {
+    0: "Up and running",
+    1: "Keep minimum temperature",
+    2: "Legionella protection",
+    3: "Critical fault",
+    4: "Fault",
+    5: "Boost mode",
+}
