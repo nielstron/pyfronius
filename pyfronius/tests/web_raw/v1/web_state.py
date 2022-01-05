@@ -52,6 +52,11 @@ GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
     "led_color": {"value": 1},
 }
 
+GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE_UNSUPPORTED = {
+    "timestamp": {"value": "2019-01-10T23:33:14+01:00"},
+    "status": {"Code": 255, "Reason": "Storages are not supported", "UserMessage": ""},
+}
+
 GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE = {
     "timestamp": {"value": "2022-01-05T18:10:02+01:00"},
     "status": {"Code": 0, "Reason": "", "UserMessage": ""},
