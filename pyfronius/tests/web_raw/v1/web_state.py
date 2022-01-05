@@ -53,8 +53,37 @@ GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
 }
 
 GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE = {
-    "timestamp": {"value": "2019-01-10T23:33:14+01:00"},
-    "status": {"Code": 255, "Reason": "Storages are not supported", "UserMessage": ""},
+    "timestamp": {"value": "2022-01-05T18:10:02+01:00"},
+    "status": {"Code": 0, "Reason": "", "UserMessage": ""},
+    "capacity_maximum": {"value": 11520, "unit": "Ah"},
+    "capacity_designed": {"value": 11520, "unit": "Ah"},
+    "voltage_dc": {"value": 0, "unit": "V"},
+    "state_of_charge": {"value": 8, "unit": "%"},
+    "temperature_cell": {"value": 19.70, "unit": "°C"},
+    "enable": {"value": 1},
+    "manufacturer": {"value": "BYD"},
+    "model": {"value": "BYD Battery-Box HV"},
+    "serial": {"value": "123456789-12345"},
+    "modules": {},
+}
+
+GET_STORAGE_REALTIME_DATA_SYSTEM = {
+    "timestamp": {"value": "2022-01-05T18:42:26+01:00"},
+    "status": {"Code": 0, "Reason": "", "UserMessage": ""},
+    "storages": {
+        "0": {
+            "capacity_maximum": {"value": 11520, "unit": "Ah"},
+            "capacity_designed": {"value": 11520, "unit": "Ah"},
+            "voltage_dc": {"value": 0, "unit": "V"},
+            "state_of_charge": {"value": 7.9, "unit": "%"},
+            "temperature_cell": {"value": 19.55, "unit": "°C"},
+            "enable": {"value": 1},
+            "manufacturer": {"value": "BYD"},
+            "model": {"value": "BYD Battery-Box HV"},
+            "serial": {"value": "123456789-12345"},
+            "modules": {},
+        }
+    },
 }
 
 GET_INVERTER_REALTIME_DATA_SYSTEM = {

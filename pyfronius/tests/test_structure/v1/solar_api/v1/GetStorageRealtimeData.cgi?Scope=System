@@ -1,0 +1,37 @@
+{
+   "Body" : {
+      "Data" : {
+         "0" : {
+            "Controller" : {
+               "Capacity_Maximum" : 11520,
+               "DesignedCapacity" : 11520,
+               "Details" : {
+                  "Manufacturer" : "BYD",
+                  "Model" : "BYD Battery-Box HV",
+                  "Serial" : "123456789-12345"
+               },
+               "Enable" : 1,
+               "StateOfCharge_Relative" : 7.9000000000000004,
+               "Status_BatteryCell" : 0,
+               "Temperature_Cell" : 19.550000000000001,
+               "TimeStamp" : 1641404544,
+               "Voltage_DC" : 0
+            },
+            "Modules" : []
+         }
+      }
+   },
+   "Head" : {
+      "RequestArguments" : {
+         "DeviceClass" : "Storage",
+         "Scope" : "System"
+      },
+      "Status" : {
+         "Code" : 0,
+         "Reason" : "",
+         "UserMessage" : ""
+      },
+      "Timestamp" : "2022-01-05T18:42:26+01:00"
+   }
+}
+
