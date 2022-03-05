@@ -20,6 +20,7 @@ from pyfronius.tests.web_raw.v1.web_state import (
     GET_METER_REALTIME_DATA_SCOPE_DEVICE,
     GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE,
     GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
+    GET_STORAGE_REALTIME_DATA_SYSTEM,
     GET_METER_REALTIME_DATA_SYSTEM,
     GET_LOGGER_LED_INFO_STATE,
     GET_OHMPILOT_REALTIME_DATA_SYSTEM,
@@ -240,15 +241,11 @@ class FroniusWebTestV1(unittest.TestCase):
         res = asyncio.get_event_loop().run_until_complete(self.fronius.inverter_info())
         self.assertDictEqual(res, GET_INVERTER_INFO)
 
-    def test_fronius_get_no_data(self):
-        # Storage data for device 0 is not provided ATM
-        # TODO someone add some storage data for a device 1?
-        with self.assertRaises(pyfronius.BadStatusError):
-            res = asyncio.get_event_loop().run_until_complete(
-                self.fronius.current_storage_data()
-            )
-            self.assertIn("timestamp", res.result)
-            self.assertIn("status", res.result)
+    def test_fronius_get_storage_realtime_data_system(self):
+        res = asyncio.get_event_loop().run_until_complete(
+            self.fronius.current_system_storage_data()
+        )
+        self.assertDictEqual(res, GET_STORAGE_REALTIME_DATA_SYSTEM)
 
     def test_fronius_fetch(self):
         res = asyncio.get_event_loop().run_until_complete(
