@@ -272,7 +272,6 @@ class Fronius:
         # storage is not necessarily supported by every fronius device
         device_storage=frozenset(["0"]),
         device_inverter=frozenset(["1"]),
-        loop=None,
     ):
         requests = []
         if active_device_info:
@@ -298,7 +297,7 @@ class Fronius:
         for i in device_inverter:
             requests.append(self.current_inverter_data(i))
 
-        res = await asyncio.gather(*requests, loop=loop, return_exceptions=True)
+        res = await asyncio.gather(*requests, return_exceptions=True)
         responses = []
         for result in res:
             if isinstance(result, FroniusError):
