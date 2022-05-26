@@ -1,21 +1,22 @@
 language: python
 
 python:
-- '3.6'
 - '3.7'
 - '3.8'
+- '3.9'
+- '3.10'
 
-dist: xenial
+dist: focal
 os: linux
 
 jobs:
   fast_finish: true
 
+before_install:
+- python3 -m pip install coverage coveralls tox-travis
+
 install:
-- pip install coverage
-- pip install coveralls
-- pip install tox-travis
-- pip install -e .
+- python3 -m pip install -e .
 
 script:
 - tox
