@@ -1,5 +1,5 @@
 # PyFronius - a very basic Fronius python bridge
-[![Build Status](https://app.travis-ci.com/nielstron/pyfronius.svg?branch=main)](https://app.travis-ci.com/nielstron/pyfronius)
+[![Build Status](https://app.travis-ci.com/nielstron/pyfronius.svg?branch=master)](https://app.travis-ci.com/nielstron/pyfronius)
 [![Coverage Status](https://coveralls.io/repos/github/nielstron/pyfronius/badge.svg?branch=master)](https://coveralls.io/github/nielstron/pyfronius?branch=master)
  [![PyPI version](https://badge.fury.io/py/PyFronius.svg)](https://pypi.org/project/pyfronius/)
  ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/PyFronius.svg)
