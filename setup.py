@@ -15,9 +15,9 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="PyFronius",
-    version="0.7.1",
-    description="Automated JSON API based communication with Fronius Symo",
-    author="Niels Mündler, Gerrit Beine",
+    version="0.8.0",
+    description="Automated API based communication with Fronius Inverters",
+    author="Niels Mündler, Gerrit Beine, Derek Caudwell",
     author_email="n.muendler@web.de, mail@gerritbeine.de",
     url="https://github.com/nielstron/pyfronius/",
     packages=find_packages(exclude=("pyfronius.tests", "pyfronius.tests.*")),
@@ -30,9 +30,7 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Object Brokering",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.10",
     ],
     keywords="python fronius json api solar photovoltaics pv",
     python_requires=">=3.10",
