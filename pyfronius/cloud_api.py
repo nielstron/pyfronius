@@ -1,6 +1,4 @@
 import logging
-from importlib.metadata import PackageNotFoundError, version
-from typing import Optional
 
 from httpx import AsyncClient
 from pydantic import ValidationError

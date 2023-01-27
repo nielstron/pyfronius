@@ -1,6 +1,6 @@
 import asyncio
 from pydantic import BaseSettings, SecretStr
-from .cloud_api import Fronius_Solarweb
+from pyfronius.cloud_api import Fronius_Solarweb
 
 
 class AuthDetails(BaseSettings):
