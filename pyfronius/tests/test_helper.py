@@ -6,7 +6,7 @@ import unittest
 
 # for the tests
 from .web_raw.v1 import web_state
-from pyfronius import Fronius
+from pyfronius.local_api import Fronius
 
 
 class FroniusHelperTest(unittest.TestCase):
