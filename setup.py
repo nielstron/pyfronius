@@ -35,6 +35,6 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     keywords="python fronius json api solar photovoltaics pv",
-    python_requires=">=3",
+    python_requires=">=3.10",
     test_suite="pyfronius.tests",
 )
