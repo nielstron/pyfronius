@@ -33,7 +33,8 @@ class Fronius_Solarweb:
         :param access_key_id:  unique ID for the API key, e.g.
             "FKIAFEF58CFEFA94486F9C804CF6077A01AB". Access keys are 36
             characters long and start with the "FKIA" prefix.
-        :param access_key_value: A secret value (GUID), e.g. "47c076bc-23e5-4949-37a6-4bcfcf8d21d6", which
+        :param access_key_value: A secret value (GUID),
+            e.g. "47c076bc-23e5-4949-37a6-4bcfcf8d21d6", which
             you need to know for authorization of API calls.
         :param httpx_client:
         """
@@ -60,13 +61,7 @@ class Fronius_Solarweb:
 
         response.raise_for_status()
 
-        try:
-            return response.json()
-        except:
-            _LOGGER.debug(
-                f"Invalid json response.\n{response.status_code}\n{response.text}"
-            )
-            raise
+        return response.json()
 
     @retry(
         wait=wait_random_exponential(multiplier=2, max=60),
