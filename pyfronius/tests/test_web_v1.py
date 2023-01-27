@@ -13,7 +13,7 @@ import time
 # For the tests
 import aiohttp
 import asyncio
-import pyfronius
+import pyfronius.local_api as local_api
 from pyfronius.tests.web_raw.v1.web_state import (
     GET_ACTIVE_DEVICE_INFO,
     GET_INVERTER_REALTIME_DATA_SYSTEM,
@@ -35,7 +35,7 @@ ADDRESS = "localhost"
 class NoFroniusWebTest(unittest.TestCase):
 
     server = None
-    api_version = pyfronius.API_VERSION.V1
+    api_version = local_api.API_VERSION.V1
     server_control = None
     port = 0
     url = "http://localhost:80"
@@ -45,7 +45,7 @@ class NoFroniusWebTest(unittest.TestCase):
     def test_no_server(self):
         # set up a fronius client and aiohttp session
         self.session = aiohttp.ClientSession()
-        self.fronius = pyfronius.Fronius(self.session, self.url, self.api_version)
+        self.fronius = local_api.Fronius(self.session, self.url, self.api_version)
         try:
             asyncio.get_event_loop().run_until_complete(
                 self.fronius.current_system_meter_data()
@@ -82,13 +82,13 @@ class NoFroniusWebTest(unittest.TestCase):
         self.server_control.start_server()
         # set up a fronius client and aiohttp session
         self.session = aiohttp.ClientSession()
-        self.fronius = pyfronius.Fronius(self.session, self.url)
+        self.fronius = local_api.Fronius(self.session, self.url)
         try:
             asyncio.get_event_loop().run_until_complete(
                 self.fronius.current_system_inverter_data()
             )
             self.fail("No Exception for wrong reply by host")
-        except pyfronius.NotSupportedError:
+        except local_api.NotSupportedError:
             pass
         finally:
             asyncio.get_event_loop().run_until_complete(self.session.close())
@@ -97,7 +97,7 @@ class NoFroniusWebTest(unittest.TestCase):
 class FroniusWebDetectVersionV1(unittest.TestCase):
 
     server = None
-    api_version = pyfronius.API_VERSION.V1
+    api_version = local_api.API_VERSION.V1
     server_control = None
     port = 0
     url = "http://localhost:80"
@@ -132,7 +132,7 @@ class FroniusWebDetectVersionV1(unittest.TestCase):
         self.server_control.start_server()
         # set up a fronius client and aiohttp session
         self.session = aiohttp.ClientSession()
-        self.fronius = pyfronius.Fronius(self.session, self.url)  # auto api_version
+        self.fronius = local_api.Fronius(self.session, self.url)  # auto api_version
 
     def test_fronius_get_correct_api_version(self):
         # fetch any data to check if the correct api_version is retreived
@@ -146,7 +146,7 @@ class FroniusWebDetectVersionV1(unittest.TestCase):
 class FroniusWebTestV1(unittest.TestCase):
 
     server = None
-    api_version = pyfronius.API_VERSION.V1
+    api_version = local_api.API_VERSION.V1
     server_control = None
     port = 0
     url = "http://localhost:80"
@@ -181,7 +181,7 @@ class FroniusWebTestV1(unittest.TestCase):
         self.server_control.start_server()
         # set up a fronius client and aiohttp session
         self.session = aiohttp.ClientSession()
-        self.fronius = pyfronius.Fronius(self.session, self.url, self.api_version)
+        self.fronius = local_api.Fronius(self.session, self.url, self.api_version)
 
     def test_fronius_get_meter_realtime_data_system(self):
         res = asyncio.get_event_loop().run_until_complete(
