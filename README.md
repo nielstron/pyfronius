@@ -46,7 +46,7 @@ export PV_SYSTEM_ID=20bb600e-019b-4e03-9df3-a0a900cda689
 
 ## Contributing
 
-Support may be enhanced based on the official documentation ([V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf), [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf)).
+Support may be enhanced based on the official documentation ([V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf), [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf), [SW](https://www.fronius.com/~/downloads/Solar%20Energy/User%20Information/SE_UI_API_InterfaceDocumentation_EN.pdf)).
 Pull requests are very welcome.
 
 If you own a Fronius device, feel free to provide us with raw data returned
