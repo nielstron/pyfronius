@@ -27,7 +27,6 @@ HERTZ = "Hz"
 VOLTAMPEREREACTIVE = "VAr"
 VOLTAMPEREREACTIVE_HOUR = "VArh"
 VOLTAMPERE = "VA"
-PER_KILOWATTHOUR = "{}/kWh"
 
 
 class API_VERSION(enum.Enum):
@@ -1186,24 +1185,24 @@ class Fronius:
         sensor = {}
 
         if "CO2Factor" in data and "CO2Unit" in data:
+            co2_unit = unescape(data["CO2Unit"])
             sensor["co2_factor"] = {
                 "value": data["CO2Factor"],
-                "unit": PER_KILOWATTHOUR.format(data["CO2Unit"]),
+                "unit": f"{co2_unit}/kWh",
             }
 
-        if "CashFactor" in data and "CashCurrency" in data:
-            # which unit does this have?
-            sensor["cash_factor"] = {
-                "value": data["CashFactor"],
-                "unit": PER_KILOWATTHOUR.format(data["CashCurrency"]),
-            }
-
-        if "DeliveryFactor" in data and "CashCurrency" in data:
-            # which unit does this have?
-            sensor["delivery_factor"] = {
-                "value": data["DeliveryFactor"],
-                "unit": PER_KILOWATTHOUR.format(data["CashCurrency"]),
-            }
+        if "CashCurrency" in data:
+            cash_currency = unescape(data["CashCurrency"])
+            if "CashFactor" in data:
+                sensor["cash_factor"] = {
+                    "value": data["CashFactor"],
+                    "unit": f"{cash_currency}/kWh",
+                }
+            if "DeliveryFactor" in data:
+                sensor["delivery_factor"] = {
+                    "value": data["DeliveryFactor"],
+                    "unit": f"{cash_currency}/kWh",
+                }
 
         if "HWVersion" in data:
             sensor["hardware_version"] = {"value": data["HWVersion"]}
