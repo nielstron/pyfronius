@@ -521,6 +521,8 @@ class Fronius:
                     "unit": PERCENT,
                 }
 
+        if "BackupMode" in site:
+            sensor["backup_mode"] = {"value": site["BackupMode"]}
         if "BatteryStandby" in site:
             sensor["battery_standby"] = {"value": site["BatteryStandby"]}
         if "E_Day" in site:
