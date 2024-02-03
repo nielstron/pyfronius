@@ -13,7 +13,7 @@ jobs:
   fast_finish: true
 
 before_install:
-- python3 -m pip install coverage coveralls tox-travis
+- python3 -m pip install coverage coveralls tox-travis pytest
 
 install:
 - python3 -m pip install -e .
@@ -21,7 +21,7 @@ install:
 script:
 - tox
 - python scripts/test_import.py
-- coverage run --source=pyfronius setup.py test
+- coverage run --source=pyfronius --module pytest
 
 after_success:
 - coverage report
@@ -36,7 +36,7 @@ deploy:
   - provider: pypi
     on:
       branch: master
-      python: '3.8'
+      python: '3.10'
     skip_existing: true
     username: "__token__"
     password:
