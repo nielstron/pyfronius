@@ -30,7 +30,7 @@ after_success:
 before_deploy:
 - git config --local user.name "nielstron"
 - export TRAVIS_TAG=release-$(cat setup.py | grep version= | cut -d "\"" -f 2)
-- git tag $TRAVIS_TAG || echo "Tag already exists"
+- export SUCCESS_TAG=$(git tag $TRAVIS_TAG || echo "Tag already exists")
 
 deploy:
   - provider: pypi
@@ -50,4 +50,4 @@ deploy:
     on:
       branch: master
       python: '3.10'
-      condition: $TRAVIS_EVENT_TYPE = push
+      condition: $TRAVIS_EVENT_TYPE = push && $SUCCESS_TAG = ""
