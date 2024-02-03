@@ -10,6 +10,9 @@ that is provided via the JSON API of the Fronius.
 This includes the grid consumption, grid return, photovoltaic production
 and many more details on the status of the local power supply.
 
+> This package is looking for maintainers. I do not own a Fronius device anymore and cannot test the package.
+> If you are interested in maintaining this package, please contact me.
+
 ## Features 
 
 The package supports the following data provided by Fronius devices:
