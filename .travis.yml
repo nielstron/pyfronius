@@ -49,4 +49,5 @@ deploy:
     overwrite: false
     on:
       branch: master
+      python: '3.10'
       condition: $TRAVIS_EVENT_TYPE = push
