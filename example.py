@@ -30,7 +30,6 @@ async def main(loop, host):
             # storage is not necessarily supported by every fronius device
             device_storage=["0"],
             device_inverter=["1"],
-            loop=loop,
         )
         for r in res:
             print(json.dumps(r, indent=4))
