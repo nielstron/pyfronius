@@ -7,10 +7,10 @@ Created on 27.09.2017
 
 import asyncio
 import enum
-from html import unescape
 import json
 import logging
-from typing import Any, Dict
+from html import unescape
+from typing import Any, Dict, Union
 
 import aiohttp
 
@@ -51,9 +51,7 @@ URL_SYSTEM_INVERTER = {
 }
 URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
 URL_SYSTEM_OHMPILOT = {API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"}
-URL_SYSTEM_STORAGE = {
-    API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"
-}
+URL_SYSTEM_STORAGE = {API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"}
 URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
 URL_DEVICE_STORAGE = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
@@ -140,13 +138,14 @@ class InvalidAnswerError(ValueError, FroniusError):
 
 class BadStatusError(FroniusError):
     """A bad status code was returned."""
+
     def __init__(
-            self,
-            endpoint: str,
-            code: int,
-            reason: str = None,
-            response: Dict[str, Any] = {},
-            ) -> None:
+        self,
+        endpoint: str,
+        code: int,
+        reason: Union[str, None] = None,
+        response: Dict[str, Any] = {},
+    ) -> None:
         """Instantiate exception."""
         self.response = response
         message = (
@@ -309,7 +308,6 @@ class Fronius:
 
     @staticmethod
     def _status_data(res):
-
         sensor = {}
 
         sensor["timestamp"] = {"value": res["Head"]["Timestamp"]}
@@ -582,32 +580,36 @@ class Fronius:
         if "DAY_ENERGY" in data:
             for i in data["DAY_ENERGY"]["Values"]:
                 sensor["inverters"][i] = {}
+                value = data["DAY_ENERGY"]["Values"][i]
                 sensor["inverters"][i]["energy_day"] = {
-                    "value": data["DAY_ENERGY"]["Values"][i],
+                    "value": value,
                     "unit": data["DAY_ENERGY"]["Unit"],
                 }
-                sensor["energy_day"]["value"] += data["DAY_ENERGY"]["Values"][i]
+                sensor["energy_day"]["value"] += value or 0
         if "TOTAL_ENERGY" in data:
             for i in data["TOTAL_ENERGY"]["Values"]:
+                value = data["TOTAL_ENERGY"]["Values"][i]
                 sensor["inverters"][i]["energy_total"] = {
-                    "value": data["TOTAL_ENERGY"]["Values"][i],
+                    "value": value,
                     "unit": data["TOTAL_ENERGY"]["Unit"],
                 }
-                sensor["energy_total"]["value"] += data["TOTAL_ENERGY"]["Values"][i]
+                sensor["energy_total"]["value"] += value or 0
         if "YEAR_ENERGY" in data:
             for i in data["YEAR_ENERGY"]["Values"]:
+                value = data["YEAR_ENERGY"]["Values"][i]
                 sensor["inverters"][i]["energy_year"] = {
-                    "value": data["YEAR_ENERGY"]["Values"][i],
+                    "value": value,
                     "unit": data["YEAR_ENERGY"]["Unit"],
                 }
-                sensor["energy_year"]["value"] += data["YEAR_ENERGY"]["Values"][i]
+                sensor["energy_year"]["value"] += value or 0
         if "PAC" in data:
             for i in data["PAC"]["Values"]:
+                value = data["PAC"]["Values"][i]
                 sensor["inverters"][i]["power_ac"] = {
-                    "value": data["PAC"]["Values"][i],
+                    "value": value,
                     "unit": data["PAC"]["Unit"],
                 }
-                sensor["power_ac"]["value"] += data["PAC"]["Values"][i]
+                sensor["power_ac"]["value"] += value or 0
 
         return sensor
 
@@ -624,7 +626,7 @@ class Fronius:
             device["state_code"] = {"value": state_code}
             device["state_message"] = {
                 "value": OHMPILOT_STATE_CODES.get(state_code, "Unknown")
-                }
+            }
 
         if "Details" in data:
             device["hardware"] = {"value": data["Details"]["Hardware"]}
@@ -635,16 +637,18 @@ class Fronius:
 
         if "EnergyReal_WAC_Sum_Consumed" in data:
             device["energy_real_ac_consumed"] = {
-                "value": data["EnergyReal_WAC_Sum_Consumed"], "unit": WATT_HOUR
-                }
+                "value": data["EnergyReal_WAC_Sum_Consumed"],
+                "unit": WATT_HOUR,
+            }
 
         if "PowerReal_PAC_Sum" in data:
             device["power_real_ac"] = {"value": data["PowerReal_PAC_Sum"], "unit": WATT}
 
         if "Temperature_Channel_1" in data:
             device["temperature_channel_1"] = {
-                "value": data["Temperature_Channel_1"], "unit": DEGREE_CELSIUS
-                }
+                "value": data["Temperature_Channel_1"],
+                "unit": DEGREE_CELSIUS,
+            }
 
         return device
 
@@ -976,7 +980,6 @@ class Fronius:
 
     @staticmethod
     def _controller_data(data):
-
         controller = {}
 
         if "Capacity_Maximum" in data:
@@ -1024,7 +1027,6 @@ class Fronius:
 
     @staticmethod
     def _module_data(data):
-
         module = {}
 
         if "Capacity_Maximum" in data:
