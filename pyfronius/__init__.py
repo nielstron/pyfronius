@@ -7,10 +7,10 @@ Created on 27.09.2017
 
 import asyncio
 import enum
-from html import unescape
 import json
 import logging
-from typing import Any, Dict
+from html import unescape
+from typing import Any, Dict, Union
 
 import aiohttp
 
@@ -143,7 +143,7 @@ class BadStatusError(FroniusError):
         self,
         endpoint: str,
         code: int,
-        reason: str = None,
+        reason: Union[str, None] = None,
         response: Dict[str, Any] = {},
     ) -> None:
         """Instantiate exception."""
@@ -580,32 +580,36 @@ class Fronius:
         if "DAY_ENERGY" in data:
             for i in data["DAY_ENERGY"]["Values"]:
                 sensor["inverters"][i] = {}
+                value = data["DAY_ENERGY"]["Values"][i]
                 sensor["inverters"][i]["energy_day"] = {
-                    "value": data["DAY_ENERGY"]["Values"][i],
+                    "value": value,
                     "unit": data["DAY_ENERGY"]["Unit"],
                 }
-                sensor["energy_day"]["value"] += data["DAY_ENERGY"]["Values"][i]
+                sensor["energy_day"]["value"] += value or 0
         if "TOTAL_ENERGY" in data:
             for i in data["TOTAL_ENERGY"]["Values"]:
+                value = data["TOTAL_ENERGY"]["Values"][i]
                 sensor["inverters"][i]["energy_total"] = {
-                    "value": data["TOTAL_ENERGY"]["Values"][i],
+                    "value": value,
                     "unit": data["TOTAL_ENERGY"]["Unit"],
                 }
-                sensor["energy_total"]["value"] += data["TOTAL_ENERGY"]["Values"][i]
+                sensor["energy_total"]["value"] += value or 0
         if "YEAR_ENERGY" in data:
             for i in data["YEAR_ENERGY"]["Values"]:
+                value = data["YEAR_ENERGY"]["Values"][i]
                 sensor["inverters"][i]["energy_year"] = {
-                    "value": data["YEAR_ENERGY"]["Values"][i],
+                    "value": value,
                     "unit": data["YEAR_ENERGY"]["Unit"],
                 }
-                sensor["energy_year"]["value"] += data["YEAR_ENERGY"]["Values"][i]
+                sensor["energy_year"]["value"] += value or 0
         if "PAC" in data:
             for i in data["PAC"]["Values"]:
+                value = data["PAC"]["Values"][i]
                 sensor["inverters"][i]["power_ac"] = {
-                    "value": data["PAC"]["Values"][i],
+                    "value": value,
                     "unit": data["PAC"]["Unit"],
                 }
-                sensor["power_ac"]["value"] += data["PAC"]["Values"][i]
+                sensor["power_ac"]["value"] += value or 0
 
         return sensor
 
