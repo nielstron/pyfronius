@@ -84,6 +84,13 @@ URL_DEVICE_INVERTER_COMMON: Final = {
         "DataCollection=CommonInverterData"
     ),
 }
+URL_DEVICE_INVERTER_3P: Final = {
+    API_VERSION.V1: (
+        "GetInverterRealtimeData.cgi?Scope=Device&"
+        "DeviceId={}&"
+        "DataCollection=3PInverterData"
+    ),
+}
 URL_ACTIVE_DEVICE_INFO_SYSTEM: Final = {
     API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"
 }
@@ -452,6 +459,17 @@ class Fronius:
             Fronius._device_inverter_data,
             URL_DEVICE_INVERTER_COMMON,
             "current inverter",
+            device,
+        )
+        
+    async def current_inverter_3p_data(self, device: str = "1") -> Dict[str, Any]:
+        """
+        Get the current inverter 3 phase data of one device.
+        """
+        return await self._current_data(
+            Fronius._device_inverter_3p_data,
+            URL_DEVICE_INVERTER_3P,
+            "current inverter 3p",
             device,
         )
 
@@ -994,6 +1012,42 @@ class Fronius:
             if "LEDColor" in data["DeviceStatus"]:
                 sensor["led_color"] = {"value": data["DeviceStatus"]["LEDColor"]}
 
+        return sensor
+        
+    @staticmethod
+    def _device_inverter_3p_data(data):
+        _LOGGER.debug("Converting inverter 3p data from '{}'".format(data))
+        sensor = {}
+        if "IAC_L1" in data:
+            sensor["current_ac_phase_1"] = {
+                "value": data["IAC_L1"]["Value"],
+                "unit": data["IAC_L1"]["Unit"],
+            }
+        if "IAC_L2" in data:
+            sensor["current_ac_phase_2"] = {
+                "value": data["IAC_L2"]["Value"],
+                "unit": data["IAC_L2"]["Unit"],
+            }
+        if "IAC_L3" in data:
+            sensor["current_ac_phase_3"] = {
+                "value": data["IAC_L3"]["Value"],
+                "unit": data["IAC_L3"]["Unit"],
+            }
+        if "UAC_L1" in data:
+            sensor["voltage_ac_phase_1"] = {
+                "value": data["UAC_L1"]["Value"],
+                "unit": data["UAC_L1"]["Unit"],
+            }
+        if "UAC_L2" in data:
+            sensor["voltage_ac_phase_2"] = {
+                "value": data["UAC_L2"]["Value"],
+                "unit": data["UAC_L2"]["Unit"],
+            }
+        if "UAC_L3" in data:
+            sensor["voltage_ac_phase_3"] = {
+                "value": data["UAC_L3"]["Value"],
+                "unit": data["UAC_L3"]["Unit"],
+            }
         return sensor
 
     @staticmethod
