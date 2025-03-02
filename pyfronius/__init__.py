@@ -311,6 +311,8 @@ class Fronius:
             requests.append(self.current_storage_data(i))
         for i in device_inverter:
             requests.append(self.current_inverter_data(i))
+        for i in device_inverter:
+            requests.append(self.current_inverter_3p_data(i))
 
         res = await asyncio.gather(*requests, return_exceptions=True)
         responses = []
