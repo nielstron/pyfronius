@@ -52,6 +52,17 @@ GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE = {
     "led_color": {"value": 1},
 }
 
+GET_INVERTER_REALTIME_3P_DATA_SCOPE_DEVICE = {
+    "timestamp": {"value": "2025-03-30T15:54:07+00:00"},
+    "status": {"Code": 0, "Reason": "", "UserMessage": ""},
+    "current_ac_phase_1": {"value": 0.92972046136856079, "unit": "A"},
+    "current_ac_phase_2": {"value": 0.92731237411499023, "unit": "A"},
+    "current_ac_phase_3": {"value": 0.93189901113510132, "unit": "A"},
+    "voltage_ac_phase_1": {"value": 231.87258911132812, "unit": "V"},
+    "voltage_ac_phase_2": {"value": 231.79225158691406, "unit": "V"},
+    "voltage_ac_phase_3": {"value": 230.89854431152344, "unit": "V"},
+}
+
 GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE_UNSUPPORTED = {
     "timestamp": {"value": "2019-01-10T23:33:14+01:00"},
     "status": {"Code": 255, "Reason": "Storages are not supported", "UserMessage": ""},

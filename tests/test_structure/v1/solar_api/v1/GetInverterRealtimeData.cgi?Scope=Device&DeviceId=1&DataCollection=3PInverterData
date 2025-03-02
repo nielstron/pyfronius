@@ -1,0 +1,43 @@
+{
+   "Body" : {
+      "Data" : {
+         "IAC_L1" : {
+            "Unit" : "A",
+            "Value" : 0.92972046136856079
+         },
+         "IAC_L2" : {
+            "Unit" : "A",
+            "Value" : 0.92731237411499023
+         },
+         "IAC_L3" : {
+            "Unit" : "A",
+            "Value" : 0.93189901113510132
+         },
+         "UAC_L1" : {
+            "Unit" : "V",
+            "Value" : 231.87258911132812
+         },
+         "UAC_L2" : {
+            "Unit" : "V",
+            "Value" : 231.79225158691406
+         },
+         "UAC_L3" : {
+            "Unit" : "V",
+            "Value" : 230.89854431152344
+         }
+      }
+   },
+   "Head" : {
+      "RequestArguments" : {
+         "DataCollection" : "3PInverterData",
+         "DeviceId" : "1",
+         "Scope" : "Device"
+      },
+      "Status" : {
+         "Code" : 0,
+         "Reason" : "",
+         "UserMessage" : ""
+      },
+      "Timestamp" : "2025-03-30T15:54:07+00:00"
+   }
+}
