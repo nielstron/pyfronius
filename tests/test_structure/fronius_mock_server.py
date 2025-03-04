@@ -88,8 +88,8 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
             with (
                 SERVER_DIR.joinpath("v{}".format(self.server.api_version))
                 .joinpath(".error.html")
-                .open("rb") as file
-            ):
+                .open("rb")
+            ) as file:
                 body = file.read()
             self.send_header("Content-Type", self.error_content_type)
             self.send_header("Content-Length", int(len(body)))
