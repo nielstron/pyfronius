@@ -28,7 +28,7 @@ jobs:
     - name: Run tests
       run: |
         tox
-        python scripts/test_import.py
+        python tests/test_import.py
         coverage run --source=pyfronius --module pytest
 
     - name: Upload coverage to Coveralls

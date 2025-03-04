@@ -3,6 +3,11 @@
 
 # general requirements
 import unittest
+
+import aiounittest
+from aiounittest import async_test
+
+from tests.util import AsyncTestCaseSetup
 from .test_structure.server_control import Server
 from .test_structure.fronius_mock_server import FroniusRequestHandler, FroniusServer
 from http.server import SimpleHTTPRequestHandler
@@ -14,7 +19,7 @@ import time
 import aiohttp
 import asyncio
 import pyfronius
-from pyfronius.tests.web_raw.v1.web_state import (
+from tests.web_raw.v1.web_state import (
     GET_ACTIVE_DEVICE_INFO,
     GET_INVERTER_REALTIME_DATA_SYSTEM,
     GET_METER_REALTIME_DATA_SCOPE_DEVICE,
@@ -32,7 +37,7 @@ from pyfronius.tests.web_raw.v1.web_state import (
 ADDRESS = "localhost"
 
 
-class NoFroniusWebTest(unittest.TestCase):
+class NoFroniusWebTest(AsyncTestCaseSetup):
 
     server = None
     api_version = pyfronius.API_VERSION.V1
@@ -42,21 +47,19 @@ class NoFroniusWebTest(unittest.TestCase):
     session = None
     fronius = None
 
-    def test_no_server(self):
+    async def test_no_server(self):
         # set up a fronius client and aiohttp session
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url, self.api_version)
         try:
-            asyncio.get_event_loop().run_until_complete(
-                self.fronius.current_system_meter_data()
-            )
+            await self.fronius.current_system_meter_data()
             self.fail("No Exception for failed connection to fronius")
         except ConnectionError:
             pass
         finally:
-            asyncio.get_event_loop().run_until_complete(self.session.close())
+            await self.session.close()
 
-    def test_wrong_server(self):
+    async def test_wrong_server(self):
         # This request handler ignores queries and should return the error page
         handler = SimpleHTTPRequestHandler
 
@@ -84,17 +87,15 @@ class NoFroniusWebTest(unittest.TestCase):
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url)
         try:
-            asyncio.get_event_loop().run_until_complete(
-                self.fronius.current_system_inverter_data()
-            )
+            await self.fronius.current_system_inverter_data()
             self.fail("No Exception for wrong reply by host")
         except pyfronius.NotSupportedError:
             pass
         finally:
-            asyncio.get_event_loop().run_until_complete(self.session.close())
+            await self.session.close()
 
 
-class FroniusWebDetectVersionV1(unittest.TestCase):
+class FroniusWebDetectVersionV1(AsyncTestCaseSetup):
 
     server = None
     api_version = pyfronius.API_VERSION.V1
@@ -104,7 +105,7 @@ class FroniusWebDetectVersionV1(unittest.TestCase):
     session = None
     fronius = None
 
-    def setUp(self):
+    async def setUp(self):
         # Create an arbitrary subclass of TCP Server as the server to be
         # started
         # Here, it is an Simple HTTP file serving server
@@ -134,16 +135,13 @@ class FroniusWebDetectVersionV1(unittest.TestCase):
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url)  # auto api_version
 
-    def test_fronius_get_correct_api_version(self):
+    async def test_fronius_get_correct_api_version(self):
         # fetch any data to check if the correct api_version is retreived
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_inverter_data()
-        )
+        res = await self.fronius.current_inverter_data()
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
         self.assertEqual(self.fronius.api_version, self.api_version)
 
-
-class FroniusWebTestV1(unittest.TestCase):
+class FroniusWebTestV1(AsyncTestCaseSetup):
 
     server = None
     api_version = pyfronius.API_VERSION.V1
@@ -153,7 +151,7 @@ class FroniusWebTestV1(unittest.TestCase):
     session = None
     fronius = None
 
-    def setUp(self):
+    async def setUp(self):
         # Create an arbitrary subclass of TCP Server as the server to be
         # started
         # Here, it is an Simple HTTP file serving server
@@ -183,73 +181,52 @@ class FroniusWebTestV1(unittest.TestCase):
         self.session = aiohttp.ClientSession()
         self.fronius = pyfronius.Fronius(self.session, self.url, self.api_version)
 
-    def test_fronius_get_meter_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_system_meter_data()
-        )
+    async def test_fronius_get_meter_realtime_data_system(self):
+        res = await self.fronius.current_system_meter_data()
         self.assertDictEqual(res, GET_METER_REALTIME_DATA_SYSTEM)
 
-    def test_fronius_get_meter_realtime_data_device(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_meter_data()
-        )
+    async def test_fronius_get_meter_realtime_data_device(self):
+        res = await self.fronius.current_meter_data()
         self.assertDictEqual(res, GET_METER_REALTIME_DATA_SCOPE_DEVICE)
 
-    def test_fronius_get_power_flow_realtime_data(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_power_flow()
-        )
+    async def test_fronius_get_power_flow_realtime_data(self):
+        res = await self.fronius.current_power_flow()
         self.assertDictEqual(res, GET_POWER_FLOW_REALTIME_DATA)
 
-    def test_fronius_get_inverter_realtime_data_device(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_inverter_data()
-        )
+    async def test_fronius_get_inverter_realtime_data_device(self):
+        res = await self.fronius.current_inverter_data()
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
 
-    def test_fronius_get_inverter_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_system_inverter_data()
-        )
+    async def test_fronius_get_inverter_realtime_data_system(self):
+        res = await self.fronius.current_system_inverter_data()
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
 
-    def test_fronius_get_ohmpilot_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_system_ohmpilot_data()
-        )
+    async def test_fronius_get_ohmpilot_realtime_data_system(self):
+        res = await self.fronius.current_system_ohmpilot_data()
         self.assertDictEqual(res, GET_OHMPILOT_REALTIME_DATA_SYSTEM)
 
-    def test_fronius_get_led_info_data(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_led_data()
-        )
+    async def test_fronius_get_led_info_data(self):
+        res = await self.fronius.current_led_data()
         self.assertDictEqual(res, GET_LOGGER_LED_INFO_STATE)
 
-    def test_fronius_get_active_device_info(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_active_device_info()
-        )
+    async def test_fronius_get_active_device_info(self):
+        res = await self.fronius.current_active_device_info()
         self.assertDictEqual(res, GET_ACTIVE_DEVICE_INFO)
 
-    def test_fronius_get_logger_info(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_logger_info()
-        )
+    async def test_fronius_get_logger_info(self):
+        res = await self.fronius.current_logger_info()
         self.assertDictEqual(res, GET_LOGGER_INFO)
 
-    def test_fronius_get_inverter_info(self):
-        res = asyncio.get_event_loop().run_until_complete(self.fronius.inverter_info())
+    async def test_fronius_get_inverter_info(self):
+        res = await self.fronius.inverter_info()
         self.assertDictEqual(res, GET_INVERTER_INFO)
 
-    def test_fronius_get_storage_realtime_data_system(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.current_system_storage_data()
-        )
+    async def test_fronius_get_storage_realtime_data_system(self):
+        res = await self.fronius.current_system_storage_data()
         self.assertDictEqual(res, GET_STORAGE_REALTIME_DATA_SYSTEM)
 
-    def test_fronius_fetch(self):
-        res = asyncio.get_event_loop().run_until_complete(
-            self.fronius.fetch(
+    async def test_fronius_fetch(self):
+        res = await self.fronius.fetch(
                 active_device_info=True,
                 inverter_info=True,
                 logger_info=True,
@@ -262,7 +239,6 @@ class FroniusWebTestV1(unittest.TestCase):
                 device_storage={0},
                 device_inverter={1},
             )
-        )
         self.assertEqual(
             res,
             [
@@ -279,8 +255,8 @@ class FroniusWebTestV1(unittest.TestCase):
             ],
         )
 
-    def tearDown(self):
-        asyncio.get_event_loop().run_until_complete(self.session.close())
+    async def tearDown(self):
+        await self.session.close()
         self.server_control.stop_server()
         pass
 
