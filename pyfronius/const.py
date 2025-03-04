@@ -1,6 +1,8 @@
 """Constants for pyfronius."""
 
-INVERTER_DEVICE_TYPE = {
+from typing import Final
+
+INVERTER_DEVICE_TYPE: Final = {
     1: {"manufacturer": "Fronius", "model": "Gen24"},
     67: {"manufacturer": "Fronius", "model": "Primo 15.0-1 208-240"},
     68: {"manufacturer": "Fronius", "model": "Primo 12.5-1 208-240"},
@@ -191,7 +193,7 @@ INVERTER_DEVICE_TYPE = {
     254: {"manufacturer": "Fronius", "model": "IG 15"},
 }
 
-OHMPILOT_STATE_CODES = {
+OHMPILOT_STATE_CODES: Final = {
     0: "Up and running",
     1: "Keep minimum temperature",
     2: "Legionella protection",

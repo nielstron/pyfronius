@@ -10,23 +10,23 @@ import enum
 import json
 import logging
 from html import unescape
-from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
+from typing import Any, Callable, Dict, Final, Iterable, List, Tuple, Union
 
 import aiohttp
 
 from .const import INVERTER_DEVICE_TYPE, OHMPILOT_STATE_CODES
 
 _LOGGER = logging.getLogger(__name__)
-DEGREE_CELSIUS = "°C"
-WATT = "W"
-WATT_HOUR = "Wh"
-AMPERE = "A"
-VOLT = "V"
-PERCENT = "%"
-HERTZ = "Hz"
-VOLTAMPEREREACTIVE = "VAr"
-VOLTAMPEREREACTIVE_HOUR = "VArh"
-VOLTAMPERE = "VA"
+DEGREE_CELSIUS: Final = "°C"
+WATT: Final = "W"
+WATT_HOUR: Final = "Wh"
+AMPERE: Final = "A"
+VOLT: Final = "V"
+PERCENT: Final = "%"
+HERTZ: Final = "Hz"
+VOLTAMPEREREACTIVE: Final = "VAr"
+VOLTAMPEREREACTIVE_HOUR: Final = "VArh"
+VOLTAMPERE: Final = "VA"
 
 
 class API_VERSION(enum.Enum):
@@ -37,26 +37,30 @@ class API_VERSION(enum.Enum):
     V1 = 1
 
 
-API_BASEPATHS = {
+API_BASEPATHS: Final = {
     API_VERSION.V0: "/solar_api/",
     API_VERSION.V1: "/solar_api/v1/",
 }
 
-URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
-URL_POWER_FLOW = {API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"}
-URL_SYSTEM_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"}
-URL_SYSTEM_INVERTER = {
+URL_API_VERSION: Final = "solar_api/GetAPIVersion.cgi"
+URL_POWER_FLOW: Final = {API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"}
+URL_SYSTEM_METER: Final = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"}
+URL_SYSTEM_INVERTER: Final = {
     API_VERSION.V0: "GetInverterRealtimeData.cgi?Scope=System",
     API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System",
 }
-URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
-URL_SYSTEM_OHMPILOT = {API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"}
-URL_SYSTEM_STORAGE = {API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"}
-URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
-URL_DEVICE_STORAGE = {
+URL_SYSTEM_LED: Final = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
+URL_SYSTEM_OHMPILOT: Final = {
+    API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"
+}
+URL_SYSTEM_STORAGE: Final = {API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"}
+URL_DEVICE_METER: Final = {
+    API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
+}
+URL_DEVICE_STORAGE: Final = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
 }
-URL_DEVICE_INVERTER_CUMULATIVE = {
+URL_DEVICE_INVERTER_CUMULATIVE: Final = {
     API_VERSION.V0: (
         "GetInverterRealtimeData.cgi?Scope=Device&"
         "DeviceIndex={}&"
@@ -68,7 +72,7 @@ URL_DEVICE_INVERTER_CUMULATIVE = {
         "DataCollection=CumulationInverterData"
     ),
 }
-URL_DEVICE_INVERTER_COMMON = {
+URL_DEVICE_INVERTER_COMMON: Final = {
     API_VERSION.V0: (
         "GetInverterRealtimeData.cgi?Scope=Device&"
         "DeviceIndex={}&"
@@ -80,19 +84,19 @@ URL_DEVICE_INVERTER_COMMON = {
         "DataCollection=CommonInverterData"
     ),
 }
-URL_ACTIVE_DEVICE_INFO_SYSTEM = {
+URL_ACTIVE_DEVICE_INFO_SYSTEM: Final = {
     API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"
 }
-URL_INVERTER_INFO = {
+URL_INVERTER_INFO: Final = {
     API_VERSION.V0: "GetInverterInfo.cgi",
     API_VERSION.V1: "GetInverterInfo.cgi",
 }
-URL_LOGGER_INFO = {
+URL_LOGGER_INFO: Final = {
     API_VERSION.V0: "GetLoggerInfo.cgi",
     API_VERSION.V1: "GetLoggerInfo.cgi",
 }
 
-HEADER_STATUS_CODES = {
+HEADER_STATUS_CODES: Final = {
     0: "OKAY",
     1: "NotImplemented",
     2: "Uninitialized",
