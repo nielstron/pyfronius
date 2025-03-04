@@ -937,16 +937,12 @@ class Fronius:
                 "value": data["IDC"]["Value"],
                 "unit": data["IDC"]["Unit"],
             }
-        if "IDC_2" in data:
-            sensor["current_dc_2"] = {
-                "value": data["IDC_2"]["Value"],
-                "unit": data["IDC_2"]["Unit"],
-            }
-        if "IDC_3" in data:
-            sensor["current_dc_3"] = {
-                "value": data["IDC_3"]["Value"],
-                "unit": data["IDC_3"]["Unit"],
-            }
+        for i in range(2, 10):
+            if f"IDC_{i}" in data:
+                sensor[f"current_dc_{i}"] = {
+                    "value": data[f"IDC_{i}"]["Value"],
+                    "unit": data[f"IDC_{i}"]["Unit"],
+                }
         if "PAC" in data:
             sensor["power_ac"] = {
                 "value": data["PAC"]["Value"],
@@ -962,16 +958,12 @@ class Fronius:
                 "value": data["UDC"]["Value"],
                 "unit": data["UDC"]["Unit"],
             }
-        if "UDC_2" in data:
-            sensor["voltage_dc_2"] = {
-                "value": data["UDC_2"]["Value"],
-                "unit": data["UDC_2"]["Unit"],
-            }
-        if "UDC_3" in data:
-            sensor["voltage_dc_3"] = {
-                "value": data["UDC_3"]["Value"],
-                "unit": data["UDC_3"]["Unit"],
-            }
+        for i in range(2, 10):
+            if f"UDC_{i}" in data:
+                sensor[f"voltage_dc_{i}"] = {
+                    "value": data[f"UDC_{i}"]["Value"],
+                    "unit": data[f"UDC_{i}"]["Unit"],
+                }
         if "DeviceStatus" in data:
             if "InverterState" in data["DeviceStatus"]:
                 sensor["inverter_state"] = {
