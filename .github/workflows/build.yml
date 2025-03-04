@@ -40,7 +40,6 @@ jobs:
   deploy:
     runs-on: ubuntu-20.04
     needs: test
-    if: github.ref == 'refs/heads/master' && matrix.python-version == '3.11'
     steps:
     - uses: actions/checkout@v3
 
