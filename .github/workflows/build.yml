@@ -3,7 +3,10 @@ name: Python Package
 on:
   push:
     branches:
-      - master
+      - "**"
+  pull_request:
+    branches:
+      - "**"
 
 jobs:
   test:
