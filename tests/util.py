@@ -13,13 +13,14 @@ class AsyncTestCaseSetup(aiounittest.AsyncTestCase):
 
     def __getattribute__(self, name):
         attr = object.__getattribute__(self, name)
-        if name.startswith('test_') and asyncio.iscoroutinefunction(attr):
+        if name.startswith("test_") and asyncio.iscoroutinefunction(attr):
+
             async def wrapped_attr():
                 await self.setUp()
                 await attr()
                 await self.tearDown()
+
             res = async_test(wrapped_attr, loop=self.get_event_loop())
             return res
         else:
             return attr
-

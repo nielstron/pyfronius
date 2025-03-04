@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Basic usage example and testing of pyfronius."""
+
 import asyncio
 import logging
 import json

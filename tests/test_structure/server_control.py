@@ -14,7 +14,6 @@ class Server:
         self._server_running = False
 
     def _run_server(self):
-
         print("Server started, serving on port {}".format(self.get_port()))
 
         # notify about start

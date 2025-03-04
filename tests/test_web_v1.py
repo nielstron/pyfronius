@@ -4,8 +4,6 @@
 # general requirements
 import unittest
 
-import aiounittest
-from aiounittest import async_test
 
 from tests.util import AsyncTestCaseSetup
 from .test_structure.server_control import Server
@@ -17,7 +15,6 @@ import time
 
 # For the tests
 import aiohttp
-import asyncio
 import pyfronius
 from tests.web_raw.v1.web_state import (
     GET_ACTIVE_DEVICE_INFO,
@@ -38,7 +35,6 @@ ADDRESS = "localhost"
 
 
 class NoFroniusWebTest(AsyncTestCaseSetup):
-
     server = None
     api_version = pyfronius.API_VERSION.V1
     server_control = None
@@ -96,7 +92,6 @@ class NoFroniusWebTest(AsyncTestCaseSetup):
 
 
 class FroniusWebDetectVersionV1(AsyncTestCaseSetup):
-
     server = None
     api_version = pyfronius.API_VERSION.V1
     server_control = None
@@ -141,8 +136,8 @@ class FroniusWebDetectVersionV1(AsyncTestCaseSetup):
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
         self.assertEqual(self.fronius.api_version, self.api_version)
 
-class FroniusWebTestV1(AsyncTestCaseSetup):
 
+class FroniusWebTestV1(AsyncTestCaseSetup):
     server = None
     api_version = pyfronius.API_VERSION.V1
     server_control = None
@@ -227,18 +222,18 @@ class FroniusWebTestV1(AsyncTestCaseSetup):
 
     async def test_fronius_fetch(self):
         res = await self.fronius.fetch(
-                active_device_info=True,
-                inverter_info=True,
-                logger_info=True,
-                power_flow=True,
-                system_meter=True,
-                system_inverter=True,
-                system_ohmpilot=True,
-                system_storage=False,
-                device_meter={0},
-                device_storage={0},
-                device_inverter={1},
-            )
+            active_device_info=True,
+            inverter_info=True,
+            logger_info=True,
+            power_flow=True,
+            system_meter=True,
+            system_inverter=True,
+            system_ohmpilot=True,
+            system_storage=False,
+            device_meter={0},
+            device_storage={0},
+            device_inverter={1},
+        )
         self.assertEqual(
             res,
             [

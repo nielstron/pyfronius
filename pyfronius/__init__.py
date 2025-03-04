@@ -51,9 +51,7 @@ URL_SYSTEM_INVERTER = {
 }
 URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
 URL_SYSTEM_OHMPILOT = {API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"}
-URL_SYSTEM_STORAGE = {
-    API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"
-}
+URL_SYSTEM_STORAGE = {API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"}
 URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
 URL_DEVICE_STORAGE = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
@@ -140,13 +138,14 @@ class InvalidAnswerError(ValueError, FroniusError):
 
 class BadStatusError(FroniusError):
     """A bad status code was returned."""
+
     def __init__(
-            self,
-            endpoint: str,
-            code: int,
-            reason: str = None,
-            response: Dict[str, Any] = {},
-            ) -> None:
+        self,
+        endpoint: str,
+        code: int,
+        reason: str = None,
+        response: Dict[str, Any] = {},
+    ) -> None:
         """Instantiate exception."""
         self.response = response
         message = (
@@ -309,7 +308,6 @@ class Fronius:
 
     @staticmethod
     def _status_data(res):
-
         sensor = {}
 
         sensor["timestamp"] = {"value": res["Head"]["Timestamp"]}
@@ -624,7 +622,7 @@ class Fronius:
             device["state_code"] = {"value": state_code}
             device["state_message"] = {
                 "value": OHMPILOT_STATE_CODES.get(state_code, "Unknown")
-                }
+            }
 
         if "Details" in data:
             device["hardware"] = {"value": data["Details"]["Hardware"]}
@@ -635,16 +633,18 @@ class Fronius:
 
         if "EnergyReal_WAC_Sum_Consumed" in data:
             device["energy_real_ac_consumed"] = {
-                "value": data["EnergyReal_WAC_Sum_Consumed"], "unit": WATT_HOUR
-                }
+                "value": data["EnergyReal_WAC_Sum_Consumed"],
+                "unit": WATT_HOUR,
+            }
 
         if "PowerReal_PAC_Sum" in data:
             device["power_real_ac"] = {"value": data["PowerReal_PAC_Sum"], "unit": WATT}
 
         if "Temperature_Channel_1" in data:
             device["temperature_channel_1"] = {
-                "value": data["Temperature_Channel_1"], "unit": DEGREE_CELSIUS
-                }
+                "value": data["Temperature_Channel_1"],
+                "unit": DEGREE_CELSIUS,
+            }
 
         return device
 
@@ -976,7 +976,6 @@ class Fronius:
 
     @staticmethod
     def _controller_data(data):
-
         controller = {}
 
         if "Capacity_Maximum" in data:
@@ -1024,7 +1023,6 @@ class Fronius:
 
     @staticmethod
     def _module_data(data):
-
         module = {}
 
         if "Capacity_Maximum" in data:

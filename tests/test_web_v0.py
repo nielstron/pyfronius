@@ -14,7 +14,6 @@ import time
 
 # For the tests
 import aiohttp
-import asyncio
 import pyfronius
 from tests.web_raw.v0.web_state import (
     GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
@@ -27,7 +26,6 @@ ADDRESS = "localhost"
 
 
 class NoFroniusWebTest(AsyncTestCaseSetup):
-
     server = None
     api_version = pyfronius.API_VERSION.V0
     server_control = None
@@ -83,7 +81,6 @@ class NoFroniusWebTest(AsyncTestCaseSetup):
 
 
 class FroniusWebDetectVersionV0(AsyncTestCaseSetup):
-
     server = None
     api_version = pyfronius.API_VERSION.V0
     server_control = None
@@ -130,7 +127,6 @@ class FroniusWebDetectVersionV0(AsyncTestCaseSetup):
 
 
 class FroniusWebTestV0(AsyncTestCaseSetup):
-
     server = None
     api_version = pyfronius.API_VERSION.V0
     server_control = None
