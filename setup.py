@@ -15,7 +15,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="PyFronius",
-    version="0.7.5",
+    version="0.7.6",
     description="Automated JSON API based communication with Fronius Symo",
     author="Niels Mündler, Matthias Alphart, Gerrit Beine",
     author_email="n.muendler@web.de, farmio@alphart.net, mail@gerritbeine.de",
