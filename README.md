@@ -35,5 +35,3 @@ Pull requests are very welcome.
 
 If you own a Fronius device, feel free to provide us with raw data returned
 by fetching the API endpoints manually.
-Data from systems featuring Ohmpilots and Storages are much welcomed as we
-have no data for testing these so far.
