@@ -10,23 +10,23 @@ import enum
 import json
 import logging
 from html import unescape
-from typing import Any, Dict, Union
+from typing import Any, Callable, Dict, Final, Iterable, List, Tuple, Union
 
 import aiohttp
 
 from .const import INVERTER_DEVICE_TYPE, OHMPILOT_STATE_CODES
 
 _LOGGER = logging.getLogger(__name__)
-DEGREE_CELSIUS = "°C"
-WATT = "W"
-WATT_HOUR = "Wh"
-AMPERE = "A"
-VOLT = "V"
-PERCENT = "%"
-HERTZ = "Hz"
-VOLTAMPEREREACTIVE = "VAr"
-VOLTAMPEREREACTIVE_HOUR = "VArh"
-VOLTAMPERE = "VA"
+DEGREE_CELSIUS: Final = "°C"
+WATT: Final = "W"
+WATT_HOUR: Final = "Wh"
+AMPERE: Final = "A"
+VOLT: Final = "V"
+PERCENT: Final = "%"
+HERTZ: Final = "Hz"
+VOLTAMPEREREACTIVE: Final = "VAr"
+VOLTAMPEREREACTIVE_HOUR: Final = "VArh"
+VOLTAMPERE: Final = "VA"
 
 
 class API_VERSION(enum.Enum):
@@ -37,26 +37,30 @@ class API_VERSION(enum.Enum):
     V1 = 1
 
 
-API_BASEPATHS = {
+API_BASEPATHS: Final = {
     API_VERSION.V0: "/solar_api/",
     API_VERSION.V1: "/solar_api/v1/",
 }
 
-URL_API_VERSION = "solar_api/GetAPIVersion.cgi"
-URL_POWER_FLOW = {API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"}
-URL_SYSTEM_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"}
-URL_SYSTEM_INVERTER = {
+URL_API_VERSION: Final = "solar_api/GetAPIVersion.cgi"
+URL_POWER_FLOW: Final = {API_VERSION.V1: "GetPowerFlowRealtimeData.fcgi"}
+URL_SYSTEM_METER: Final = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=System"}
+URL_SYSTEM_INVERTER: Final = {
     API_VERSION.V0: "GetInverterRealtimeData.cgi?Scope=System",
     API_VERSION.V1: "GetInverterRealtimeData.cgi?Scope=System",
 }
-URL_SYSTEM_LED = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
-URL_SYSTEM_OHMPILOT = {API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"}
-URL_SYSTEM_STORAGE = {API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"}
-URL_DEVICE_METER = {API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"}
-URL_DEVICE_STORAGE = {
+URL_SYSTEM_LED: Final = {API_VERSION.V1: "GetLoggerLEDInfo.cgi"}
+URL_SYSTEM_OHMPILOT: Final = {
+    API_VERSION.V1: "GetOhmPilotRealtimeData.cgi?Scope=System"
+}
+URL_SYSTEM_STORAGE: Final = {API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=System"}
+URL_DEVICE_METER: Final = {
+    API_VERSION.V1: "GetMeterRealtimeData.cgi?Scope=Device&DeviceId={}"
+}
+URL_DEVICE_STORAGE: Final = {
     API_VERSION.V1: "GetStorageRealtimeData.cgi?Scope=Device&DeviceId={}"
 }
-URL_DEVICE_INVERTER_CUMULATIVE = {
+URL_DEVICE_INVERTER_CUMULATIVE: Final = {
     API_VERSION.V0: (
         "GetInverterRealtimeData.cgi?Scope=Device&"
         "DeviceIndex={}&"
@@ -68,7 +72,7 @@ URL_DEVICE_INVERTER_CUMULATIVE = {
         "DataCollection=CumulationInverterData"
     ),
 }
-URL_DEVICE_INVERTER_COMMON = {
+URL_DEVICE_INVERTER_COMMON: Final = {
     API_VERSION.V0: (
         "GetInverterRealtimeData.cgi?Scope=Device&"
         "DeviceIndex={}&"
@@ -80,19 +84,19 @@ URL_DEVICE_INVERTER_COMMON = {
         "DataCollection=CommonInverterData"
     ),
 }
-URL_ACTIVE_DEVICE_INFO_SYSTEM = {
+URL_ACTIVE_DEVICE_INFO_SYSTEM: Final = {
     API_VERSION.V1: "GetActiveDeviceInfo.cgi?DeviceClass=System"
 }
-URL_INVERTER_INFO = {
+URL_INVERTER_INFO: Final = {
     API_VERSION.V0: "GetInverterInfo.cgi",
     API_VERSION.V1: "GetInverterInfo.cgi",
 }
-URL_LOGGER_INFO = {
+URL_LOGGER_INFO: Final = {
     API_VERSION.V0: "GetLoggerInfo.cgi",
     API_VERSION.V1: "GetLoggerInfo.cgi",
 }
 
-HEADER_STATUS_CODES = {
+HEADER_STATUS_CODES: Final = {
     0: "OKAY",
     1: "NotImplemented",
     2: "Uninitialized",
@@ -124,7 +128,7 @@ class NotSupportedError(ValueError, FroniusError):
     """
 
 
-class ConnectionError(ConnectionError, FroniusError):
+class FroniusConnectionError(ConnectionError, FroniusError):
     """
     An error to be raised if the connection to the fronius device failed
     """
@@ -168,8 +172,11 @@ class Fronius:
     """
 
     def __init__(
-        self, session: aiohttp.ClientSession, url: str, api_version=API_VERSION.AUTO
-    ):
+        self,
+        session: aiohttp.ClientSession,
+        url: str,
+        api_version: API_VERSION = API_VERSION.AUTO,
+    ) -> None:
         """
         Constructor
         """
@@ -183,19 +190,20 @@ class Fronius:
         self.api_version = api_version
         self.base_url = API_BASEPATHS.get(api_version)
 
-    async def _fetch_json(self, url):
+    async def _fetch_json(self, url: str) -> Dict[str, Any]:
         """
         Fetch json value from fixed url
         """
+        result: Dict[str, Any]
         try:
             async with self._aio_session.get(url) as res:
                 result = await res.json(content_type=None)
         except asyncio.TimeoutError:
-            raise ConnectionError(
+            raise FroniusConnectionError(
                 "Connection to Fronius device timed out at {}.".format(url)
             )
         except aiohttp.ClientError:
-            raise ConnectionError(
+            raise FroniusConnectionError(
                 "Connection to Fronius device failed at {}.".format(url)
             )
         except (aiohttp.ContentTypeError, json.decoder.JSONDecodeError):
@@ -204,7 +212,7 @@ class Fronius:
             )
         return result
 
-    async def fetch_api_version(self):
+    async def fetch_api_version(self) -> Tuple[API_VERSION, str]:
         """
         Fetches the highest supported API version of the initiated fronius device
         :return:
@@ -218,7 +226,9 @@ class Fronius:
 
         return api_version, base_url
 
-    async def _fetch_solar_api(self, spec, spec_name, *spec_formattings):
+    async def _fetch_solar_api(
+        self, spec: Dict[API_VERSION, str], spec_name: str, *spec_formattings: str
+    ) -> Dict[str, Any]:
         """
         Fetch page of solar_api
         """
@@ -258,19 +268,19 @@ class Fronius:
 
     async def fetch(
         self,
-        active_device_info=True,
-        inverter_info=True,
-        logger_info=True,
-        power_flow=True,
-        system_meter=True,
-        system_inverter=True,
-        system_ohmpilot=True,
-        system_storage=True,
-        device_meter=frozenset(["0"]),
+        active_device_info: bool = True,
+        inverter_info: bool = True,
+        logger_info: bool = True,
+        power_flow: bool = True,
+        system_meter: bool = True,
+        system_inverter: bool = True,
+        system_ohmpilot: bool = True,
+        system_storage: bool = True,
+        device_meter: Iterable[str] = frozenset(["0"]),
         # storage is not necessarily supported by every fronius device
-        device_storage=frozenset(["0"]),
-        device_inverter=frozenset(["1"]),
-    ):
+        device_storage: Iterable[str] = frozenset(["0"]),
+        device_inverter: Iterable[str] = frozenset(["1"]),
+    ) -> List[Dict[str, Any]]:
         requests = []
         if active_device_info:
             requests.append(self.current_active_device_info())
@@ -298,7 +308,7 @@ class Fronius:
         res = await asyncio.gather(*requests, return_exceptions=True)
         responses = []
         for result in res:
-            if isinstance(result, FroniusError):
+            if isinstance(result, (FroniusError, BaseException)):
                 _LOGGER.warning(result)
                 if isinstance(result, BadStatusError):
                     responses.append(result.response)
@@ -307,7 +317,7 @@ class Fronius:
         return responses
 
     @staticmethod
-    def _status_data(res):
+    def _status_data(res: Dict[str, Any]) -> Dict[str, Any]:
         sensor = {}
 
         sensor["timestamp"] = {"value": res["Head"]["Timestamp"]}
@@ -316,7 +326,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def error_code(sensor_data):
+    def error_code(sensor_data: Dict[str, Any]) -> Any:
         """
         Extract error code from returned sensor data
         :param sensor_data: Dictionary returned as current data
@@ -324,14 +334,20 @@ class Fronius:
         return sensor_data["status"]["Code"]
 
     @staticmethod
-    def error_reason(sensor_data):
+    def error_reason(sensor_data: Dict[str, Any]) -> Any:
         """
         Extract error reason from returned sensor data
         :param sensor_data: Dictionary returned as current data
         """
         return sensor_data["status"]["Reason"]
 
-    async def _current_data(self, fun, spec, spec_name, *spec_formattings):
+    async def _current_data(
+        self,
+        fun: Callable[[Dict[str, Any]], Dict[str, Any]],
+        spec: Dict[API_VERSION, str],
+        spec_name: str,
+        *spec_formattings: str,
+    ) -> Dict[str, Any]:
         sensor = {}
         try:
             res = await self._fetch_solar_api(spec, spec_name, *spec_formattings)
@@ -365,7 +381,7 @@ class Fronius:
                 )
         return sensor
 
-    async def current_power_flow(self):
+    async def current_power_flow(self) -> Dict[str, Any]:
         """
         Get the current power flow of a smart meter system.
         """
@@ -373,7 +389,7 @@ class Fronius:
             Fronius._system_power_flow, URL_POWER_FLOW, "current power flow"
         )
 
-    async def current_system_meter_data(self):
+    async def current_system_meter_data(self) -> Dict[str, Any]:
         """
         Get the current meter data.
         """
@@ -381,7 +397,7 @@ class Fronius:
             Fronius._system_meter_data, URL_SYSTEM_METER, "current system meter"
         )
 
-    async def current_system_inverter_data(self):
+    async def current_system_inverter_data(self) -> Dict[str, Any]:
         """
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
@@ -392,7 +408,7 @@ class Fronius:
             "current system inverter",
         )
 
-    async def current_system_ohmpilot_data(self):
+    async def current_system_ohmpilot_data(self) -> Dict[str, Any]:
         """
         Get the current ohmpilot data.
         """
@@ -419,7 +435,7 @@ class Fronius:
             Fronius._device_storage_data, URL_DEVICE_STORAGE, "current storage", device
         )
 
-    async def current_system_storage_data(self):
+    async def current_system_storage_data(self) -> Dict[str, Any]:
         """
         Get the current storage data for a device.
         Provides data about batteries.
@@ -439,7 +455,7 @@ class Fronius:
             device,
         )
 
-    async def current_led_data(self):
+    async def current_led_data(self) -> Dict[str, Any]:
         """
         Get the current info led data for all LEDs
         """
@@ -447,7 +463,7 @@ class Fronius:
             Fronius._system_led_data, URL_SYSTEM_LED, "current led"
         )
 
-    async def current_active_device_info(self):
+    async def current_active_device_info(self) -> Dict[str, Any]:
         """
         Get info about the current active devices in a smart meter system.
         """
@@ -457,7 +473,7 @@ class Fronius:
             "current active device info",
         )
 
-    async def current_logger_info(self):
+    async def current_logger_info(self) -> Dict[str, Any]:
         """
         Get the current logger info of a smart meter system.
         """
@@ -465,7 +481,7 @@ class Fronius:
             Fronius._logger_info, URL_LOGGER_INFO, "current logger info"
         )
 
-    async def inverter_info(self):
+    async def inverter_info(self) -> Dict[str, Any]:
         """
         Get the general infos of an inverter.
         """
@@ -474,7 +490,7 @@ class Fronius:
         )
 
     @staticmethod
-    def _system_led_data(data):
+    def _system_led_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system led data: '{}'".format(data))
         sensor = {}
 
@@ -495,7 +511,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_power_flow(data):
+    def _system_power_flow(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system power flow data: '{}'".format(data))
         sensor = {}
 
@@ -555,10 +571,10 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_meter_data(data):
+    def _system_meter_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system meter data: '{}'".format(data))
 
-        sensor = {"meters": {}}
+        sensor: Dict[str, Dict[str, Dict[str, Any]]] = {"meters": {}}
 
         for device_id, device_data in data.items():
             sensor["meters"][device_id] = Fronius._device_meter_data(device_data)
@@ -566,9 +582,9 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_inverter_data(data):
+    def _system_inverter_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system inverter data: '{}'".format(data))
-        sensor = {}
+        sensor: Dict[str, Dict[str, Any]] = {}
 
         sensor["energy_day"] = {"value": 0, "unit": WATT_HOUR}
         sensor["energy_total"] = {"value": 0, "unit": WATT_HOUR}
@@ -614,7 +630,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _device_ohmpilot_data(data):
+    def _device_ohmpilot_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting ohmpilot data from '{}'".format(data))
         device = {}
 
@@ -653,9 +669,9 @@ class Fronius:
         return device
 
     @staticmethod
-    def _system_ohmpilot_data(data):
+    def _system_ohmpilot_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system ohmpilot data: '{}'".format(data))
-        sensor = {"ohmpilots": {}}
+        sensor: Dict[str, Dict[str, Dict[str, Any]]] = {"ohmpilots": {}}
 
         for device_id, device_data in data.items():
             sensor["ohmpilots"][device_id] = Fronius._device_ohmpilot_data(device_data)
@@ -663,7 +679,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _device_meter_data(data):
+    def _device_meter_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting meter data: '{}'".format(data))
 
         meter = {}
@@ -873,7 +889,7 @@ class Fronius:
         return meter
 
     @staticmethod
-    def _device_storage_data(data):
+    def _device_storage_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting storage data from '{}'".format(data))
         sensor = {}
 
@@ -892,10 +908,10 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _system_storage_data(data):
+    def _system_storage_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system storage data: '{}'".format(data))
 
-        sensor = {"storages": {}}
+        sensor: Dict[str, Dict[str, Dict[str, Any]]] = {"storages": {}}
 
         for device_id, device_data in data.items():
             sensor["storages"][device_id] = Fronius._device_storage_data(device_data)
@@ -903,7 +919,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _device_inverter_data(data):
+    def _device_inverter_data(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting inverter data from '{}'".format(data))
         sensor = {}
 
@@ -981,7 +997,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _controller_data(data):
+    def _controller_data(data: Dict[str, Any]) -> Dict[str, Any]:
         controller = {}
 
         if "Capacity_Maximum" in data:
@@ -1028,7 +1044,7 @@ class Fronius:
         return controller
 
     @staticmethod
-    def _module_data(data):
+    def _module_data(data: Dict[str, Any]) -> Dict[str, Any]:
         module = {}
 
         if "Capacity_Maximum" in data:
@@ -1089,7 +1105,7 @@ class Fronius:
         return module
 
     @staticmethod
-    def _system_active_device_info(data: dict):
+    def _system_active_device_info(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting system active device data: '{}'".format(data))
         sensor = {}
 
@@ -1153,7 +1169,7 @@ class Fronius:
         return sensor
 
     @staticmethod
-    def _inverter_info(data):
+    def _inverter_info(data: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         """Parse inverter info."""
         _LOGGER.debug("Converting inverter info: '{}'".format(data))
         inverters = []
@@ -1186,7 +1202,7 @@ class Fronius:
         return {"inverters": inverters}
 
     @staticmethod
-    def _logger_info(data):
+    def _logger_info(data: Dict[str, Any]) -> Dict[str, Any]:
         _LOGGER.debug("Converting Logger info: '{}'".format(data))
         sensor = {}
 
