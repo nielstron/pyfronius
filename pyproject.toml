@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyFronius"
+version = "0.7.6"
+authors = [
+    { name = "Niels Mündler", email = "n.muendler@web.de" },
+    { name = "Matthias Alphart", email = "farmio@alphart.net" },
+    { name = "Gerrit Beine", email = "mail@gerritbeine.de" },
+]
+description = "Client for Fronius SolarAPI JSON interface"
+license = { text = "MIT" }
+keywords = ["Fronius", "SolarAPI", "photovoltaics", "pv"]
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Object Brokering",
+]
+dependencies = ["aiohttp"]
+requires-python = ">=3.8.0"
+
+[project.urls]
+Repository = "https://github.com/nielstron/pyfronius/"
+
+[tool.setuptools.packages.find]
+include = ["pyfronius*"]
