@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyFronius"
-version = "0.7.6"
+version = "0.7.7"
 authors = [
     { name = "Niels Mündler", email = "n.muendler@web.de" },
     { name = "Matthias Alphart", email = "farmio@alphart.net" },
