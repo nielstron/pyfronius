@@ -15,7 +15,6 @@ license = { text = "MIT" }
 keywords = ["Fronius", "SolarAPI", "photovoltaics", "pv"]
 readme = "README.md"
 classifiers = [
-
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

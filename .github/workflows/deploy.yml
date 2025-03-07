@@ -21,12 +21,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build twine
 
-      - name: Configure git
-        run: |
-          git config --local user.name "nielstron"
-          export RELEASE_TAG=release-$(python -c "import build.util; print(build.util.project_wheel_metadata('.').get('Version'))")
-          git tag $RELEASE_TAG || echo "Tag already exists"
-
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
