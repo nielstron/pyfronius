@@ -22,6 +22,7 @@ from tests.web_raw.v1.web_state import (
     GET_METER_REALTIME_DATA_SCOPE_DEVICE,
     GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE,
     GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
+    GET_INVERTER_REALTIME_3P_DATA_SCOPE_DEVICE,
     GET_STORAGE_REALTIME_DATA_SYSTEM,
     GET_METER_REALTIME_DATA_SYSTEM,
     GET_LOGGER_LED_INFO_STATE,
@@ -192,6 +193,10 @@ class FroniusWebTestV1(AsyncTestCaseSetup):
         res = await self.fronius.current_inverter_data()
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE)
 
+    async def test_fronius_get_inverter_realtime_3p_data_device(self):
+        res = await self.fronius.current_inverter_3p_data()
+        self.assertDictEqual(res, GET_INVERTER_REALTIME_3P_DATA_SCOPE_DEVICE)
+
     async def test_fronius_get_inverter_realtime_data_system(self):
         res = await self.fronius.current_system_inverter_data()
         self.assertDictEqual(res, GET_INVERTER_REALTIME_DATA_SYSTEM)
@@ -247,6 +252,7 @@ class FroniusWebTestV1(AsyncTestCaseSetup):
                 GET_METER_REALTIME_DATA_SCOPE_DEVICE,
                 GET_STORAGE_REALTIME_DATA_SCOPE_DEVICE,
                 GET_INVERTER_REALTIME_DATA_SCOPE_DEVICE,
+                GET_INVERTER_REALTIME_3P_DATA_SCOPE_DEVICE,
             ],
         )
 
