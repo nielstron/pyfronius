@@ -463,7 +463,7 @@ class Fronius:
             "current inverter",
             device,
         )
-        
+
     async def current_inverter_3p_data(self, device: str = "1") -> Dict[str, Any]:
         """
         Get the current inverter 3 phase data of one device.
@@ -1015,7 +1015,7 @@ class Fronius:
                 sensor["led_color"] = {"value": data["DeviceStatus"]["LEDColor"]}
 
         return sensor
-        
+
     @staticmethod
     def _device_inverter_3p_data(data):
         _LOGGER.debug("Converting inverter 3p data from '{}'".format(data))
