@@ -390,7 +390,10 @@ class Fronius:
                 )
         return sensor
 
-    async def current_power_flow(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_power_flow(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current power flow of a smart meter system.
         """
@@ -400,7 +403,10 @@ class Fronius:
             "current power flow"
         )
 
-    async def current_system_meter_data(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_system_meter_data(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current meter data.
         """
@@ -410,7 +416,10 @@ class Fronius:
             "current system meter"
         )
 
-    async def current_system_inverter_data(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_system_inverter_data(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
@@ -421,7 +430,10 @@ class Fronius:
             "current system inverter",
         )
 
-    async def current_system_ohmpilot_data(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_system_ohmpilot_data(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current ohmpilot data.
         """
@@ -431,7 +443,11 @@ class Fronius:
             "current system ohmpilot",
         )
 
-    async def current_meter_data(self, device: str = "0", ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_meter_data(
+            self,
+            device: str = "0",
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current meter data for a device.
         """
@@ -441,7 +457,11 @@ class Fronius:
             "current meter", device
         )
 
-    async def current_storage_data(self, device: str = "0", ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_storage_data(
+            self,
+            device: str = "0",
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current storage data for a device.
         Provides data about batteries.
@@ -453,7 +473,10 @@ class Fronius:
             device
         )
 
-    async def current_system_storage_data(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_system_storage_data(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current storage data for a device.
         Provides data about batteries.
@@ -464,7 +487,11 @@ class Fronius:
             "current system storage"
         )
 
-    async def current_inverter_data(self, device: str = "1", ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_inverter_data(
+            self,
+            device: str = "1",
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current inverter data of one device.
         """
@@ -475,7 +502,11 @@ class Fronius:
             device,
         )
 
-    async def current_inverter_3p_data(self, device: str = "1", ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_inverter_3p_data(
+            self,
+            device: str = "1",
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current inverter 3 phase data of one device.
         """
@@ -486,7 +517,10 @@ class Fronius:
             device,
         )
 
-    async def current_led_data(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_led_data(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current info led data for all LEDs
         """
@@ -496,7 +530,10 @@ class Fronius:
             "current led"
         )
 
-    async def current_active_device_info(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_active_device_info(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get info about the current active devices in a smart meter system.
         """
@@ -506,7 +543,10 @@ class Fronius:
             "current active device info",
         )
 
-    async def current_logger_info(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def current_logger_info(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the current logger info of a smart meter system.
         """
@@ -516,7 +556,10 @@ class Fronius:
             "current logger info"
         )
 
-    async def inverter_info(self, ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def inverter_info(
+            self,
+            ext_cb_conversion: Callable[[Dict[str, Any]], Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Get the general infos of an inverter.
         """
