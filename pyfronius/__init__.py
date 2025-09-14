@@ -397,11 +397,10 @@ class Fronius:
         """
         Get the current power flow of a smart meter system.
         """
-        return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_power_flow,
-            URL_POWER_FLOW,
-            "current power flow"
-        )
+        cb = Fronius._system_power_flow
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
+        return await self._current_data(cb, URL_POWER_FLOW, "current power flow")
 
     async def current_system_meter_data(
             self,
@@ -410,11 +409,10 @@ class Fronius:
         """
         Get the current meter data.
         """
-        return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_meter_data,
-            URL_SYSTEM_METER,
-            "current system meter"
-        )
+        cb = Fronius._system_meter_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
+        return await self._current_data(cb, URL_SYSTEM_METER, "current system meter")
 
     async def current_system_inverter_data(
             self,
@@ -424,11 +422,11 @@ class Fronius:
         Get the current inverter data.
         The values are provided as cumulated values and for each inverter
         """
+        cb = Fronius._system_inverter_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_inverter_data,
-            URL_SYSTEM_INVERTER,
-            "current system inverter",
-        )
+            cb, URL_SYSTEM_INVERTER, "current system inverter")
 
     async def current_system_ohmpilot_data(
             self,
@@ -437,11 +435,11 @@ class Fronius:
         """
         Get the current ohmpilot data.
         """
+        cb = Fronius._system_ohmpilot_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_ohmpilot_data,
-            URL_SYSTEM_OHMPILOT,
-            "current system ohmpilot",
-        )
+            cb, URL_SYSTEM_OHMPILOT, "current system ohmpilot")
 
     async def current_meter_data(
             self,
@@ -451,11 +449,10 @@ class Fronius:
         """
         Get the current meter data for a device.
         """
-        return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._device_meter_data,
-            URL_DEVICE_METER,
-            "current meter", device
-        )
+        cb = Fronius._device_meter_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
+        return await self._current_data(cb, URL_DEVICE_METER, "current meter", device)
 
     async def current_storage_data(
             self,
@@ -466,12 +463,11 @@ class Fronius:
         Get the current storage data for a device.
         Provides data about batteries.
         """
+        cb = Fronius._device_storage_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._device_storage_data,
-            URL_DEVICE_STORAGE,
-            "current storage",
-            device
-        )
+            cb, URL_DEVICE_STORAGE, "current storage", device)
 
     async def current_system_storage_data(
             self,
@@ -481,11 +477,11 @@ class Fronius:
         Get the current storage data for a device.
         Provides data about batteries.
         """
+        cb = Fronius._system_storage_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_storage_data,
-            URL_SYSTEM_STORAGE,
-            "current system storage"
-        )
+            cb, URL_SYSTEM_STORAGE, "current system storage")
 
     async def current_inverter_data(
             self,
@@ -495,12 +491,11 @@ class Fronius:
         """
         Get the current inverter data of one device.
         """
+        cb = Fronius._device_inverter_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._device_inverter_data,
-            URL_DEVICE_INVERTER_COMMON,
-            "current inverter",
-            device,
-        )
+            cb, URL_DEVICE_INVERTER_COMMON, "current inverter", device)
 
     async def current_inverter_3p_data(
             self,
@@ -510,12 +505,11 @@ class Fronius:
         """
         Get the current inverter 3 phase data of one device.
         """
+        cb = Fronius._device_inverter_3p_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._device_inverter_3p_data,
-            URL_DEVICE_INVERTER_3P,
-            "current inverter 3p",
-            device,
-        )
+            cb, URL_DEVICE_INVERTER_3P, "current inverter 3p", device)
 
     async def current_led_data(
             self,
@@ -524,11 +518,10 @@ class Fronius:
         """
         Get the current info led data for all LEDs
         """
-        return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_led_data,
-            URL_SYSTEM_LED,
-            "current led"
-        )
+        cb = Fronius._system_led_data
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
+        return await self._current_data(cb, URL_SYSTEM_LED, "current led")
 
     async def current_active_device_info(
             self,
@@ -537,11 +530,11 @@ class Fronius:
         """
         Get info about the current active devices in a smart meter system.
         """
+        cb = Fronius._system_active_device_info
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
         return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._system_active_device_info,
-            URL_ACTIVE_DEVICE_INFO_SYSTEM,
-            "current active device info",
-        )
+            cb, URL_ACTIVE_DEVICE_INFO_SYSTEM, "current active device info")
 
     async def current_logger_info(
             self,
@@ -550,11 +543,10 @@ class Fronius:
         """
         Get the current logger info of a smart meter system.
         """
-        return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._logger_info,
-            URL_LOGGER_INFO,
-            "current logger info"
-        )
+        cb = Fronius._logger_info
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
+        return await self._current_data(cb, URL_LOGGER_INFO, "current logger info")
 
     async def inverter_info(
             self,
@@ -563,11 +555,10 @@ class Fronius:
         """
         Get the general infos of an inverter.
         """
-        return await self._current_data(
-            ext_cb_conversion if ext_cb_conversion is not None else Fronius._inverter_info,
-            URL_INVERTER_INFO,
-            "inverter info"
-        )
+        cb = Fronius._inverter_info
+        if ext_cb_conversion is not None:
+            cb = ext_cb_conversion
+        return await self._current_data(cb, URL_INVERTER_INFO, "inverter info")
 
     @staticmethod
     def _system_led_data(data: Dict[str, Any]) -> Dict[str, Any]:
