@@ -4,6 +4,17 @@ from typing import Final
 
 INVERTER_DEVICE_TYPE: Final = {
     1: {"manufacturer": "Fronius", "model": "Gen24"},
+    42: {"manufacturer": "Fronius", "model": "Symo Advanced 10.0-3-M"},
+    43: {"manufacturer": "Fronius", "model": "Symo Advanced 20.0-3-M"},
+    44: {"manufacturer": "Fronius", "model": "Symo Advanced 17.5-3-M"},
+    45: {"manufacturer": "Fronius", "model": "Symo Advanced 15.0-3-M"},
+    46: {"manufacturer": "Fronius", "model": "Symo Advanced 12.5-3-M"},
+    47: {"manufacturer": "Fronius", "model": "Symo Advanced 24.0-3 480"},
+    48: {"manufacturer": "Fronius", "model": "Symo Advanced 22.7-3 480"},
+    49: {"manufacturer": "Fronius", "model": "Symo Advanced 20.0-3 480"},
+    50: {"manufacturer": "Fronius", "model": "Symo Advanced 15.0-3 480"},
+    51: {"manufacturer": "Fronius", "model": "Symo Advanced 12.0-3 208-240"},
+    52: {"manufacturer": "Fronius", "model": "Symo Advanced 10.0-3 208-240"},
     67: {"manufacturer": "Fronius", "model": "Primo 15.0-1 208-240"},
     68: {"manufacturer": "Fronius", "model": "Primo 12.5-1 208-240"},
     69: {"manufacturer": "Fronius", "model": "Primo 11.4-1 208-240"},
