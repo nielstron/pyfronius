@@ -4,7 +4,7 @@
 # general requirements
 import unittest
 
-from tests.util import AsyncTestCaseSetup, _get_unused_port
+from .util import AsyncTestCaseSetup, _get_unused_port, ADDRESS
 from .test_structure.server_control import Server
 from .test_structure.fronius_mock_server import FroniusRequestHandler, FroniusServer
 from http.server import SimpleHTTPRequestHandler
@@ -22,15 +22,13 @@ from tests.web_raw.v0.web_state import (
     GET_INVERTER_INFO,
 )
 
-ADDRESS = "localhost"
-
 
 class NoFroniusWebTest(AsyncTestCaseSetup):
     server = None
     api_version = pyfronius.API_VERSION.V0
     server_control = None
     port = 0
-    url = "http://localhost:80"
+    url = f"http://{ADDRESS}:80"
     session = None
     fronius = None
 

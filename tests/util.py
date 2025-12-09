@@ -5,7 +5,7 @@ import socket
 import aiounittest
 from aiounittest import async_test
 
-from tests.test_web_v0 import ADDRESS
+ADDRESS = "localhost"
 
 
 class AsyncTestCaseSetup(aiounittest.AsyncTestCase):
