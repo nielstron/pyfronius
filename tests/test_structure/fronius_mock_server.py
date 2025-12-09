@@ -39,6 +39,9 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         """
         # abandon query parameters
         # path = path.split('?',1)[0] -> Keep them for fronius as name of file
+        # Convert URL query parameters to Windows-safe filename format:
+        # Replace ? with ___ and & with __ for filesystem compatibility
+        path = path.replace("?", "___").replace("&", "__")
         path = path.split("#", 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
         trailing_slash = path.rstrip().endswith("/")
