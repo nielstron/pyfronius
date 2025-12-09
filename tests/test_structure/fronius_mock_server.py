@@ -52,8 +52,7 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         if "?" in path:
             base, query = path.split("?", 1)
             # URL encode the query string, keeping = safe for readability
-            encoded_query = urllib.parse.quote(query, safe='=')
-            path = f"{base}___{encoded_query}"
+            path = f"{base}___{query}"
         path = posixpath.normpath(path)
         words = path.split("/")
         words = filter(None, words)

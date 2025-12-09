@@ -35,3 +35,8 @@ Repository = "https://github.com/nielstron/pyfronius/"
 
 [tool.setuptools.packages.find]
 include = ["pyfronius*"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=3.5.0",
+]
