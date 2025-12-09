@@ -1,7 +1,11 @@
 import asyncio
+import contextlib
+import socket
 
 import aiounittest
 from aiounittest import async_test
+
+ADDRESS = "localhost"
 
 
 class AsyncTestCaseSetup(aiounittest.AsyncTestCase):
@@ -24,3 +28,10 @@ class AsyncTestCaseSetup(aiounittest.AsyncTestCase):
             return res
         else:
             return attr
+
+
+def _get_unused_port() -> int:
+    """Return an unused localhost port for negative connection tests."""
+    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        sock.bind((ADDRESS, 0))
+        return sock.getsockname()[1]

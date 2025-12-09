@@ -35,3 +35,21 @@ Repository = "https://github.com/nielstron/pyfronius/"
 
 [tool.setuptools.packages.find]
 include = ["pyfronius*"]
+
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+pyfronius = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "aiounittest>=1.5.0",
+    "coverage>=7.6.1",
+    "pre-commit>=3.5.0",
+    "pyfronius",
+    "pytest>=8.3.5",
+    "tox>=4.25.0",
+]
