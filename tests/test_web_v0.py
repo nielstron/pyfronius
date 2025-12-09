@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # general requirements
+import contextlib
+import socket
 import unittest
 
 from tests.util import AsyncTestCaseSetup
@@ -25,6 +27,13 @@ from tests.web_raw.v0.web_state import (
 ADDRESS = "localhost"
 
 
+def _get_unused_port() -> int:
+    """Return an unused localhost port for negative connection tests."""
+    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        sock.bind((ADDRESS, 0))
+        return sock.getsockname()[1]
+
+
 class NoFroniusWebTest(AsyncTestCaseSetup):
     server = None
     api_version = pyfronius.API_VERSION.V0
@@ -33,6 +42,11 @@ class NoFroniusWebTest(AsyncTestCaseSetup):
     url = "http://localhost:80"
     session = None
     fronius = None
+
+    async def setUp(self):
+        # Pick an unused port to ensure the connection attempt fails deterministically
+        self.port = _get_unused_port()
+        self.url = "http://{}:{}".format(ADDRESS, self.port)
 
     async def test_no_server(self):
         # set up a fronius client and aiohttp session
