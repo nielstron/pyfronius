@@ -39,16 +39,21 @@ class FroniusRequestHandler(SimpleHTTPRequestHandler):
         """
         # abandon query parameters
         # path = path.split('?',1)[0] -> Keep them for fronius as name of file
-        # Convert URL query parameters to Windows-safe filename format:
-        # Replace ? with ___ and & with __ for filesystem compatibility
-        path = path.replace("?", "___").replace("&", "__")
         path = path.split("#", 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
         trailing_slash = path.rstrip().endswith("/")
+        # Unquote first (standard behavior)
         try:
             path = urllib.parse.unquote(path, errors="surrogatepass")
         except UnicodeDecodeError:
             path = urllib.parse.unquote(path)
+        # After unquoting, convert URL query parameters to Windows-safe filename format:
+        # Split at ? and URL-encode the query string portion
+        if "?" in path:
+            base, query = path.split("?", 1)
+            # URL encode the query string, keeping = safe for readability
+            encoded_query = urllib.parse.quote(query, safe='=')
+            path = f"{base}___{encoded_query}"
         path = posixpath.normpath(path)
         words = path.split("/")
         words = filter(None, words)
