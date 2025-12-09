@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # general requirements
-import contextlib
-import socket
 import unittest
 
-from tests.util import AsyncTestCaseSetup
+from tests.util import AsyncTestCaseSetup, _get_unused_port
 from .test_structure.server_control import Server
 from .test_structure.fronius_mock_server import FroniusRequestHandler, FroniusServer
 from http.server import SimpleHTTPRequestHandler
@@ -25,13 +23,6 @@ from tests.web_raw.v0.web_state import (
 )
 
 ADDRESS = "localhost"
-
-
-def _get_unused_port() -> int:
-    """Return an unused localhost port for negative connection tests."""
-    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-        sock.bind((ADDRESS, 0))
-        return sock.getsockname()[1]
 
 
 class NoFroniusWebTest(AsyncTestCaseSetup):
