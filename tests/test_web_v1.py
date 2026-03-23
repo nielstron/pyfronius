@@ -42,7 +42,7 @@ class NoFroniusWebTest(AsyncTestCaseSetup):
     session = None
     fronius = None
 
-    async def setUp(self):
+    async def asyncSetUp(self):
         # Pick an unused port to ensure the connection attempt fails deterministically
         self.port = _get_unused_port()
         self.url = "http://{}:{}".format(ADDRESS, self.port)
@@ -104,7 +104,7 @@ class FroniusWebDetectVersionV1(AsyncTestCaseSetup):
     session = None
     fronius = None
 
-    async def setUp(self):
+    async def asyncSetUp(self):
         # Create an arbitrary subclass of TCP Server as the server to be
         # started
         # Here, it is an Simple HTTP file serving server
@@ -150,7 +150,7 @@ class FroniusWebTestV1(AsyncTestCaseSetup):
     session = None
     fronius = None
 
-    async def setUp(self):
+    async def asyncSetUp(self):
         # Create an arbitrary subclass of TCP Server as the server to be
         # started
         # Here, it is an Simple HTTP file serving server
@@ -259,7 +259,7 @@ class FroniusWebTestV1(AsyncTestCaseSetup):
             ],
         )
 
-    async def tearDown(self):
+    async def asyncTearDown(self):
         await self.session.close()
         self.server_control.stop_server()
         pass

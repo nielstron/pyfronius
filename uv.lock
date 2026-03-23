@@ -315,17 +315,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/76/641ae371508676492379f16e2fa48f4e2c11741bd63c48be4b12a6b09cba/aiosignal-1.4.0-py3-none-any.whl", hash = "sha256:053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e", size = 7490, upload-time = "2025-07-03T22:54:42.156Z" },
 ]
 
-[[package]]
-name = "aiounittest"
-version = "1.5.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "wrapt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6f/90/f0d1ef74a0c022ac64b42d8a278c8f9cbdf2d5049a8f1e7707f4c5f80358/aiounittest-1.5.0.tar.gz", hash = "sha256:3c20ab00909419749061a4cb1a2755f034d10c1f6455adb1f03d7c16dedce711", size = 7396, upload-time = "2025-03-07T07:33:58.648Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/b6/5a02761969f8bf2c8263ce413c6253cb51a7224559c45608fa8f83e00f3a/aiounittest-1.5.0-py3-none-any.whl", hash = "sha256:30e709730e010c7daa1a0e3ce7398beebd2977d4dbf0a2875b8ed55830ab9d34", size = 7027, upload-time = "2025-03-07T07:33:57.381Z" },
-]
 
 [[package]]
 name = "async-timeout"
@@ -1740,7 +1729,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "aiounittest" },
     { name = "coverage", version = "7.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "coverage", version = "7.10.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
     { name = "coverage", version = "7.13.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
@@ -1761,7 +1749,6 @@ requires-dist = [{ name = "aiohttp" }]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "aiounittest", specifier = ">=1.5.0" },
     { name = "coverage", specifier = ">=7.6.1" },
     { name = "pre-commit", specifier = ">=3.5.0" },
     { name = "pyfronius", editable = "." },
