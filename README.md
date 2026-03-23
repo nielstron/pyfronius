@@ -28,6 +28,16 @@ The package supports the following data provided by Fronius devices:
 The package currently supportes the Fronius API V1 and V0
 and aims to support as many different device types as possible (Hybrid, GEN24,...).
 
+## Development
+
+This project relies on [uv](https://github.com/astral-sh/uv) for dependency management. Make sure you have uv installed, then set up a local development environment with:
+
+```bash
+uv sync --dev
+```
+
+This creates a `.venv` that contains both the runtime and development dependencies defined in `pyproject.toml`. Activate the environment (`source .venv/bin/activate`) and run project commands via `uv run …`, for example `uv run pytest` to execute the test suite.
+
 ## Contributing
 
 Support may be enhanced based on the official documentation ([V1](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42%2C0410%2C2012.pdf), [V0](https://www.fronius.com/~/downloads/Solar%20Energy/Operating%20Instructions/42,0410,2011.pdf)).
