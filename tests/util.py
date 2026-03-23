@@ -1,33 +1,16 @@
-import asyncio
 import contextlib
 import socket
-
-import aiounittest
-from aiounittest import async_test
+import unittest
 
 ADDRESS = "localhost"
 
 
-class AsyncTestCaseSetup(aiounittest.AsyncTestCase):
-    async def setUp(self):
+class AsyncTestCaseSetup(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
         pass
 
-    async def tearDown(self):
+    async def asyncTearDown(self):
         pass
-
-    def __getattribute__(self, name):
-        attr = object.__getattribute__(self, name)
-        if name.startswith("test_") and asyncio.iscoroutinefunction(attr):
-
-            async def wrapped_attr():
-                await self.setUp()
-                await attr()
-                await self.tearDown()
-
-            res = async_test(wrapped_attr, loop=self.get_event_loop())
-            return res
-        else:
-            return attr
 
 
 def _get_unused_port() -> int:
